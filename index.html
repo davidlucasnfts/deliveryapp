@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cardápio Digital</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--or:#F97316;--or2:#FB923C;--bg:#fff;--bg2:#FFF7ED;--bg3:#FEF3C7;--txt:#1C1917;--txt2:#78716C;--txt3:#A8A29E;--green:#22C55E;}
+    body{font-family:'Poppins',sans-serif;background:#fff;max-width:480px;margin:0 auto;min-height:100vh;position:relative;}
+
+    /* LOADING */
+    .loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;}
+    .loading-icon{font-size:3rem;animation:pulse 1s ease-in-out infinite;}
+    .loading-txt{font-size:0.85rem;color:var(--txt2);margin-top:0.75rem;}
+    @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+
+    /* LOJA INATIVA */
+    .inativa{text-align:center;padding:4rem 2rem;}
+    .inativa-icon{font-size:3rem;margin-bottom:1rem;}
+    .inativa-txt{font-size:1rem;font-weight:700;color:var(--txt);margin-bottom:0.5rem;}
+    .inativa-sub{font-size:0.82rem;color:var(--txt2);}
+
+    /* HERO */
+    .hero{background:var(--bg2);position:relative;}
+    .hero-banner{width:100%;height:150px;object-fit:cover;display:block;background:linear-gradient(135deg,#FEF3C7,#FED7AA);}
+    .hero-banner-placeholder{width:100%;height:150px;background:linear-gradient(135deg,#FEF3C7,#FED7AA);display:flex;align-items:center;justify-content:center;font-size:4rem;}
+    .hero-info{padding:0.9rem 1.1rem 0.75rem;}
+    .store-name{font-size:1.2rem;font-weight:800;color:var(--txt);}
+    .store-desc{font-size:0.78rem;color:var(--txt2);margin-top:0.15rem;}
+    .store-meta{display:flex;gap:0.5rem;margin-top:0.6rem;flex-wrap:wrap;}
+    .mbadge{background:var(--bg3);border-radius:20px;padding:0.25rem 0.7rem;font-size:0.7rem;font-weight:600;color:#92400E;display:flex;align-items:center;gap:0.3rem;}
+    .dot-green{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;}
+    .dot-red{width:6px;height:6px;border-radius:50%;background:#EF4444;flex-shrink:0;}
+
+    /* CATEGORIAS */
+    .cats{display:flex;gap:0.5rem;padding:0.7rem 1rem;overflow-x:auto;border-bottom:1px solid #F5F5F4;scrollbar-width:none;background:#fff;}
+    .cats::-webkit-scrollbar{display:none;}
+    .cat-btn{flex-shrink:0;padding:0.35rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;border:1.5px solid #E7E5E4;color:var(--txt2);background:#fff;font-family:'Poppins',sans-serif;transition:all 0.15s;}
+    .cat-btn.active{background:var(--or);color:#fff;border-color:var(--or);}
+
+    /* MENU */
+    .menu-body{padding:0 1rem 6rem;}
+    .sec-hd{font-size:0.75rem;font-weight:700;color:var(--or);letter-spacing:1.5px;text-transform:uppercase;padding:1rem 0 0.5rem;display:flex;align-items:center;gap:0.5rem;}
+    .sec-hd::after{content:'';flex:1;height:1.5px;background:linear-gradient(to right,#FED7AA,transparent);}
+    .item-card{display:flex;gap:0.75rem;background:#fff;border-radius:12px;border:1px solid #F5F5F4;padding:0.65rem;margin-bottom:0.55rem;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:box-shadow 0.15s;}
+    .item-card:active{box-shadow:0 2px 10px rgba(249,115,22,0.15);}
+    .item-card.indisponivel{opacity:0.45;cursor:not-allowed;}
+    .thumb{width:72px;height:72px;border-radius:10px;background:linear-gradient(135deg,#FEF3C7,#FED7AA);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.9rem;overflow:hidden;}
+    .thumb img{width:100%;height:100%;object-fit:cover;border-radius:10px;}
+    .iinfo{flex:1;min-width:0;}
+    .iname{font-size:0.88rem;font-weight:700;color:var(--txt);margin-bottom:0.15rem;}
+    .idesc{font-size:0.73rem;color:var(--txt2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .ifoot{display:flex;align-items:center;justify-content:space-between;margin-top:0.4rem;}
+    .iprice{font-size:0.95rem;font-weight:700;color:var(--or);}
+    .iadd{width:28px;height:28px;border-radius:50%;background:var(--or);border:none;color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;transition:background 0.15s;}
+    .iadd:active{background:var(--or2);}
+    .tag-indisponivel{font-size:0.65rem;background:#F3F4F6;color:#9CA3AF;border-radius:10px;padding:0.1rem 0.45rem;font-weight:600;}
+
+    /* ITEM MODAL */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(28,25,23,0.6);z-index:50;align-items:flex-end;}
+    .overlay.open{display:flex;}
+    .modal-box{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;margin:0 auto;overflow:hidden;}
+    .im-img{width:100%;height:140px;background:linear-gradient(135deg,#FEF3C7,#FED7AA);display:flex;align-items:center;justify-content:center;font-size:3.5rem;overflow:hidden;position:relative;}
+    .im-img img{width:100%;height:100%;object-fit:cover;}
+    .im-close{position:absolute;top:0.5rem;right:0.7rem;background:rgba(255,255,255,0.9);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;}
+    .im-body{padding:1rem 1.1rem 1.4rem;}
+    .im-name{font-size:1.05rem;font-weight:700;color:var(--txt);margin-bottom:0.2rem;}
+    .im-desc{font-size:0.8rem;color:var(--txt2);margin-bottom:0.75rem;line-height:1.5;}
+    .im-row{display:flex;align-items:center;justify-content:space-between;}
+    .im-price{font-size:1.2rem;font-weight:800;color:var(--or);}
+    .qrow{display:flex;align-items:center;gap:0.65rem;}
+    .qbtn{width:32px;height:32px;border-radius:50%;border:2px solid var(--or);background:#fff;color:var(--or);font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .qnum{font-size:1rem;font-weight:700;min-width:18px;text-align:center;color:var(--txt);}
+    .im-add{width:100%;background:var(--or);color:#fff;border:none;border-radius:12px;padding:0.75rem;font-size:0.9rem;font-weight:700;cursor:pointer;margin-top:0.85rem;font-family:'Poppins',sans-serif;}
+
+    /* CARRINHO */
+    .cart-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--or);padding:0.85rem 1.1rem;display:none;align-items:center;justify-content:space-between;z-index:40;}
+    .cart-bar.show{display:flex;}
+    .cb-left{color:#fff;}
+    .cb-cnt{font-size:0.72rem;opacity:0.85;}
+    .cb-tot{font-size:0.98rem;font-weight:700;}
+    .cb-btn{background:#fff;color:var(--or);border:none;border-radius:20px;padding:0.4rem 1rem;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+
+    /* TELA CARRINHO */
+    .cart-screen{display:none;position:fixed;inset:0;background:#fff;z-index:60;flex-direction:column;max-width:480px;margin:0 auto;}
+    .cart-screen.open{display:flex;}
+    .cs-header{background:var(--bg2);padding:1rem 1.1rem;display:flex;align-items:center;gap:0.75rem;border-bottom:1px solid #FED7AA;flex-shrink:0;}
+    .cs-back{background:none;border:none;font-size:1.3rem;color:var(--or);cursor:pointer;}
+    .cs-title{font-size:1rem;font-weight:700;color:var(--txt);}
+    .cs-body{flex:1;overflow-y:auto;}
+    .cs-item{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.1rem;border-bottom:1px solid #F9FAFB;}
+    .csi-left{display:flex;align-items:center;gap:0.6rem;}
+    .csi-icon{width:36px;height:36px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1rem;overflow:hidden;flex-shrink:0;}
+    .csi-icon img{width:100%;height:100%;object-fit:cover;border-radius:8px;}
+    .csi-name{font-size:0.85rem;font-weight:600;color:var(--txt);}
+    .csi-qty{font-size:0.75rem;color:var(--txt3);}
+    .csi-price{font-size:0.9rem;font-weight:700;color:var(--or);}
+    .cs-total{padding:1rem 1.1rem;display:flex;justify-content:space-between;font-weight:700;font-size:1rem;border-top:2px solid #FED7AA;color:var(--txt);flex-shrink:0;}
+    .cs-form{padding:0.75rem 1.1rem 1.5rem;flex-shrink:0;}
+    .cs-label{font-size:0.75rem;font-weight:600;color:var(--txt2);margin-bottom:0.25rem;display:block;}
+    .cs-input{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.85rem;color:var(--txt);margin-bottom:0.7rem;}
+    .cs-input:focus{outline:none;border-color:var(--or);}
+    .cs-textarea{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.85rem;color:var(--txt);height:65px;resize:none;margin-bottom:0.7rem;}
+    .cs-textarea:focus{outline:none;border-color:var(--or);}
+    .cs-send{width:100%;background:var(--or);color:#fff;border:none;border-radius:12px;padding:0.8rem;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .cs-send:disabled{background:#FED7AA;cursor:not-allowed;}
+    .cs-success{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;}
+    .cs-success-icon{font-size:3.5rem;margin-bottom:1rem;}
+    .cs-success-title{font-size:1.1rem;font-weight:700;color:var(--txt);margin-bottom:0.5rem;}
+    .cs-success-sub{font-size:0.82rem;color:var(--txt2);line-height:1.6;}
+    .cs-novo-btn{margin-top:1.5rem;background:var(--or);color:#fff;border:none;border-radius:10px;padding:0.65rem 1.5rem;font-family:'Poppins',sans-serif;font-weight:700;cursor:pointer;font-size:0.88rem;}
+  </style>
+</head>
+<body>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    <div class="loading-icon">🍕</div>
+    <div class="loading-txt">Carregando cardápio...</div>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div id="app" style="display:none;">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div id="heroBanner" class="hero-banner-placeholder">🍕</div>
+      <div class="hero-info">
+        <div class="store-name" id="storeName">Carregando...</div>
+        <div class="store-desc" id="storeDesc"></div>
+        <div class="store-meta" id="storeMeta"></div>
+      </div>
+    </div>
+
+    <!-- CATEGORIAS -->
+    <div class="cats" id="catsBar"></div>
+
+    <!-- MENU -->
+    <div class="menu-body" id="menuBody"></div>
+
+    <!-- BARRA DO CARRINHO -->
+    <div class="cart-bar" id="cartBar">
+      <div class="cb-left">
+        <div class="cb-cnt" id="cbCnt">0 itens</div>
+        <div class="cb-tot" id="cbTot">R$0,00</div>
+      </div>
+      <button class="cb-btn" onclick="abrirCarrinho()">Ver carrinho →</button>
+    </div>
+
+  </div>
+
+  <!-- ITEM MODAL -->
+  <div class="overlay" id="itemOverlay">
+    <div class="modal-box">
+      <div class="im-img" id="imImg">
+        <span id="imIcon"></span>
+        <img id="imImgEl" alt="" style="display:none;">
+        <button class="im-close" onclick="fecharItem()">×</button>
+      </div>
+      <div class="im-body">
+        <div class="im-name" id="imName"></div>
+        <div class="im-desc" id="imDesc"></div>
+        <div class="im-row">
+          <span class="im-price" id="imPrice"></span>
+          <div class="qrow">
+            <button class="qbtn" onclick="chQty(-1)">−</button>
+            <span class="qnum" id="qtyNum">1</span>
+            <button class="qbtn" onclick="chQty(1)">+</button>
+          </div>
+        </div>
+        <button class="im-add" onclick="addCarrinho()">Adicionar ao pedido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TELA CARRINHO -->
+  <div class="cart-screen" id="cartScreen">
+    <div class="cs-header">
+      <button class="cs-back" onclick="fecharCarrinho()">←</button>
+      <span class="cs-title">Meu pedido</span>
+    </div>
+    <div class="cs-body" id="csBody"></div>
+    <div class="cs-total"><span>Total</span><span id="csTotalVal">R$0,00</span></div>
+    <div class="cs-form">
+      <label class="cs-label">Seu nome</label>
+      <input class="cs-input" id="cliNome" placeholder="Ex: João Silva">
+      <label class="cs-label">Telefone (WhatsApp)</label>
+      <input class="cs-input" id="cliTel" placeholder="(99) 99999-9999" type="tel">
+      <label class="cs-label">Endereço de entrega</label>
+      <input class="cs-input" id="cliEnd" placeholder="Rua, número, bairro">
+      <label class="cs-label">Observações (opcional)</label>
+      <textarea class="cs-textarea" id="cliObs" placeholder="Ex: sem cebola, troco para R$50..."></textarea>
+      <button class="cs-send" id="btnEnviar" onclick="enviarPedido()">Confirmar pedido</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase } from './js/supabase.js'
+    import { getLoja, getCategorias, getProdutos } from './js/cardapio.js'
+    import { criarPedido } from './js/pedidos.js'
+
+    // Pega o ID da loja da URL: index.html?loja=UUID
+    const params  = new URLSearchParams(window.location.search)
+    const lojaId  = params.get('loja')
+
+    let loja       = null
+    let produtos   = []
+    let categorias = []
+    let cart       = []
+    let itemAtual  = null
+    let qty        = 1
+    let catAtual   = 'todos'
+
+    function fmt(v) { return 'R$' + Number(v).toFixed(2).replace('.', ',') }
+
+    async function init() {
+      if (!lojaId) {
+        document.getElementById('loading').innerHTML =
+          '<div class="inativa"><div class="inativa-icon">🔗</div><div class="inativa-txt">Link inválido</div><div class="inativa-sub">Solicite o link correto ao estabelecimento.</div></div>'
+        return
+      }
+
+      try {
+        loja       = await getLoja(lojaId)
+        categorias = await getCategorias(lojaId)
+        produtos   = await getProdutos(lojaId)
+
+        if (!loja || !loja.ativa) {
+          document.getElementById('loading').innerHTML =
+            '<div class="inativa"><div class="inativa-icon">🔒</div><div class="inativa-txt">Loja indisponível</div><div class="inativa-sub">Este estabelecimento está temporariamente fora do ar.</div></div>'
+          return
+        }
+
+        renderHero()
+        renderCats()
+        renderMenu()
+
+        document.getElementById('loading').style.display = 'none'
+        document.getElementById('app').style.display = 'block'
+        document.title = loja.nome + ' — Cardápio'
+
+      } catch(e) {
+        console.error(e)
+        document.getElementById('loading').innerHTML =
+          '<div class="inativa"><div class="inativa-icon">⚠️</div><div class="inativa-txt">Erro ao carregar</div><div class="inativa-sub">Tente recarregar a página.</div></div>'
+      }
+    }
+
+    function renderHero() {
+      document.getElementById('storeName').textContent = loja.nome
+      document.getElementById('storeDesc').textContent = loja.descricao || ''
+
+      if (loja.banner_url) {
+        const banner = document.getElementById('heroBanner')
+        banner.outerHTML = `<img class="hero-banner" src="${loja.banner_url}" alt="${loja.nome}">`
+      }
+
+      const aberta = loja.aberta
+      document.getElementById('storeMeta').innerHTML = `
+        <div class="mbadge"><span class="${aberta ? 'dot-green' : 'dot-red'}"></span>${aberta ? 'Aberto' : 'Fechado'}</div>
+        ${loja.tempo_entrega ? `<div class="mbadge">🕐 ${loja.tempo_entrega}</div>` : ''}
+        ${loja.cidade ? `<div class="mbadge">📍 ${loja.cidade}</div>` : ''}
+      `
+    }
+
+    function renderCats() {
+      let html = `<button class="cat-btn active" onclick="filtrar('todos',this)">Todos</button>`
+      categorias.forEach(c => {
+        html += `<button class="cat-btn" onclick="filtrar('${c.id}',this)">${c.nome}</button>`
+      })
+      document.getElementById('catsBar').innerHTML = html
+    }
+
+    function renderMenu() {
+      const cats = catAtual === 'todos' ? categorias : categorias.filter(c => c.id === catAtual)
+      let html = ''
+      cats.forEach(cat => {
+        const itens = produtos.filter(p => p.categoria_id === cat.id)
+        if (!itens.length) return
+        html += `<div class="sec-hd">${cat.nome}</div>`
+        itens.forEach(p => {
+          const indisponivel = !p.disponivel
+          html += `
+            <div class="item-card${indisponivel ? ' indisponivel' : ''}" onclick="${indisponivel ? '' : `abrirItem('${p.id}')`}">
+              <div class="thumb">
+                ${p.foto_url ? `<img src="${p.foto_url}" alt="${p.nome}">` : '🍽️'}
+              </div>
+              <div class="iinfo">
+                <div class="iname">${p.nome}</div>
+                <div class="idesc">${p.descricao || ''}</div>
+                <div class="ifoot">
+                  <span class="iprice">${fmt(p.preco)}</span>
+                  ${indisponivel
+                    ? '<span class="tag-indisponivel">Indisponível</span>'
+                    : `<button class="iadd" onclick="event.stopPropagation();quickAdd('${p.id}')">+</button>`}
+                </div>
+              </div>
+            </div>`
+        })
+      })
+      if (!html) html = '<div style="text-align:center;padding:3rem;color:#A8A29E;font-size:0.85rem;">Nenhum item nesta categoria</div>'
+      document.getElementById('menuBody').innerHTML = html
+    }
+
+    window.filtrar = function(catId, el) {
+      catAtual = catId
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'))
+      el.classList.add('active')
+      renderMenu()
+    }
+
+    window.abrirItem = function(id) {
+      itemAtual = produtos.find(p => p.id === id)
+      qty = 1
+      document.getElementById('imName').textContent  = itemAtual.nome
+      document.getElementById('imDesc').textContent  = itemAtual.descricao || ''
+      document.getElementById('imPrice').textContent = fmt(itemAtual.preco)
+      document.getElementById('qtyNum').textContent  = 1
+      const imgEl = document.getElementById('imImgEl')
+      const icon  = document.getElementById('imIcon')
+      if (itemAtual.foto_url) {
+        imgEl.src = itemAtual.foto_url
+        imgEl.style.display = 'block'
+        icon.style.display  = 'none'
+      } else {
+        imgEl.style.display = 'none'
+        icon.textContent    = '🍽️'
+        icon.style.display  = ''
+      }
+      document.getElementById('itemOverlay').classList.add('open')
+    }
+
+    window.fecharItem = function() {
+      document.getElementById('itemOverlay').classList.remove('open')
+    }
+
+    window.chQty = function(d) {
+      qty = Math.max(1, qty + d)
+      document.getElementById('qtyNum').textContent = qty
+    }
+
+    window.quickAdd = function(id) {
+      const p  = produtos.find(x => x.id === id)
+      const ex = cart.find(c => c.id === id)
+      if (ex) ex.qty++
+      else cart.push({ ...p, qty: 1 })
+      atualizarCartBar()
+    }
+
+    window.addCarrinho = function() {
+      if (!itemAtual) return
+      const ex = cart.find(c => c.id === itemAtual.id)
+      if (ex) ex.qty += qty
+      else cart.push({ ...itemAtual, qty })
+      fecharItem()
+      atualizarCartBar()
+    }
+
+    function atualizarCartBar() {
+      const total = cart.reduce((s, i) => s + i.preco * i.qty, 0)
+      const count = cart.reduce((s, i) => s + i.qty, 0)
+      const bar   = document.getElementById('cartBar')
+      if (!count) { bar.classList.remove('show'); return }
+      bar.classList.add('show')
+      document.getElementById('cbCnt').textContent = count + (count === 1 ? ' item' : ' itens')
+      document.getElementById('cbTot').textContent = fmt(total)
+    }
+
+    window.abrirCarrinho = function() {
+      const total = cart.reduce((s, i) => s + i.preco * i.qty, 0)
+      document.getElementById('csBody').innerHTML = cart.map(i => `
+        <div class="cs-item">
+          <div class="csi-left">
+            <div class="csi-icon">${i.foto_url ? `<img src="${i.foto_url}" alt="">` : '🍽️'}</div>
+            <div><div class="csi-name">${i.nome}</div><div class="csi-qty">x${i.qty}</div></div>
+          </div>
+          <span class="csi-price">${fmt(i.preco * i.qty)}</span>
+        </div>`).join('')
+      document.getElementById('csTotalVal').textContent = fmt(total)
+      document.getElementById('cartScreen').classList.add('open')
+    }
+
+    window.fecharCarrinho = function() {
+      document.getElementById('cartScreen').classList.remove('open')
+    }
+
+    window.enviarPedido = async function() {
+      const nome = document.getElementById('cliNome').value.trim()
+      const tel  = document.getElementById('cliTel').value.trim()
+      const end  = document.getElementById('cliEnd').value.trim()
+      const obs  = document.getElementById('cliObs').value.trim()
+
+      if (!nome || !end) {
+        alert('Preencha seu nome e endereço para continuar.')
+        return
+      }
+
+      const btn = document.getElementById('btnEnviar')
+      btn.disabled = true
+      btn.textContent = 'Enviando...'
+
+      try {
+        const itens = cart.map(i => ({
+          produto_id: i.id,
+          nome:       i.nome,
+          preco:      i.preco,
+          quantidade: i.qty,
+          subtotal:   i.preco * i.qty
+        }))
+
+        await criarPedido(lojaId, { nome, telefone: tel, endereco: end, obs }, itens)
+
+        // Montar mensagem WhatsApp também
+        const total = cart.reduce((s, i) => s + i.preco * i.qty, 0)
+        let msg = `*Novo Pedido — ${loja.nome}*\n\n*Cliente:* ${nome}\n*Tel:* ${tel}\n*Endereço:* ${end}\n\n*Itens:*\n`
+        cart.forEach(i => { msg += `• ${i.qty}x ${i.nome} — ${fmt(i.preco * i.qty)}\n` })
+        msg += `\n*Total: ${fmt(total)}*`
+        if (obs) msg += `\n\n*Obs:* ${obs}`
+
+        // Abre WhatsApp
+        if (loja.whatsapp) {
+          const wpp = loja.whatsapp.replace(/\D/g, '')
+          window.open(`https://wa.me/55${wpp}?text=${encodeURIComponent(msg)}`, '_blank')
+        }
+
+        // Mostra sucesso
+        const screen = document.getElementById('cartScreen')
+        screen.innerHTML = `
+          <div class="cs-success">
+            <div class="cs-success-icon">🎉</div>
+            <div class="cs-success-title">Pedido confirmado!</div>
+            <div class="cs-success-sub">Seu pedido foi registrado e enviado pelo WhatsApp.<br>Aguarde a confirmação do estabelecimento.</div>
+            <button class="cs-novo-btn" onclick="location.reload()">Fazer novo pedido</button>
+          </div>`
+
+        cart = []
+        atualizarCartBar()
+
+      } catch(e) {
+        console.error(e)
+        alert('Erro ao enviar pedido. Tente novamente.')
+        btn.disabled = false
+        btn.textContent = 'Confirmar pedido'
+      }
+    }
+
+    init()
+  </script>
+</body>
+</html>

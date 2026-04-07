@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeliveryApp — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--or:#F97316;--bg:#fff;--bg2:#FFF7ED;--bg3:#FEF3C7;--txt:#1C1917;--txt2:#78716C;--txt3:#A8A29E;--green:#22C55E;--red:#EF4444;--blue:#3B82F6;}
+    body{font-family:'Poppins',sans-serif;background:#F9FAFB;min-height:100vh;}
+
+    .fullpage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#F9FAFB;flex-direction:column;gap:0.5rem;}
+    .fullpage-icon{font-size:2.5rem;}
+    .fullpage-txt{font-size:0.85rem;color:var(--txt2);}
+
+    /* LOGIN */
+    .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1C1917,#292524);padding:1rem;}
+    .login-card{background:#fff;border-radius:20px;padding:2rem;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,0.2);}
+    .login-logo{text-align:center;margin-bottom:1.5rem;}
+    .login-logo-txt{font-size:1.5rem;font-weight:800;color:var(--or);}
+    .login-badge{display:inline-block;background:#FEF3C7;color:#92400E;border-radius:20px;padding:0.2rem 0.75rem;font-size:0.7rem;font-weight:700;margin-top:0.25rem;}
+    .l-label{font-size:0.75rem;font-weight:600;color:var(--txt2);display:block;margin-bottom:0.25rem;}
+    .l-input{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.6rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.85rem;color:var(--txt);margin-bottom:1rem;}
+    .l-input:focus{outline:none;border-color:var(--or);}
+    .l-btn{width:100%;background:#1C1917;color:#fff;border:none;border-radius:10px;padding:0.8rem;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .l-err{font-size:0.78rem;color:var(--red);background:#FEF2F2;border-radius:8px;padding:0.5rem 0.75rem;margin-bottom:0.75rem;display:none;}
+
+    /* HEADER */
+    .header{background:#1C1917;padding:0.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;}
+    .h-logo{font-size:0.95rem;font-weight:800;color:var(--or);}
+    .h-badge{background:rgba(249,115,22,0.2);color:var(--or);border-radius:20px;padding:0.2rem 0.65rem;font-size:0.68rem;font-weight:700;margin-left:0.5rem;}
+    .h-user{font-size:0.75rem;color:rgba(255,255,255,0.5);}
+    .h-logout{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.3rem 0.7rem;font-size:0.72rem;color:rgba(255,255,255,0.6);cursor:pointer;font-family:'Poppins',sans-serif;}
+
+    /* TABS */
+    .tabs{display:flex;background:#fff;border-bottom:1px solid #F3F4F6;position:sticky;top:52px;z-index:20;}
+    .tab{flex:1;padding:0.72rem;text-align:center;font-size:0.78rem;font-weight:600;color:var(--txt2);cursor:pointer;border-bottom:2.5px solid transparent;border:none;background:none;font-family:'Poppins',sans-serif;}
+    .tab.active{color:var(--or);border-bottom-color:var(--or);}
+
+    .body{padding:1rem;max-width:960px;margin:0 auto;}
+
+    /* STATS */
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0.65rem;margin-bottom:1.25rem;}
+    .stat{background:#fff;border-radius:12px;padding:0.85rem;border:1px solid #F3F4F6;}
+    .stat-val{font-size:1.4rem;font-weight:800;}
+    .stat-val.or{color:var(--or);}
+    .stat-val.gr{color:var(--green);}
+    .stat-val.re{color:var(--red);}
+    .stat-lbl{font-size:0.7rem;color:var(--txt2);margin-top:0.1rem;}
+
+    /* TOOLBAR */
+    .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem;flex-wrap:wrap;gap:0.5rem;}
+    .toolbar-title{font-size:0.9rem;font-weight:700;color:var(--txt);}
+    .toolbar-right{display:flex;gap:0.5rem;}
+    .search{border:1.5px solid #E7E5E4;border-radius:9px;padding:0.4rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.8rem;width:180px;}
+    .search:focus{outline:none;border-color:var(--or);}
+    .sel{border:1.5px solid #E7E5E4;border-radius:9px;padding:0.4rem 0.5rem;font-family:'Poppins',sans-serif;font-size:0.78rem;background:#fff;}
+    .add-btn{background:var(--or);color:#fff;border:none;border-radius:9px;padding:0.42rem 1rem;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+
+    /* TABLE */
+    .tbl-wrap{background:#fff;border-radius:14px;border:1px solid #F3F4F6;overflow:hidden;}
+    table{width:100%;border-collapse:collapse;}
+    th{font-size:0.72rem;font-weight:600;color:var(--txt2);text-align:left;padding:0.6rem 0.85rem;border-bottom:1.5px solid #F3F4F6;background:#F9FAFB;white-space:nowrap;}
+    td{font-size:0.82rem;color:var(--txt);padding:0.75rem 0.85rem;border-bottom:1px solid #F9FAFB;vertical-align:middle;}
+    tr:last-child td{border:none;}
+    tr:hover td{background:#FFFBF7;}
+    .pill{border-radius:20px;padding:0.2rem 0.65rem;font-size:0.7rem;font-weight:700;display:inline-block;white-space:nowrap;}
+    .pill-gr{background:#DCFCE7;color:#15803D;}
+    .pill-re{background:#FEE2E2;color:#B91C1C;}
+    .pill-or{background:#FFF7ED;color:#C2410C;}
+    .pill-gy{background:#F3F4F6;color:#6B7280;}
+    .pill-bl{background:#DBEAFE;color:#1D4ED8;}
+    .tbl-actions{display:flex;gap:0.35rem;flex-wrap:wrap;}
+    .tbl-btn{border:none;border-radius:7px;padding:0.28rem 0.6rem;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap;}
+    .btn-or{background:#FFF7ED;color:#C2410C;}
+    .btn-gr{background:#DCFCE7;color:#15803D;}
+    .btn-re{background:#FEE2E2;color:#B91C1C;}
+    .btn-bl{background:#DBEAFE;color:#1D4ED8;}
+    .store-name-cell{font-weight:600;color:var(--txt);}
+    .store-email{font-size:0.72rem;color:var(--txt3);}
+
+    /* MODAL */
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;align-items:center;justify-content:center;padding:1rem;}
+    .modal-bg.open{display:flex;}
+    .modal{background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:440px;box-shadow:0 8px 32px rgba(0,0,0,0.15);max-height:90vh;overflow-y:auto;}
+    .modal-title{font-size:0.95rem;font-weight:700;color:var(--txt);margin-bottom:1.1rem;display:flex;justify-content:space-between;align-items:center;}
+    .modal-close{background:none;border:none;font-size:1.2rem;color:var(--txt2);cursor:pointer;}
+    .m-label{font-size:0.73rem;font-weight:600;color:var(--txt2);margin-bottom:0.25rem;display:block;}
+    .m-input{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.85rem;margin-bottom:0.75rem;color:var(--txt);}
+    .m-input:focus{outline:none;border-color:var(--or);}
+    .m-sel{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.85rem;margin-bottom:0.75rem;background:#fff;color:var(--txt);}
+    .m-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+    .m-save{width:100%;background:var(--or);color:#fff;border:none;border-radius:10px;padding:0.75rem;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-top:0.25rem;}
+    .m-info{background:#F9FAFB;border-radius:10px;padding:0.75rem;font-size:0.78rem;color:var(--txt2);margin-bottom:0.75rem;line-height:1.6;}
+
+    /* FINANCEIRO */
+    .fin-total{background:#1C1917;border-radius:14px;padding:1.1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
+    .fin-total-lbl{font-size:0.82rem;color:rgba(255,255,255,0.6);}
+    .fin-total-val{font-size:1.6rem;font-weight:800;color:var(--or);}
+    .fin-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+    .fin-card{background:#fff;border-radius:12px;padding:1rem;border:1px solid #F3F4F6;}
+    .fin-card-title{font-size:0.75rem;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.85rem;}
+    .fin-row{display:flex;justify-content:space-between;align-items:center;padding:0.45rem 0;border-bottom:1px solid #F9FAFB;font-size:0.82rem;}
+    .fin-row:last-child{border:none;}
+    .fin-val{font-weight:700;color:var(--or);}
+    .alerta-card{background:#fff;border-radius:12px;padding:1rem;border:1px solid #F3F4F6;}
+    .alerta-title{font-size:0.75rem;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.85rem;}
+    .alerta-row{display:flex;justify-content:space-between;align-items:center;padding:0.45rem 0;border-bottom:1px solid #F9FAFB;font-size:0.82rem;}
+    .alerta-row:last-child{border:none;}
+    .alerta-danger{color:var(--red);font-weight:700;}
+    .alerta-warn{color:var(--or);font-weight:700;}
+    .alerta-ok{color:var(--green);font-weight:700;}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1C1917;color:#fff;border-radius:12px;padding:0.75rem 1.25rem;font-size:0.82rem;font-weight:600;z-index:200;transition:transform 0.3s;white-space:nowrap;}
+    .toast.show{transform:translateX(-50%) translateY(0);}
+  </style>
+</head>
+<body>
+
+  <!-- LOADING -->
+  <div class="fullpage" id="loading">
+    <div class="fullpage-icon">⚙️</div>
+    <div class="fullpage-txt">Verificando acesso...</div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="loginWrap" style="display:none;">
+    <div class="login-wrap">
+      <div class="login-card">
+        <div class="login-logo">
+          <div class="login-logo-txt">DeliveryApp</div>
+          <div class="login-badge">Painel Administrativo</div>
+        </div>
+        <div class="l-err" id="lErr">Acesso negado. Verifique suas credenciais.</div>
+        <label class="l-label">E-mail do administrador</label>
+        <input class="l-input" id="lEmail" type="email" placeholder="admin@deliveryapp.com">
+        <label class="l-label">Senha</label>
+        <input class="l-input" id="lSenha" type="password" placeholder="••••••••">
+        <button class="l-btn" onclick="fazerLogin()">Entrar no painel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAINEL ADMIN -->
+  <div id="adminWrap" style="display:none;">
+    <div class="header">
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <span class="h-logo">DeliveryApp</span>
+        <span class="h-badge">Admin</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <span class="h-user" id="hUser"></span>
+        <button class="h-logout" onclick="sair()">Sair</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="trocarTab('lojas',this)">Lojas</button>
+      <button class="tab" onclick="trocarTab('financeiro',this)">Financeiro</button>
+    </div>
+
+    <div class="body" id="mainBody"></div>
+  </div>
+
+  <!-- MODAL NOVA / EDITAR LOJA -->
+  <div class="modal-bg" id="modalBg">
+    <div class="modal">
+      <div class="modal-title">
+        <span id="modalTitleTxt">Nova lanchonete</span>
+        <button class="modal-close" onclick="fecharModal()">×</button>
+      </div>
+      <div class="m-info" id="modalInfo" style="display:none;"></div>
+      <label class="m-label">Nome da lanchonete</label>
+      <input class="m-input" id="mNome" placeholder="Ex: Pizzaria Melinda">
+      <div class="m-row">
+        <div>
+          <label class="m-label">Cidade</label>
+          <input class="m-input" id="mCidade" placeholder="Ex: São Luís">
+        </div>
+        <div>
+          <label class="m-label">WhatsApp (com DDD)</label>
+          <input class="m-input" id="mWpp" placeholder="99 99999-9999" type="tel">
+        </div>
+      </div>
+      <label class="m-label">E-mail do dono (será o login)</label>
+      <input class="m-input" id="mEmail" type="email" placeholder="dono@lanchonete.com">
+      <label class="m-label">Senha inicial do dono</label>
+      <input class="m-input" id="mSenha" type="text" placeholder="Mínimo 6 caracteres">
+      <label class="m-label">Plano</label>
+      <select class="m-sel" id="mPlano">
+        <option value="piloto">Piloto — Gratuito</option>
+        <option value="basico">Básico — R$79/mês</option>
+        <option value="padrao">Padrão — R$99/mês</option>
+      </select>
+      <label class="m-label">Vencimento do plano</label>
+      <input class="m-input" id="mVence" type="date">
+      <button class="m-save" id="mSaveBtn" onclick="salvarLoja()">Cadastrar lanchonete</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { supabase } from './js/supabase.js'
+
+    let lojas    = []
+    let tabAtual = 'lojas'
+    let editId   = null
+    let searchVal = ''
+    let filtroStatus = 'todos'
+
+    const planoValor = { piloto: 0, basico: 79, padrao: 99 }
+    const planoLabel = { piloto: 'Piloto', basico: 'Básico R$79', padrao: 'Padrão R$99' }
+    const fmt = v => 'R$' + Number(v).toFixed(2).replace('.', ',')
+
+    function toast(msg, dur = 2500) {
+      const el = document.getElementById('toast')
+      el.textContent = msg
+      el.classList.add('show')
+      setTimeout(() => el.classList.remove('show'), dur)
+    }
+
+    // ===== AUTH =====
+    async function init() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: perfil } = await supabase
+          .from('usuarios').select('perfil').eq('email', user.email).single()
+        if (perfil?.perfil === 'admin') {
+          document.getElementById('hUser').textContent = user.email
+          await carregarLojas()
+          document.getElementById('loading').style.display  = 'none'
+          document.getElementById('adminWrap').style.display = 'block'
+          renderLojas()
+          return
+        }
+      }
+      document.getElementById('loading').style.display = 'none'
+      document.getElementById('loginWrap').style.display = 'block'
+    }
+
+    window.fazerLogin = async function() {
+      const email = document.getElementById('lEmail').value.trim()
+      const senha = document.getElementById('lSenha').value
+      const err   = document.getElementById('lErr')
+      err.style.display = 'none'
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password: senha })
+        if (error) throw error
+        const { data: perfil } = await supabase
+          .from('usuarios').select('perfil').eq('email', email).single()
+        if (perfil?.perfil !== 'admin') throw new Error('Sem permissão')
+        document.getElementById('loginWrap').style.display  = 'none'
+        document.getElementById('adminWrap').style.display  = 'block'
+        document.getElementById('hUser').textContent = email
+        await carregarLojas()
+        renderLojas()
+      } catch(e) {
+        err.style.display = 'block'
+      }
+    }
+
+    window.sair = async function() {
+      await supabase.auth.signOut()
+      window.location.reload()
+    }
+
+    // ===== DADOS =====
+    async function carregarLojas() {
+      const { data } = await supabase
+        .from('lojas').select('*').order('criada_em', { ascending: false })
+      lojas = data || []
+    }
+
+    // ===== TABS =====
+    window.trocarTab = function(tab, el) {
+      tabAtual = tab
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+      el.classList.add('active')
+      if (tab === 'lojas') renderLojas()
+      else renderFinanceiro()
+    }
+
+    // ===== LOJAS =====
+    function renderLojas() {
+      const ativas   = lojas.filter(l => l.ativa).length
+      const inativas = lojas.filter(l => !l.ativa).length
+      const receita  = lojas.filter(l => l.ativa).reduce((s, l) => s + (planoValor[l.plano] || 0), 0)
+
+      let filtradas = lojas.filter(l => {
+        const ok = l.nome?.toLowerCase().includes(searchVal.toLowerCase()) ||
+                   l.cidade?.toLowerCase().includes(searchVal.toLowerCase()) ||
+                   l.email_dono?.toLowerCase().includes(searchVal.toLowerCase())
+        const st = filtroStatus === 'todos' ? true : filtroStatus === 'ativo' ? l.ativa : !l.ativa
+        return ok && st
+      })
+
+      let html = `
+        <div class="stats">
+          <div class="stat"><div class="stat-val or">${lojas.length}</div><div class="stat-lbl">Total de lojas</div></div>
+          <div class="stat"><div class="stat-val gr">${ativas}</div><div class="stat-lbl">Ativas</div></div>
+          <div class="stat"><div class="stat-val re">${inativas}</div><div class="stat-lbl">Inativas</div></div>
+          <div class="stat"><div class="stat-val or">${fmt(receita)}</div><div class="stat-lbl">Receita/mês</div></div>
+        </div>
+        <div class="toolbar">
+          <span class="toolbar-title">Lanchonetes cadastradas</span>
+          <div class="toolbar-right">
+            <input class="search" placeholder="Buscar..." value="${searchVal}" oninput="buscar(this.value)">
+            <select class="sel" onchange="filtrar(this.value)">
+              <option value="todos">Todas</option>
+              <option value="ativo">Ativas</option>
+              <option value="inativo">Inativas</option>
+            </select>
+            <button class="add-btn" onclick="abrirModalNova()">+ Nova loja</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Lanchonete</th>
+              <th>Cidade</th>
+              <th>Plano</th>
+              <th>Status</th>
+              <th>Vencimento</th>
+              <th>Cardápio</th>
+              <th>Ações</th>
+            </tr></thead>
+            <tbody>`
+
+      filtradas.forEach(l => {
+        const vence    = l.plano_vence_em ? new Date(l.plano_vence_em) : null
+        const hoje     = new Date()
+        const dias     = vence ? Math.ceil((vence - hoje) / 86400000) : null
+        const venceLbl = dias === null ? '—' : dias < 0 ? 'Vencido' : `${dias}d`
+        const venceCls = dias === null ? '' : dias < 0 ? 'alerta-danger' : dias <= 7 ? 'alerta-warn' : 'alerta-ok'
+        const link     = `${window.location.origin}/index.html?loja=${l.id}`
+
+        html += `<tr>
+          <td>
+            <div class="store-name-cell">${l.nome}</div>
+            <div class="store-email">${l.email_dono}</div>
+          </td>
+          <td>${l.cidade || '—'}</td>
+          <td><span class="pill pill-or">${planoLabel[l.plano] || l.plano}</span></td>
+          <td><span class="pill ${l.ativa ? 'pill-gr' : 'pill-re'}">${l.ativa ? 'Ativa' : 'Inativa'}</span></td>
+          <td><span class="${venceCls}">${venceLbl}</span></td>
+          <td>
+            <button class="tbl-btn btn-bl" onclick="copiarLink('${link}')">Copiar link</button>
+          </td>
+          <td>
+            <div class="tbl-actions">
+              <button class="tbl-btn btn-or" onclick="editarLoja('${l.id}')">Editar</button>
+              <button class="tbl-btn ${l.ativa ? 'btn-re' : 'btn-gr'}" onclick="toggleAtiva('${l.id}')">
+                ${l.ativa ? 'Desativar' : 'Ativar'}
+              </button>
+            </div>
+          </td>
+        </tr>`
+      })
+
+      html += `</tbody></table></div>`
+      document.getElementById('mainBody').innerHTML = html
+    }
+
+    window.buscar = function(v) { searchVal = v; renderLojas() }
+    window.filtrar = function(v) { filtroStatus = v; renderLojas() }
+
+    window.copiarLink = function(link) {
+      navigator.clipboard.writeText(link)
+      toast('✅ Link copiado!')
+    }
+
+    window.toggleAtiva = async function(id) {
+      const l = lojas.find(x => x.id === id)
+      l.ativa = !l.ativa
+      await supabase.from('lojas').update({ ativa: l.ativa }).eq('id', id)
+      toast(l.ativa ? '✅ Loja ativada' : '🔒 Loja desativada')
+      renderLojas()
+    }
+
+    // ===== MODAL =====
+    window.abrirModalNova = function() {
+      editId = null
+      document.getElementById('modalTitleTxt').textContent = 'Nova lanchonete'
+      document.getElementById('modalInfo').style.display   = 'none'
+      document.getElementById('mSaveBtn').textContent      = 'Cadastrar lanchonete'
+      document.getElementById('mNome').value   = ''
+      document.getElementById('mCidade').value = ''
+      document.getElementById('mWpp').value    = ''
+      document.getElementById('mEmail').value  = ''
+      document.getElementById('mSenha').value  = ''
+      document.getElementById('mPlano').value  = 'piloto'
+      // Data padrão: 60 dias
+      const d = new Date(); d.setDate(d.getDate() + 60)
+      document.getElementById('mVence').value  = d.toISOString().split('T')[0]
+      document.getElementById('modalBg').classList.add('open')
+    }
+
+    window.editarLoja = function(id) {
+      editId = id
+      const l = lojas.find(x => x.id === id)
+      document.getElementById('modalTitleTxt').textContent = 'Editar lanchonete'
+      document.getElementById('mSaveBtn').textContent      = 'Salvar alterações'
+      document.getElementById('modalInfo').style.display   = 'block'
+      document.getElementById('modalInfo').innerHTML       =
+        `<strong>ID:</strong> ${l.id}<br><strong>Criada em:</strong> ${new Date(l.criada_em).toLocaleDateString('pt-BR')}`
+      document.getElementById('mNome').value   = l.nome || ''
+      document.getElementById('mCidade').value = l.cidade || ''
+      document.getElementById('mWpp').value    = l.whatsapp || ''
+      document.getElementById('mEmail').value  = l.email_dono || ''
+      document.getElementById('mSenha').value  = ''
+      document.getElementById('mPlano').value  = l.plano || 'piloto'
+      document.getElementById('mVence').value  = l.plano_vence_em || ''
+      document.getElementById('modalBg').classList.add('open')
+    }
+
+    window.fecharModal = function() {
+      document.getElementById('modalBg').classList.remove('open')
+    }
+
+    window.salvarLoja = async function() {
+      const nome  = document.getElementById('mNome').value.trim()
+      const email = document.getElementById('mEmail').value.trim()
+      const senha = document.getElementById('mSenha').value.trim()
+      if (!nome || !email) { toast('⚠️ Preencha nome e e-mail'); return }
+
+      const btn = document.getElementById('mSaveBtn')
+      btn.disabled = true
+      btn.textContent = 'Salvando...'
+
+      try {
+        if (editId) {
+          // Editar existente
+          const updates = {
+            nome,
+            cidade:        document.getElementById('mCidade').value,
+            whatsapp:      document.getElementById('mWpp').value,
+            email_dono:    email,
+            plano:         document.getElementById('mPlano').value,
+            plano_vence_em: document.getElementById('mVence').value || null
+          }
+          await supabase.from('lojas').update(updates).eq('id', editId)
+          const l = lojas.find(x => x.id === editId)
+          Object.assign(l, updates)
+          toast('✅ Loja atualizada!')
+
+        } else {
+          // Criar nova — cria usuário no Auth
+          const { data: authData, error: authErr } = await supabase.auth.admin
+            ? await supabase.auth.signUp({ email, password: senha || '123456' })
+            : { data: null, error: { message: 'Use o Supabase Dashboard para criar usuários' } }
+
+          // Cria a loja
+          const { data: novaLoja, error: lojaErr } = await supabase
+            .from('lojas').insert({
+              nome,
+              cidade:         document.getElementById('mCidade').value,
+              whatsapp:       document.getElementById('mWpp').value,
+              email_dono:     email,
+              plano:          document.getElementById('mPlano').value,
+              plano_vence_em: document.getElementById('mVence').value || null,
+              ativa:          true,
+              aberta:         true
+            }).select().single()
+
+          if (lojaErr) throw lojaErr
+
+          // Cria registro na tabela usuarios
+          await supabase.from('usuarios').insert({
+            loja_id: novaLoja.id,
+            email,
+            nome,
+            perfil: 'dono',
+            ativo:  true
+          })
+
+          lojas.unshift(novaLoja)
+          toast('✅ Loja cadastrada!')
+        }
+
+        fecharModal()
+        renderLojas()
+      } catch(e) {
+        console.error(e)
+        toast('❌ Erro: ' + (e.message || 'tente novamente'))
+      } finally {
+        btn.disabled = false
+        btn.textContent = editId ? 'Salvar alterações' : 'Cadastrar lanchonete'
+      }
+    }
+
+    // ===== FINANCEIRO =====
+    function renderFinanceiro() {
+      const ativas  = lojas.filter(l => l.ativa && l.plano !== 'piloto')
+      const receita = ativas.reduce((s, l) => s + (planoValor[l.plano] || 0), 0)
+      const hoje    = new Date()
+
+      const vencendo = lojas
+        .filter(l => l.plano_vence_em)
+        .map(l => ({ ...l, dias: Math.ceil((new Date(l.plano_vence_em) - hoje) / 86400000) }))
+        .filter(l => l.dias <= 7)
+        .sort((a, b) => a.dias - b.dias)
+
+      let html = `
+        <div class="fin-total">
+          <div>
+            <div class="fin-total-lbl">Receita mensal recorrente</div>
+            <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);margin-top:0.15rem;">${ativas.length} lojas pagantes</div>
+          </div>
+          <div class="fin-total-val">${fmt(receita)}/mês</div>
+        </div>
+        <div class="fin-grid">
+          <div class="fin-card">
+            <div class="fin-card-title">Lojas pagantes</div>`
+
+      if (ativas.length) {
+        ativas.forEach(l => {
+          html += `<div class="fin-row">
+            <span>${l.nome}</span>
+            <span class="fin-val">${fmt(planoValor[l.plano])}</span>
+          </div>`
+        })
+      } else {
+        html += `<div style="font-size:0.82rem;color:var(--txt3);text-align:center;padding:1rem;">Nenhuma loja pagante ainda</div>`
+      }
+
+      html += `</div>
+          <div class="fin-card">
+            <div class="fin-card-title">Projeção de crescimento</div>
+            <div class="fin-row"><span>Com 10 lojas (R$99)</span><span class="fin-val">R$990/mês</span></div>
+            <div class="fin-row"><span>Com 20 lojas (R$99)</span><span class="fin-val">R$1.980/mês</span></div>
+            <div class="fin-row"><span>Com 30 lojas (R$99)</span><span class="fin-val">R$2.970/mês</span></div>
+            <div class="fin-row"><span>Com 50 lojas (R$99)</span><span class="fin-val">R$4.950/mês</span></div>
+          </div>
+        </div>
+        <div class="alerta-card">
+          <div class="alerta-title">Alertas de vencimento</div>`
+
+      if (vencendo.length) {
+        vencendo.forEach(l => {
+          const cls = l.dias < 0 ? 'alerta-danger' : l.dias <= 3 ? 'alerta-warn' : ''
+          const lbl = l.dias < 0 ? 'VENCIDO' : l.dias === 0 ? 'Vence hoje' : `Vence em ${l.dias}d`
+          html += `<div class="alerta-row">
+            <span>${l.nome} — ${l.cidade || ''}</span>
+            <span class="${cls}">${lbl}</span>
+          </div>`
+        })
+      } else {
+        html += `<div class="alerta-row"><span>Nenhum alerta no momento</span><span class="alerta-ok">Tudo em dia ✓</span></div>`
+      }
+
+      html += `</div>`
+      document.getElementById('mainBody').innerHTML = html
+    }
+
+    // Enter para login
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && document.getElementById('loginWrap').style.display !== 'none') {
+        window.fazerLogin()
+      }
+    })
+
+    init()
+  </script>
+</body>
+</html>
