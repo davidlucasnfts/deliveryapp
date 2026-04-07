@@ -442,12 +442,27 @@
     function renderConfig() {
       const link = `${window.location.origin}/index.html?loja=${loja.id}`
       document.getElementById('mainBody').innerHTML = `
+
+        <div style="background:#fff;border-radius:12px;padding:1rem;margin-bottom:0.75rem;border:1.5px solid #F97316;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+            <div>
+              <div style="font-size:0.85rem;font-weight:700;color:#1C1917;">💳 Configuração de Pagamentos</div>
+              <div style="font-size:0.73rem;color:#78716C;margin-top:0.15rem;">Configure PIX, cartão e seu gateway de pagamento</div>
+            </div>
+            <a href="pagamento.html" style="background:#F97316;color:#fff;border:none;border-radius:9px;padding:0.45rem 1rem;font-size:0.8rem;font-weight:700;text-decoration:none;font-family:Poppins,sans-serif;">Configurar →</a>
+          </div>
+          <div style="background:#FFF7ED;border-radius:8px;padding:0.5rem 0.75rem;font-size:0.75rem;color:#C2410C;">
+            ⚠️ Configure seu gateway para aceitar PIX e cartão nos pedidos
+          </div>
+        </div>
+
         <div class="cfg-card">
           <div class="cfg-title">Link do cardápio digital</div>
           <div class="link-box" id="linkBox">${link}</div>
           <button class="copy-link" onclick="copiarLink()">📋 Copiar link</button>
           <p style="font-size:0.73rem;color:var(--txt3);margin-top:0.5rem;">Compartilhe este link com seus clientes pelo WhatsApp ou Instagram.</p>
         </div>
+
         <div class="cfg-card">
           <div class="cfg-title">Informações da loja</div>
           <label class="m-label" style="font-size:0.73rem;font-weight:600;color:var(--txt2);margin-bottom:0.25rem;display:block;">Nome</label>
@@ -460,8 +475,9 @@
           <input class="cfg-inp" id="cfgWpp" value="${loja.whatsapp || ''}" type="tel">
           <button class="cfg-save" onclick="salvarConfig()">Salvar informações</button>
         </div>
+
         <div class="cfg-card">
-          <div class="cfg-title">Status da loja</div>
+          <div class="cfg-title">Funcionamento</div>
           <div class="cfg-row">
             <span class="cfg-lbl">Loja aberta para pedidos</span>
             <button class="toggle ${loja.aberta ? 'on' : ''}" id="toggleAberta" onclick="toggleLoja()"></button>

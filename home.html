@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeliveryApp — Sistema de Delivery para Lanchonetes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--or:#F97316;--ye:#FACC15;--txt:#1C1917;--txt2:#78716C;}
+    body{font-family:'Poppins',sans-serif;background:#fff;min-height:100vh;}
+
+    /* HERO */
+    .hero{background:linear-gradient(135deg,#1C1917 0%,#292524 60%,#3D2800 100%);padding:4rem 2rem 5rem;text-align:center;position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(249,115,22,0.15),transparent 60%);}
+    .hero-badge{display:inline-block;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);border-radius:20px;padding:0.35rem 1rem;font-size:0.78rem;font-weight:600;color:var(--or);margin-bottom:1.5rem;position:relative;}
+    .hero-title{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;color:#fff;line-height:1.1;margin-bottom:1rem;position:relative;}
+    .hero-title span{color:var(--or);}
+    .hero-sub{font-size:clamp(0.9rem,2vw,1.1rem);color:rgba(255,255,255,0.6);max-width:540px;margin:0 auto 2.5rem;line-height:1.7;position:relative;}
+    .hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;position:relative;}
+    .btn-primary{background:var(--or);color:#fff;border:none;border-radius:12px;padding:0.85rem 2rem;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:none;transition:background 0.15s;}
+    .btn-primary:hover{background:#EA6C0A;}
+    .btn-secondary{background:rgba(255,255,255,0.08);color:#fff;border:1.5px solid rgba(255,255,255,0.2);border-radius:12px;padding:0.85rem 2rem;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:none;transition:all 0.15s;}
+    .btn-secondary:hover{background:rgba(255,255,255,0.15);}
+
+    /* STATS */
+    .stats{background:#FFF7ED;padding:2rem;display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;border-bottom:1px solid #FED7AA;}
+    .stat{text-align:center;}
+    .stat-val{font-size:2rem;font-weight:800;color:var(--or);}
+    .stat-lbl{font-size:0.78rem;color:var(--txt2);margin-top:0.1rem;}
+
+    /* FEATURES */
+    .section{padding:4rem 2rem;max-width:960px;margin:0 auto;}
+    .section-title{font-size:clamp(1.4rem,3vw,2rem);font-weight:800;color:var(--txt);text-align:center;margin-bottom:0.5rem;}
+    .section-sub{font-size:0.9rem;color:var(--txt2);text-align:center;margin-bottom:3rem;}
+    .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;}
+    .feature{background:#fff;border-radius:16px;border:1.5px solid #F3F4F6;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+    .feature-icon{font-size:2rem;margin-bottom:0.75rem;}
+    .feature-title{font-size:0.95rem;font-weight:700;color:var(--txt);margin-bottom:0.4rem;}
+    .feature-desc{font-size:0.82rem;color:var(--txt2);line-height:1.6;}
+
+    /* PREÇOS */
+    .pricing-bg{background:#F9FAFB;padding:4rem 2rem;}
+    .pricing-wrap{max-width:800px;margin:0 auto;}
+    .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:2rem;}
+    .price-card{background:#fff;border-radius:16px;border:1.5px solid #F3F4F6;padding:1.5rem;text-align:center;}
+    .price-card.featured{border-color:var(--or);background:#FFF7ED;}
+    .price-badge{display:inline-block;background:var(--or);color:#fff;border-radius:20px;padding:0.2rem 0.75rem;font-size:0.7rem;font-weight:700;margin-bottom:0.75rem;}
+    .price-name{font-size:0.85rem;font-weight:700;color:var(--txt2);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:1px;}
+    .price-val{font-size:2.2rem;font-weight:800;color:var(--txt);}
+    .price-val span{font-size:0.9rem;font-weight:500;color:var(--txt2);}
+    .price-desc{font-size:0.78rem;color:var(--txt2);margin-top:0.5rem;line-height:1.5;}
+
+    /* CTA FINAL */
+    .cta{background:linear-gradient(135deg,#F97316,#EA580C);padding:4rem 2rem;text-align:center;}
+    .cta-title{font-size:clamp(1.4rem,3vw,2rem);font-weight:800;color:#fff;margin-bottom:0.75rem;}
+    .cta-sub{font-size:0.9rem;color:rgba(255,255,255,0.8);margin-bottom:2rem;}
+    .btn-white{background:#fff;color:var(--or);border:none;border-radius:12px;padding:0.85rem 2rem;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:none;}
+
+    /* FOOTER */
+    footer{background:#1C1917;padding:1.5rem 2rem;text-align:center;font-size:0.78rem;color:rgba(255,255,255,0.4);}
+
+    /* NAVBAR */
+    nav{background:#1C1917;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+    .nav-logo{font-size:1.1rem;font-weight:800;color:var(--or);text-decoration:none;}
+    .nav-links{display:flex;gap:1rem;align-items:center;}
+    .nav-link{color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.82rem;font-weight:500;}
+    .nav-btn{background:var(--or);color:#fff;border:none;border-radius:8px;padding:0.4rem 1rem;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:none;}
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="/">🍕 DeliveryApp</a>
+    <div class="nav-links">
+      <a class="nav-link" href="#features">Recursos</a>
+      <a class="nav-link" href="#precos">Preços</a>
+      <a class="nav-btn" href="/login.html">Acessar painel</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">🚀 Sistema completo de delivery</div>
+    <h1 class="hero-title">Seu cardápio digital<br><span>pronto em minutos</span></h1>
+    <p class="hero-sub">Sistema de delivery completo para lanchonetes, pizzarias e restaurantes. Cardápio digital, pedidos em tempo real e painel de gestão — tudo por um preço justo.</p>
+    <div class="hero-btns">
+      <a class="btn-primary" href="/login.html">Começar agora</a>
+      <a class="btn-secondary" href="#precos">Ver planos</a>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><div class="stat-val">R$79</div><div class="stat-lbl">A partir de por mês</div></div>
+    <div class="stat"><div class="stat-val">3x</div><div class="stat-lbl">Mais barato que concorrentes</div></div>
+    <div class="stat"><div class="stat-val">100%</div><div class="stat-lbl">Online · sem instalação</div></div>
+    <div class="stat"><div class="stat-val">6</div><div class="stat-lbl">Gateways de pagamento</div></div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="section" id="features">
+    <h2 class="section-title">Tudo que sua lanchonete precisa</h2>
+    <p class="section-sub">Sistema completo, fácil de usar e sem complicação</p>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">📱</div>
+        <div class="feature-title">Cardápio digital com link único</div>
+        <div class="feature-desc">Cada lanchonete tem seu link exclusivo. O cliente acessa, escolhe os itens e faz o pedido sem baixar nenhum app.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔔</div>
+        <div class="feature-title">Pedidos em tempo real</div>
+        <div class="feature-desc">Novo pedido aparece automaticamente no painel com som de notificação. Sem precisar ficar atualizando a página.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📋</div>
+        <div class="feature-title">Gestão de pedidos</div>
+        <div class="feature-desc">Acompanhe cada pedido do recebimento até a entrega. Avance o status com um clique: Novo → Em preparo → Saiu → Entregue.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🍕</div>
+        <div class="feature-title">Cardápio editável</div>
+        <div class="feature-desc">Adicione e edite produtos, preços, fotos e descrições diretamente pelo painel. Ative ou desative itens na hora.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">💳</div>
+        <div class="feature-title">Pagamentos integrados</div>
+        <div class="feature-desc">PIX, cartão de crédito e débito. Suporta Mercado Pago, PagSeguro, Stripe, PagHiper, Asaas e Efí. O dinheiro vai direto para sua conta.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Painel administrativo</div>
+        <div class="feature-desc">Gerencie todas as lojas em um só lugar. Acompanhe o faturamento, vencimentos e status de cada estabelecimento.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PREÇOS -->
+  <div class="pricing-bg" id="precos">
+    <div class="pricing-wrap">
+      <h2 class="section-title">Preços simples e justos</h2>
+      <p class="section-sub">Sem taxas escondidas · sem comissão sobre pedidos · cancele quando quiser</p>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <div class="price-name">Básico</div>
+          <div class="price-val">R$79<span>/mês</span></div>
+          <div class="price-desc">Cardápio digital · pedidos em tempo real · painel completo · suporte incluído</div>
+        </div>
+        <div class="price-card featured">
+          <div class="price-badge">Mais popular</div>
+          <div class="price-name">Padrão</div>
+          <div class="price-val">R$99<span>/mês</span></div>
+          <div class="price-desc">Tudo do básico · pagamentos integrados · relatórios · suporte prioritário</div>
+        </div>
+      </div>
+      <p style="text-align:center;font-size:0.78rem;color:#A8A29E;margin-top:1.5rem;">Compare: Anota AI cobra R$299–399/mês · InstaDelivery cobra R$169–250/mês</p>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <h2 class="cta-title">Pronto para modernizar sua lanchonete?</h2>
+    <p class="cta-sub">Comece hoje mesmo · configuração em menos de 10 minutos</p>
+    <a class="btn-white" href="/login.html">Acessar o sistema</a>
+  </div>
+
+  <footer>
+    © 2026 DeliveryApp · Sistema de delivery para lanchonetes · Vargem Grande, Maranhão
+  </footer>
+
+</body>
+</html>
