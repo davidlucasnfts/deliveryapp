@@ -8,74 +8,75 @@
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
     :root{--or:#F97316;--or2:#FB923C;--bg:#fff;--bg2:#FFF7ED;--bg3:#FEF3C7;--txt:#1C1917;--txt2:#78716C;--txt3:#A8A29E;--green:#22C55E;}
-    body{font-family:'Poppins',sans-serif;background:#fff;max-width:480px;margin:0 auto;min-height:100vh;position:relative;}
+    body{font-family:'Poppins',sans-serif;background:#fff;max-width:480px;margin:0 auto;min-height:100vh;}
 
-    /* LOADING */
     .loading{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;}
     .loading-icon{font-size:3rem;animation:pulse 1s ease-in-out infinite;}
     .loading-txt{font-size:0.85rem;color:var(--txt2);margin-top:0.75rem;}
     @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
 
-    /* LOJA INATIVA */
     .inativa{text-align:center;padding:4rem 2rem;}
     .inativa-icon{font-size:3rem;margin-bottom:1rem;}
     .inativa-txt{font-size:1rem;font-weight:700;color:var(--txt);margin-bottom:0.5rem;}
     .inativa-sub{font-size:0.82rem;color:var(--txt2);}
 
-    /* HERO */
-    .hero{background:var(--bg2);position:relative;}
-    .hero-banner{width:100%;height:150px;object-fit:cover;display:block;background:linear-gradient(135deg,#FEF3C7,#FED7AA);}
+    .hero{background:var(--bg2);}
+    .hero-banner{width:100%;height:150px;object-fit:cover;display:block;}
     .hero-banner-placeholder{width:100%;height:150px;background:linear-gradient(135deg,#FEF3C7,#FED7AA);display:flex;align-items:center;justify-content:center;font-size:4rem;}
     .hero-info{padding:0.9rem 1.1rem 0.75rem;}
     .store-name{font-size:1.2rem;font-weight:800;color:var(--txt);}
     .store-desc{font-size:0.78rem;color:var(--txt2);margin-top:0.15rem;}
     .store-meta{display:flex;gap:0.5rem;margin-top:0.6rem;flex-wrap:wrap;}
     .mbadge{background:var(--bg3);border-radius:20px;padding:0.25rem 0.7rem;font-size:0.7rem;font-weight:600;color:#92400E;display:flex;align-items:center;gap:0.3rem;}
-    .dot-green{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;}
-    .dot-red{width:6px;height:6px;border-radius:50%;background:#EF4444;flex-shrink:0;}
+    .dot-green{width:6px;height:6px;border-radius:50%;background:var(--green);}
+    .dot-red{width:6px;height:6px;border-radius:50%;background:#EF4444;}
 
-    /* CATEGORIAS */
     .cats{display:flex;gap:0.5rem;padding:0.7rem 1rem;overflow-x:auto;border-bottom:1px solid #F5F5F4;scrollbar-width:none;background:#fff;}
     .cats::-webkit-scrollbar{display:none;}
     .cat-btn{flex-shrink:0;padding:0.35rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;border:1.5px solid #E7E5E4;color:var(--txt2);background:#fff;font-family:'Poppins',sans-serif;transition:all 0.15s;}
     .cat-btn.active{background:var(--or);color:#fff;border-color:var(--or);}
 
-    /* MENU */
     .menu-body{padding:0 1rem 6rem;}
     .sec-hd{font-size:0.75rem;font-weight:700;color:var(--or);letter-spacing:1.5px;text-transform:uppercase;padding:1rem 0 0.5rem;display:flex;align-items:center;gap:0.5rem;}
     .sec-hd::after{content:'';flex:1;height:1.5px;background:linear-gradient(to right,#FED7AA,transparent);}
-    .item-card{display:flex;gap:0.75rem;background:#fff;border-radius:12px;border:1px solid #F5F5F4;padding:0.65rem;margin-bottom:0.55rem;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:box-shadow 0.15s;}
-    .item-card:active{box-shadow:0 2px 10px rgba(249,115,22,0.15);}
+
+    .item-card{background:#fff;border-radius:14px;border:1px solid #F5F5F4;margin-bottom:0.75rem;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;transition:box-shadow 0.15s;}
+    .item-card:active{box-shadow:0 2px 12px rgba(249,115,22,0.18);}
     .item-card.indisponivel{opacity:0.45;cursor:not-allowed;}
-    .thumb{width:72px;height:72px;border-radius:10px;background:linear-gradient(135deg,#FEF3C7,#FED7AA);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.9rem;overflow:hidden;}
-    .thumb img{width:100%;height:100%;object-fit:cover;border-radius:10px;}
-    .iinfo{flex:1;min-width:0;}
-    .iname{font-size:0.88rem;font-weight:700;color:var(--txt);margin-bottom:0.15rem;}
-    .idesc{font-size:0.73rem;color:var(--txt2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-    .ifoot{display:flex;align-items:center;justify-content:space-between;margin-top:0.4rem;}
-    .iprice{font-size:0.95rem;font-weight:700;color:var(--or);}
-    .iadd{width:28px;height:28px;border-radius:50%;background:var(--or);border:none;color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;transition:background 0.15s;}
+    .item-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;}
+    .item-img-placeholder{width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#FEF3C7,#FED7AA);display:flex;align-items:center;justify-content:center;font-size:3.5rem;}
+    .item-body{padding:0.85rem;}
+    .iname{font-size:1rem;font-weight:700;color:var(--txt);margin-bottom:0.25rem;}
+    .idesc{font-size:0.8rem;color:var(--txt2);line-height:1.5;margin-bottom:0.65rem;}
+    .ifoot{display:flex;align-items:center;justify-content:space-between;}
+    .iprice{font-size:1.1rem;font-weight:800;color:var(--or);}
+    .iadd{background:var(--or);color:#fff;border:none;border-radius:10px;padding:0.5rem 1.1rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
     .iadd:active{background:var(--or2);}
-    .tag-indisponivel{font-size:0.65rem;background:#F3F4F6;color:#9CA3AF;border-radius:10px;padding:0.1rem 0.45rem;font-weight:600;}
+    .tag-indisponivel{font-size:0.7rem;background:#F3F4F6;color:#9CA3AF;border-radius:10px;padding:0.2rem 0.6rem;font-weight:600;}
+
+    /* TOAST */
+    .toast-add{position:fixed;top:1rem;left:50%;transform:translateX(-50%) translateY(-80px);background:#1C1917;color:#fff;border-radius:12px;padding:0.65rem 1.25rem;font-size:0.82rem;font-weight:600;z-index:200;transition:transform 0.3s;white-space:nowrap;border-left:3px solid var(--or);}
+    .toast-add.show{transform:translateX(-50%) translateY(0);}
 
     /* ITEM MODAL */
-    .overlay{display:none;position:fixed;inset:0;background:rgba(28,25,23,0.6);z-index:50;align-items:flex-end;}
+    .overlay{display:none;position:fixed;inset:0;background:rgba(28,25,23,0.6);z-index:50;align-items:flex-end;justify-content:center;}
     .overlay.open{display:flex;}
-    .modal-box{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;margin:0 auto;overflow:hidden;}
-    .im-img{width:100%;height:140px;background:linear-gradient(135deg,#FEF3C7,#FED7AA);display:flex;align-items:center;justify-content:center;font-size:3.5rem;overflow:hidden;position:relative;}
-    .im-img img{width:100%;height:100%;object-fit:cover;}
-    .im-close{position:absolute;top:0.5rem;right:0.7rem;background:rgba(255,255,255,0.9);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;}
+    .modal-box{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;overflow:hidden;}
+    .im-img{width:100%;aspect-ratio:1/1;max-height:260px;object-fit:cover;display:block;}
+    .im-img-placeholder{width:100%;height:200px;background:linear-gradient(135deg,#FEF3C7,#FED7AA);display:flex;align-items:center;justify-content:center;font-size:4rem;}
+    .im-close{position:absolute;top:0.5rem;right:0.7rem;background:rgba(255,255,255,0.9);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;z-index:1;}
+    .im-wrap{position:relative;}
     .im-body{padding:1rem 1.1rem 1.4rem;}
-    .im-name{font-size:1.05rem;font-weight:700;color:var(--txt);margin-bottom:0.2rem;}
-    .im-desc{font-size:0.8rem;color:var(--txt2);margin-bottom:0.75rem;line-height:1.5;}
+    .im-name{font-size:1.1rem;font-weight:700;color:var(--txt);margin-bottom:0.2rem;}
+    .im-desc{font-size:0.82rem;color:var(--txt2);margin-bottom:0.85rem;line-height:1.5;}
     .im-row{display:flex;align-items:center;justify-content:space-between;}
-    .im-price{font-size:1.2rem;font-weight:800;color:var(--or);}
+    .im-price{font-size:1.3rem;font-weight:800;color:var(--or);}
     .qrow{display:flex;align-items:center;gap:0.65rem;}
-    .qbtn{width:32px;height:32px;border-radius:50%;border:2px solid var(--or);background:#fff;color:var(--or);font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-    .qnum{font-size:1rem;font-weight:700;min-width:18px;text-align:center;color:var(--txt);}
-    .im-add{width:100%;background:var(--or);color:#fff;border:none;border-radius:12px;padding:0.75rem;font-size:0.9rem;font-weight:700;cursor:pointer;margin-top:0.85rem;font-family:'Poppins',sans-serif;}
+    .qbtn{width:34px;height:34px;border-radius:50%;border:2px solid var(--or);background:#fff;color:var(--or);font-size:1.1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .qnum{font-size:1rem;font-weight:700;min-width:20px;text-align:center;color:var(--txt);}
+    .im-add{width:100%;background:var(--or);color:#fff;border:none;border-radius:12px;padding:0.8rem;font-size:0.95rem;font-weight:700;cursor:pointer;margin-top:0.9rem;font-family:'Poppins',sans-serif;}
 
-    /* CARRINHO */
+    /* CARRINHO BAR */
     .cart-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--or);padding:0.85rem 1.1rem;display:none;align-items:center;justify-content:space-between;z-index:40;}
     .cart-bar.show{display:flex;}
     .cb-left{color:#fff;}
@@ -90,41 +91,58 @@
     .cs-back{background:none;border:none;font-size:1.3rem;color:var(--or);cursor:pointer;}
     .cs-title{font-size:1rem;font-weight:700;color:var(--txt);}
     .cs-body{flex:1;overflow-y:auto;}
-    .cs-item{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.1rem;border-bottom:1px solid #F9FAFB;}
-    .csi-left{display:flex;align-items:center;gap:0.6rem;}
-    .csi-icon{width:36px;height:36px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1rem;overflow:hidden;flex-shrink:0;}
-    .csi-icon img{width:100%;height:100%;object-fit:cover;border-radius:8px;}
-    .csi-name{font-size:0.85rem;font-weight:600;color:var(--txt);}
-    .csi-qty{font-size:0.75rem;color:var(--txt3);}
-    .csi-price{font-size:0.9rem;font-weight:700;color:var(--or);}
+
+    .cs-item{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.1rem;border-bottom:1px solid #F9FAFB;}
+    .csi-img{width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;}
+    .csi-img-ph{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,#FEF3C7,#FED7AA);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
+    .csi-info{flex:1;min-width:0;}
+    .csi-name{font-size:0.85rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .csi-price{font-size:0.78rem;color:var(--or);font-weight:600;margin-top:0.1rem;}
+    .csi-controls{display:flex;align-items:center;gap:0.45rem;flex-shrink:0;}
+    .csi-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--or);background:#fff;color:var(--or);font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .csi-btn.remove{border-color:#EF4444;color:#EF4444;}
+    .csi-qty{font-size:0.9rem;font-weight:700;min-width:20px;text-align:center;color:var(--txt);}
+    .csi-subtotal{font-size:0.82rem;font-weight:700;color:var(--txt);min-width:58px;text-align:right;flex-shrink:0;}
+
     .cs-total{padding:1rem 1.1rem;display:flex;justify-content:space-between;font-weight:700;font-size:1rem;border-top:2px solid #FED7AA;color:var(--txt);flex-shrink:0;}
+
+    /* FORMULÁRIO CEP */
     .cs-form{padding:0.75rem 1.1rem 1.5rem;flex-shrink:0;}
+    .cs-section{font-size:0.72rem;font-weight:700;color:var(--txt2);letter-spacing:1.2px;text-transform:uppercase;margin:0.85rem 0 0.5rem;display:flex;align-items:center;gap:0.5rem;}
+    .cs-section::after{content:'';flex:1;height:1px;background:#F3F4F6;}
     .cs-label{font-size:0.75rem;font-weight:600;color:var(--txt2);margin-bottom:0.25rem;display:block;}
-    .cs-input{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.85rem;color:var(--txt);margin-bottom:0.7rem;}
+    .cs-input{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.85rem;color:var(--txt);margin-bottom:0.65rem;}
     .cs-input:focus{outline:none;border-color:var(--or);}
-    .cs-textarea{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.85rem;color:var(--txt);height:65px;resize:none;margin-bottom:0.7rem;}
+    .cs-input:disabled{background:#F9FAFB;color:var(--txt3);}
+    .cs-input.ok{border-color:var(--green);}
+    .cs-input.erro{border-color:#EF4444;}
+    .cs-row{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;}
+    .cs-textarea{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.85rem;color:var(--txt);height:65px;resize:none;margin-bottom:0.65rem;}
     .cs-textarea:focus{outline:none;border-color:var(--or);}
-    .cs-send{width:100%;background:var(--or);color:#fff;border:none;border-radius:12px;padding:0.8rem;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .cep-wrap{position:relative;margin-bottom:0.65rem;}
+    .cep-wrap .cs-input{margin-bottom:0;}
+    .cep-loading{position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);font-size:0.75rem;color:var(--or);display:none;}
+    .cep-hint{font-size:0.72rem;color:var(--txt3);margin-top:0.25rem;margin-bottom:0.65rem;}
+    .cs-send{width:100%;background:var(--or);color:#fff;border:none;border-radius:12px;padding:0.85rem;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-top:0.5rem;}
     .cs-send:disabled{background:#FED7AA;cursor:not-allowed;}
+
+    .cs-empty{text-align:center;padding:3rem 1rem;color:var(--txt3);}
+    .cs-empty-icon{font-size:2.5rem;margin-bottom:0.5rem;}
     .cs-success{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;}
     .cs-success-icon{font-size:3.5rem;margin-bottom:1rem;}
     .cs-success-title{font-size:1.1rem;font-weight:700;color:var(--txt);margin-bottom:0.5rem;}
-    .cs-success-sub{font-size:0.82rem;color:var(--txt2);line-height:1.6;}
+    .cs-success-sub{font-size:0.82rem;color:var(--txt2);line-height:1.7;}
     .cs-novo-btn{margin-top:1.5rem;background:var(--or);color:#fff;border:none;border-radius:10px;padding:0.65rem 1.5rem;font-family:'Poppins',sans-serif;font-weight:700;cursor:pointer;font-size:0.88rem;}
   </style>
 </head>
 <body>
 
-  <!-- LOADING -->
   <div class="loading" id="loading">
     <div class="loading-icon">🍕</div>
     <div class="loading-txt">Carregando cardápio...</div>
   </div>
 
-  <!-- CONTEÚDO PRINCIPAL -->
   <div id="app" style="display:none;">
-
-    <!-- HERO -->
     <div class="hero">
       <div id="heroBanner" class="hero-banner-placeholder">🍕</div>
       <div class="hero-info">
@@ -133,14 +151,8 @@
         <div class="store-meta" id="storeMeta"></div>
       </div>
     </div>
-
-    <!-- CATEGORIAS -->
     <div class="cats" id="catsBar"></div>
-
-    <!-- MENU -->
     <div class="menu-body" id="menuBody"></div>
-
-    <!-- BARRA DO CARRINHO -->
     <div class="cart-bar" id="cartBar">
       <div class="cb-left">
         <div class="cb-cnt" id="cbCnt">0 itens</div>
@@ -148,15 +160,15 @@
       </div>
       <button class="cb-btn" onclick="abrirCarrinho()">Ver carrinho →</button>
     </div>
-
   </div>
+
+  <div class="toast-add" id="toastAdd">✓ Item adicionado!</div>
 
   <!-- ITEM MODAL -->
   <div class="overlay" id="itemOverlay">
     <div class="modal-box">
-      <div class="im-img" id="imImg">
-        <span id="imIcon"></span>
-        <img id="imImgEl" alt="" style="display:none;">
+      <div class="im-wrap">
+        <div id="imImgWrap"></div>
         <button class="im-close" onclick="fecharItem()">×</button>
       </div>
       <div class="im-body">
@@ -182,16 +194,48 @@
       <span class="cs-title">Meu pedido</span>
     </div>
     <div class="cs-body" id="csBody"></div>
-    <div class="cs-total"><span>Total</span><span id="csTotalVal">R$0,00</span></div>
-    <div class="cs-form">
-      <label class="cs-label">Seu nome</label>
+    <div class="cs-total" id="csTotalRow" style="display:none;">
+      <span>Total</span><span id="csTotalVal">R$0,00</span>
+    </div>
+    <div class="cs-form" id="csForm" style="display:none;">
+
+      <div class="cs-section">Seus dados</div>
+      <label class="cs-label">Nome completo *</label>
       <input class="cs-input" id="cliNome" placeholder="Ex: João Silva">
-      <label class="cs-label">Telefone (WhatsApp)</label>
+      <label class="cs-label">Telefone / WhatsApp *</label>
       <input class="cs-input" id="cliTel" placeholder="(99) 99999-9999" type="tel">
-      <label class="cs-label">Endereço de entrega</label>
-      <input class="cs-input" id="cliEnd" placeholder="Rua, número, bairro">
-      <label class="cs-label">Observações (opcional)</label>
-      <textarea class="cs-textarea" id="cliObs" placeholder="Ex: sem cebola, troco para R$50..."></textarea>
+
+      <div class="cs-section">Endereço de entrega</div>
+      <label class="cs-label">CEP *</label>
+      <div class="cep-wrap">
+        <input class="cs-input" id="cliCep" placeholder="00000-000" type="tel" maxlength="9" oninput="mascaraCep(this)" onblur="buscarCep(this.value)">
+        <span class="cep-loading" id="cepLoading">🔍 Buscando...</span>
+      </div>
+      <div class="cep-hint" id="cepHint">Digite o CEP para preencher o endereço automaticamente</div>
+
+      <label class="cs-label">Rua / Logradouro *</label>
+      <input class="cs-input" id="cliRua" placeholder="Nome da rua">
+
+      <div class="cs-row">
+        <div>
+          <label class="cs-label">Número *</label>
+          <input class="cs-input" id="cliNum" placeholder="Ex: 123">
+        </div>
+        <div>
+          <label class="cs-label">Complemento</label>
+          <input class="cs-input" id="cliComp" placeholder="Apto, casa...">
+        </div>
+      </div>
+
+      <label class="cs-label">Bairro *</label>
+      <input class="cs-input" id="cliBairro" placeholder="Nome do bairro">
+
+      <label class="cs-label">Cidade / Estado</label>
+      <input class="cs-input" id="cliCidade" placeholder="Cidade — UF" disabled>
+
+      <div class="cs-section">Observações</div>
+      <textarea class="cs-textarea" id="cliObs" placeholder="Ex: sem cebola, troco para R$50, portão azul..."></textarea>
+
       <button class="cs-send" id="btnEnviar" onclick="enviarPedido()">Confirmar pedido</button>
     </div>
   </div>
@@ -201,248 +245,261 @@
     import { getLoja, getCategorias, getProdutos } from './js/cardapio.js'
     import { criarPedido } from './js/pedidos.js'
 
-    // Pega o ID da loja da URL: index.html?loja=UUID
-    const params  = new URLSearchParams(window.location.search)
-    const lojaId  = params.get('loja')
+    const params = new URLSearchParams(window.location.search)
+    const lojaId = params.get('loja')
 
-    let loja       = null
-    let produtos   = []
-    let categorias = []
-    let cart       = []
-    let itemAtual  = null
-    let qty        = 1
-    let catAtual   = 'todos'
+    let loja=null, produtos=[], categorias=[], cart=[], itemAtual=null, qty=1, catAtual='todos'
 
-    function fmt(v) { return 'R$' + Number(v).toFixed(2).replace('.', ',') }
+    const fmt = v => 'R$'+Number(v).toFixed(2).replace('.',',')
 
-    async function init() {
-      if (!lojaId) {
-        document.getElementById('loading').innerHTML =
-          '<div class="inativa"><div class="inativa-icon">🔗</div><div class="inativa-txt">Link inválido</div><div class="inativa-sub">Solicite o link correto ao estabelecimento.</div></div>'
+    function showToast(msg){
+      const t=document.getElementById('toastAdd')
+      t.textContent=msg; t.classList.add('show')
+      setTimeout(()=>t.classList.remove('show'),2000)
+    }
+
+    // MÁSCARA CEP
+    window.mascaraCep = function(input){
+      let v=input.value.replace(/\D/g,'')
+      if(v.length>5) v=v.slice(0,5)+'-'+v.slice(5,8)
+      input.value=v
+    }
+
+    // BUSCA CEP — ViaCEP
+    window.buscarCep = async function(cep){
+      const limpo=cep.replace(/\D/g,'')
+      if(limpo.length!==8) return
+      const loading=document.getElementById('cepLoading')
+      const hint=document.getElementById('cepHint')
+      const inputCep=document.getElementById('cliCep')
+      loading.style.display='block'; hint.textContent='Buscando endereço...'
+      try{
+        const res=await fetch(`https://viacep.com.br/ws/${limpo}/json/`)
+        const data=await res.json()
+        if(data.erro){
+          inputCep.classList.add('erro'); inputCep.classList.remove('ok')
+          hint.textContent='❌ CEP não encontrado. Preencha o endereço manualmente.'
+        } else {
+          document.getElementById('cliRua').value=data.logradouro||''
+          document.getElementById('cliBairro').value=data.bairro||''
+          document.getElementById('cliCidade').value=`${data.localidade} — ${data.uf}`
+          inputCep.classList.add('ok'); inputCep.classList.remove('erro')
+          hint.textContent=`✅ ${data.localidade} — ${data.uf}`
+          document.getElementById('cliNum').focus()
+        }
+      } catch(e){
+        hint.textContent='Erro ao buscar CEP. Preencha manualmente.'
+      } finally {
+        loading.style.display='none'
+      }
+    }
+
+    async function init(){
+      if(!lojaId){
+        document.getElementById('loading').innerHTML='<div class="inativa"><div class="inativa-icon">🔗</div><div class="inativa-txt">Link inválido</div><div class="inativa-sub">Solicite o link correto ao estabelecimento.</div></div>'
         return
       }
-
-      try {
-        loja       = await getLoja(lojaId)
-        categorias = await getCategorias(lojaId)
-        produtos   = await getProdutos(lojaId)
-
-        if (!loja || !loja.ativa) {
-          document.getElementById('loading').innerHTML =
-            '<div class="inativa"><div class="inativa-icon">🔒</div><div class="inativa-txt">Loja indisponível</div><div class="inativa-sub">Este estabelecimento está temporariamente fora do ar.</div></div>'
+      try{
+        loja=await getLoja(lojaId)
+        categorias=await getCategorias(lojaId)
+        produtos=await getProdutos(lojaId)
+        if(!loja||!loja.ativa){
+          document.getElementById('loading').innerHTML='<div class="inativa"><div class="inativa-icon">🔒</div><div class="inativa-txt">Loja indisponível</div><div class="inativa-sub">Este estabelecimento está temporariamente fora do ar.</div></div>'
           return
         }
-
-        renderHero()
-        renderCats()
-        renderMenu()
-
-        document.getElementById('loading').style.display = 'none'
-        document.getElementById('app').style.display = 'block'
-        document.title = loja.nome + ' — Cardápio'
-
-      } catch(e) {
-        console.error(e)
-        document.getElementById('loading').innerHTML =
-          '<div class="inativa"><div class="inativa-icon">⚠️</div><div class="inativa-txt">Erro ao carregar</div><div class="inativa-sub">Tente recarregar a página.</div></div>'
+        renderHero(); renderCats(); renderMenu()
+        document.getElementById('loading').style.display='none'
+        document.getElementById('app').style.display='block'
+        document.title=loja.nome+' — Cardápio'
+      } catch(e){
+        document.getElementById('loading').innerHTML='<div class="inativa"><div class="inativa-icon">⚠️</div><div class="inativa-txt">Erro ao carregar</div><div class="inativa-sub">Tente recarregar a página.</div></div>'
       }
     }
 
-    function renderHero() {
-      document.getElementById('storeName').textContent = loja.nome
-      document.getElementById('storeDesc').textContent = loja.descricao || ''
-
-      if (loja.banner_url) {
-        const banner = document.getElementById('heroBanner')
-        banner.outerHTML = `<img class="hero-banner" src="${loja.banner_url}" alt="${loja.nome}">`
+    function renderHero(){
+      document.getElementById('storeName').textContent=loja.nome
+      document.getElementById('storeDesc').textContent=loja.descricao||''
+      if(loja.banner_url){
+        document.getElementById('heroBanner').outerHTML=`<img class="hero-banner" src="${loja.banner_url}" alt="${loja.nome}">`
       }
-
-      const aberta = loja.aberta
-      document.getElementById('storeMeta').innerHTML = `
-        <div class="mbadge"><span class="${aberta ? 'dot-green' : 'dot-red'}"></span>${aberta ? 'Aberto' : 'Fechado'}</div>
-        ${loja.tempo_entrega ? `<div class="mbadge">🕐 ${loja.tempo_entrega}</div>` : ''}
-        ${loja.cidade ? `<div class="mbadge">📍 ${loja.cidade}</div>` : ''}
-      `
+      document.getElementById('storeMeta').innerHTML=`
+        <div class="mbadge"><span class="${loja.aberta?'dot-green':'dot-red'}"></span>${loja.aberta?'Aberto':'Fechado'}</div>
+        ${loja.tempo_entrega?`<div class="mbadge">🕐 ${loja.tempo_entrega}</div>`:''}
+        ${loja.cidade?`<div class="mbadge">📍 ${loja.cidade}</div>`:''}`
     }
 
-    function renderCats() {
-      let html = `<button class="cat-btn active" onclick="filtrar('todos',this)">Todos</button>`
-      categorias.forEach(c => {
-        html += `<button class="cat-btn" onclick="filtrar('${c.id}',this)">${c.nome}</button>`
-      })
-      document.getElementById('catsBar').innerHTML = html
+    function renderCats(){
+      let h=`<button class="cat-btn active" onclick="filtrar('todos',this)">Todos</button>`
+      categorias.forEach(c=>{h+=`<button class="cat-btn" onclick="filtrar('${c.id}',this)">${c.nome}</button>`})
+      document.getElementById('catsBar').innerHTML=h
     }
 
-    function renderMenu() {
-      const cats = catAtual === 'todos' ? categorias : categorias.filter(c => c.id === catAtual)
-      let html = ''
-      cats.forEach(cat => {
-        const itens = produtos.filter(p => p.categoria_id === cat.id)
-        if (!itens.length) return
-        html += `<div class="sec-hd">${cat.nome}</div>`
-        itens.forEach(p => {
-          const indisponivel = !p.disponivel
-          html += `
-            <div class="item-card${indisponivel ? ' indisponivel' : ''}" onclick="${indisponivel ? '' : `abrirItem('${p.id}')`}">
-              <div class="thumb">
-                ${p.foto_url ? `<img src="${p.foto_url}" alt="${p.nome}">` : '🍽️'}
+    function renderMenu(){
+      const cats=catAtual==='todos'?categorias:categorias.filter(c=>c.id===catAtual)
+      let h=''
+      cats.forEach(cat=>{
+        const itens=produtos.filter(p=>p.categoria_id===cat.id)
+        if(!itens.length)return
+        h+=`<div class="sec-hd">${cat.nome}</div>`
+        itens.forEach(p=>{
+          const ind=!p.disponivel
+          const imgHtml=p.foto_url
+            ?`<img class="item-img" src="${p.foto_url}" alt="${p.nome}" loading="lazy">`
+            :`<div class="item-img-placeholder">🍽️</div>`
+          h+=`<div class="item-card${ind?' indisponivel':''}" onclick="${ind?'':'abrirItem(\''+p.id+'\')'}">
+            ${imgHtml}
+            <div class="item-body">
+              <div class="iname">${p.nome}</div>
+              <div class="idesc">${p.descricao||''}</div>
+              <div class="ifoot">
+                <span class="iprice">${fmt(p.preco)}</span>
+                ${ind
+                  ?'<span class="tag-indisponivel">Indisponível</span>'
+                  :`<button class="iadd" onclick="event.stopPropagation();quickAdd('${p.id}')">+ Adicionar</button>`}
               </div>
-              <div class="iinfo">
-                <div class="iname">${p.nome}</div>
-                <div class="idesc">${p.descricao || ''}</div>
-                <div class="ifoot">
-                  <span class="iprice">${fmt(p.preco)}</span>
-                  ${indisponivel
-                    ? '<span class="tag-indisponivel">Indisponível</span>'
-                    : `<button class="iadd" onclick="event.stopPropagation();quickAdd('${p.id}')">+</button>`}
-                </div>
-              </div>
-            </div>`
+            </div>
+          </div>`
         })
       })
-      if (!html) html = '<div style="text-align:center;padding:3rem;color:#A8A29E;font-size:0.85rem;">Nenhum item nesta categoria</div>'
-      document.getElementById('menuBody').innerHTML = html
+      if(!h)h='<div style="text-align:center;padding:3rem;color:#A8A29E;font-size:0.85rem;">Nenhum item nesta categoria</div>'
+      document.getElementById('menuBody').innerHTML=h
     }
 
-    window.filtrar = function(catId, el) {
-      catAtual = catId
-      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'))
-      el.classList.add('active')
-      renderMenu()
+    window.filtrar=function(catId,el){
+      catAtual=catId
+      document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'))
+      el.classList.add('active'); renderMenu()
     }
 
-    window.abrirItem = function(id) {
-      itemAtual = produtos.find(p => p.id === id)
-      qty = 1
-      document.getElementById('imName').textContent  = itemAtual.nome
-      document.getElementById('imDesc').textContent  = itemAtual.descricao || ''
-      document.getElementById('imPrice').textContent = fmt(itemAtual.preco)
-      document.getElementById('qtyNum').textContent  = 1
-      const imgEl = document.getElementById('imImgEl')
-      const icon  = document.getElementById('imIcon')
-      if (itemAtual.foto_url) {
-        imgEl.src = itemAtual.foto_url
-        imgEl.style.display = 'block'
-        icon.style.display  = 'none'
-      } else {
-        imgEl.style.display = 'none'
-        icon.textContent    = '🍽️'
-        icon.style.display  = ''
-      }
+    window.abrirItem=function(id){
+      itemAtual=produtos.find(p=>p.id===id); qty=1
+      document.getElementById('imName').textContent=itemAtual.nome
+      document.getElementById('imDesc').textContent=itemAtual.descricao||''
+      document.getElementById('imPrice').textContent=fmt(itemAtual.preco)
+      document.getElementById('qtyNum').textContent=1
+      document.getElementById('imImgWrap').innerHTML=itemAtual.foto_url
+        ?`<img class="im-img" src="${itemAtual.foto_url}" alt="${itemAtual.nome}">`
+        :`<div class="im-img-placeholder">🍽️</div>`
       document.getElementById('itemOverlay').classList.add('open')
     }
 
-    window.fecharItem = function() {
-      document.getElementById('itemOverlay').classList.remove('open')
+    window.fecharItem=()=>document.getElementById('itemOverlay').classList.remove('open')
+    window.chQty=d=>{qty=Math.max(1,qty+d);document.getElementById('qtyNum').textContent=qty}
+
+    window.quickAdd=function(id){
+      const p=produtos.find(x=>x.id===id)
+      const ex=cart.find(c=>c.id===id)
+      if(ex)ex.qty++;else cart.push({...p,qty:1})
+      atualizarCartBar(); showToast(`✓ ${p.nome} adicionado!`)
     }
 
-    window.chQty = function(d) {
-      qty = Math.max(1, qty + d)
-      document.getElementById('qtyNum').textContent = qty
+    window.addCarrinho=function(){
+      if(!itemAtual)return
+      const ex=cart.find(c=>c.id===itemAtual.id)
+      if(ex)ex.qty+=qty;else cart.push({...itemAtual,qty})
+      fecharItem(); atualizarCartBar(); showToast(`✓ ${itemAtual.nome} adicionado!`)
     }
 
-    window.quickAdd = function(id) {
-      const p  = produtos.find(x => x.id === id)
-      const ex = cart.find(c => c.id === id)
-      if (ex) ex.qty++
-      else cart.push({ ...p, qty: 1 })
-      atualizarCartBar()
-    }
-
-    window.addCarrinho = function() {
-      if (!itemAtual) return
-      const ex = cart.find(c => c.id === itemAtual.id)
-      if (ex) ex.qty += qty
-      else cart.push({ ...itemAtual, qty })
-      fecharItem()
-      atualizarCartBar()
-    }
-
-    function atualizarCartBar() {
-      const total = cart.reduce((s, i) => s + i.preco * i.qty, 0)
-      const count = cart.reduce((s, i) => s + i.qty, 0)
-      const bar   = document.getElementById('cartBar')
-      if (!count) { bar.classList.remove('show'); return }
+    function atualizarCartBar(){
+      const total=cart.reduce((s,i)=>s+i.preco*i.qty,0)
+      const count=cart.reduce((s,i)=>s+i.qty,0)
+      const bar=document.getElementById('cartBar')
+      if(!count){bar.classList.remove('show');return}
       bar.classList.add('show')
-      document.getElementById('cbCnt').textContent = count + (count === 1 ? ' item' : ' itens')
-      document.getElementById('cbTot').textContent = fmt(total)
+      document.getElementById('cbCnt').textContent=count+(count===1?' item':' itens')
+      document.getElementById('cbTot').textContent=fmt(total)
     }
 
-    window.abrirCarrinho = function() {
-      const total = cart.reduce((s, i) => s + i.preco * i.qty, 0)
-      document.getElementById('csBody').innerHTML = cart.map(i => `
-        <div class="cs-item">
-          <div class="csi-left">
-            <div class="csi-icon">${i.foto_url ? `<img src="${i.foto_url}" alt="">` : '🍽️'}</div>
-            <div><div class="csi-name">${i.nome}</div><div class="csi-qty">x${i.qty}</div></div>
-          </div>
-          <span class="csi-price">${fmt(i.preco * i.qty)}</span>
-        </div>`).join('')
-      document.getElementById('csTotalVal').textContent = fmt(total)
-      document.getElementById('cartScreen').classList.add('open')
-    }
-
-    window.fecharCarrinho = function() {
-      document.getElementById('cartScreen').classList.remove('open')
-    }
-
-    window.enviarPedido = async function() {
-      const nome = document.getElementById('cliNome').value.trim()
-      const tel  = document.getElementById('cliTel').value.trim()
-      const end  = document.getElementById('cliEnd').value.trim()
-      const obs  = document.getElementById('cliObs').value.trim()
-
-      if (!nome || !end) {
-        alert('Preencha seu nome e endereço para continuar.')
-        return
+    function renderCarrinho(){
+      const total=cart.reduce((s,i)=>s+i.preco*i.qty,0)
+      const totalRow=document.getElementById('csTotalRow')
+      const form=document.getElementById('csForm')
+      if(!cart.length){
+        document.getElementById('csBody').innerHTML=`<div class="cs-empty"><div class="cs-empty-icon">🛒</div><div>Seu carrinho está vazio</div></div>`
+        totalRow.style.display='none'; form.style.display='none'; return
       }
+      totalRow.style.display='flex'; form.style.display='block'
+      document.getElementById('csTotalVal').textContent=fmt(total)
+      document.getElementById('csBody').innerHTML=cart.map(i=>`
+        <div class="cs-item">
+          ${i.foto_url
+            ?`<img class="csi-img" src="${i.foto_url}" alt="${i.nome}">`
+            :`<div class="csi-img-ph">🍽️</div>`}
+          <div class="csi-info">
+            <div class="csi-name">${i.nome}</div>
+            <div class="csi-price">${fmt(i.preco)} un.</div>
+          </div>
+          <div class="csi-controls">
+            <button class="csi-btn remove" onclick="alterarQty('${i.id}',-1)" title="Remover">−</button>
+            <span class="csi-qty">${i.qty}</span>
+            <button class="csi-btn" onclick="alterarQty('${i.id}',1)" title="Adicionar">+</button>
+          </div>
+          <span class="csi-subtotal">${fmt(i.preco*i.qty)}</span>
+        </div>`).join('')
+    }
 
-      const btn = document.getElementById('btnEnviar')
-      btn.disabled = true
-      btn.textContent = 'Enviando...'
+    window.alterarQty=function(id,d){
+      const idx=cart.findIndex(c=>c.id===id); if(idx===-1)return
+      cart[idx].qty+=d
+      if(cart[idx].qty<=0)cart.splice(idx,1)
+      atualizarCartBar(); renderCarrinho()
+    }
 
-      try {
-        const itens = cart.map(i => ({
-          produto_id: i.id,
-          nome:       i.nome,
-          preco:      i.preco,
-          quantidade: i.qty,
-          subtotal:   i.preco * i.qty
-        }))
+    window.abrirCarrinho=function(){renderCarrinho();document.getElementById('cartScreen').classList.add('open')}
+    window.fecharCarrinho=()=>document.getElementById('cartScreen').classList.remove('open')
 
-        await criarPedido(lojaId, { nome, telefone: tel, endereco: end, obs }, itens)
+    window.enviarPedido=async function(){
+      const nome=document.getElementById('cliNome').value.trim()
+      const tel=document.getElementById('cliTel').value.trim()
+      const cep=document.getElementById('cliCep').value.trim()
+      const rua=document.getElementById('cliRua').value.trim()
+      const num=document.getElementById('cliNum').value.trim()
+      const comp=document.getElementById('cliComp').value.trim()
+      const bairro=document.getElementById('cliBairro').value.trim()
+      const cidade=document.getElementById('cliCidade').value.trim()
+      const obs=document.getElementById('cliObs').value.trim()
 
-        // Montar mensagem WhatsApp também
-        const total = cart.reduce((s, i) => s + i.preco * i.qty, 0)
-        let msg = `*Novo Pedido — ${loja.nome}*\n\n*Cliente:* ${nome}\n*Tel:* ${tel}\n*Endereço:* ${end}\n\n*Itens:*\n`
-        cart.forEach(i => { msg += `• ${i.qty}x ${i.nome} — ${fmt(i.preco * i.qty)}\n` })
-        msg += `\n*Total: ${fmt(total)}*`
-        if (obs) msg += `\n\n*Obs:* ${obs}`
+      if(!nome||!tel){alert('Preencha seu nome e telefone.');return}
+      if(!rua||!num||!bairro){alert('Preencha o endereço completo (rua, número e bairro).');return}
 
-        // Abre WhatsApp
-        if (loja.whatsapp) {
-          const wpp = loja.whatsapp.replace(/\D/g, '')
-          window.open(`https://wa.me/55${wpp}?text=${encodeURIComponent(msg)}`, '_blank')
+      const enderecoCompleto=`${rua}, ${num}${comp?' — '+comp:''}, ${bairro}${cidade?' — '+cidade:''} (CEP: ${cep})`
+
+      const btn=document.getElementById('btnEnviar')
+      btn.disabled=true; btn.textContent='Enviando...'
+
+      try{
+        const itens=cart.map(i=>({produto_id:i.id,nome:i.nome,preco:i.preco,quantidade:i.qty,subtotal:i.preco*i.qty}))
+        await criarPedido(lojaId,{nome,telefone:tel,endereco:enderecoCompleto,obs},itens)
+
+        const total=cart.reduce((s,i)=>s+i.preco*i.qty,0)
+        let msg=`*Novo Pedido — ${loja.nome}*\n\n`
+        msg+=`*Cliente:* ${nome}\n*Tel:* ${tel}\n\n`
+        msg+=`*Endereço:*\n${rua}, ${num}${comp?' — '+comp:''}\n${bairro}${cidade?' — '+cidade:''}\nCEP: ${cep}\n\n`
+        msg+=`*Itens:*\n`
+        cart.forEach(i=>{msg+=`• ${i.qty}x ${i.nome} — ${fmt(i.preco*i.qty)}\n`})
+        msg+=`\n*Total: ${fmt(total)}*`
+        if(obs)msg+=`\n\n*Obs:* ${obs}`
+
+        if(loja.whatsapp){
+          const w=loja.whatsapp.replace(/\D/g,'')
+          window.open(`https://wa.me/55${w}?text=${encodeURIComponent(msg)}`,'_blank')
         }
 
-        // Mostra sucesso
-        const screen = document.getElementById('cartScreen')
-        screen.innerHTML = `
-          <div class="cs-success">
-            <div class="cs-success-icon">🎉</div>
-            <div class="cs-success-title">Pedido confirmado!</div>
-            <div class="cs-success-sub">Seu pedido foi registrado e enviado pelo WhatsApp.<br>Aguarde a confirmação do estabelecimento.</div>
-            <button class="cs-novo-btn" onclick="location.reload()">Fazer novo pedido</button>
-          </div>`
-
-        cart = []
-        atualizarCartBar()
-
-      } catch(e) {
-        console.error(e)
+        const screen=document.getElementById('cartScreen')
+        screen.innerHTML=`<div class="cs-success">
+          <div class="cs-success-icon">🎉</div>
+          <div class="cs-success-title">Pedido confirmado!</div>
+          <div class="cs-success-sub">
+            Seu pedido foi registrado e enviado pelo WhatsApp.<br>
+            Aguarde a confirmação do estabelecimento.<br><br>
+            <strong>Entrega em:</strong><br>${rua}, ${num}${comp?' — '+comp:''}<br>${bairro}${cidade?' — '+cidade:''}
+          </div>
+          <button class="cs-novo-btn" onclick="location.reload()">Fazer novo pedido</button>
+        </div>`
+        cart=[]; atualizarCartBar()
+      } catch(e){
         alert('Erro ao enviar pedido. Tente novamente.')
-        btn.disabled = false
-        btn.textContent = 'Confirmar pedido'
+        btn.disabled=false; btn.textContent='Confirmar pedido'
       }
     }
 
