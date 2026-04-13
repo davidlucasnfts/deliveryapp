@@ -39,3 +39,13 @@ export async function getTodosProdutos(lojaId) {
     .order('ordem')
   return data
 }
+
+// Painel do dono — busca TODAS as categorias incluindo inativas
+export async function getTodasCategorias(lojaId) {
+  const { data } = await supabase
+    .from('categorias')
+    .select('*')
+    .eq('loja_id', lojaId)
+    .order('ordem')
+  return data
+}

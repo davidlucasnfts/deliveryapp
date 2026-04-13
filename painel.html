@@ -300,6 +300,7 @@
   <script type="module">
     import { supabase } from './js/supabase.js'
     import { escutarPedidos, atualizarStatus } from './js/pedidos.js'
+    import { getTodosProdutos, getTodasCategorias } from './js/cardapio.js'
 
     let loja=null,produtos=[],categorias=[],pedidos=[],tabAtual='pedidos',editingProdId=null,editingCatId=null,canal=null,uploadedImgUrl=null
 
@@ -397,9 +398,9 @@
     }
 
     async function carregarDados(){
-      const [{data:p},{data:c},{data:pd}]=await Promise.all([
+      const [p, c, {data:pd}]=await Promise.all([
         getTodosProdutos(loja.id),
-        supabase.from('categorias').select('*').eq('loja_id',loja.id).order('ordem'),
+        getTodasCategorias(loja.id),
         supabase.from('pedidos').select('*,itens_pedido(*)').eq('loja_id',loja.id).order('criado_em',{ascending:false}).limit(80)
       ])
       produtos=p||[];categorias=c||[];pedidos=pd||[]
