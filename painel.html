@@ -398,7 +398,7 @@
 
     async function carregarDados(){
       const [{data:p},{data:c},{data:pd}]=await Promise.all([
-        supabase.from('produtos').select('*,categorias(nome)').eq('loja_id',loja.id).order('ordem'),
+        getTodosProdutos(loja.id),
         supabase.from('categorias').select('*').eq('loja_id',loja.id).order('ordem'),
         supabase.from('pedidos').select('*,itens_pedido(*)').eq('loja_id',loja.id).order('criado_em',{ascending:false}).limit(80)
       ])
@@ -406,6 +406,7 @@
     }
 
     function iniciarRealtime(){
+      if(canal){supabase.removeChannel(canal);canal=null}
       canal=escutarPedidos(loja.id,async payload=>{
         const {data}=await supabase.from('pedidos').select('*,itens_pedido(*)').eq('id',payload.new.id).single()
         if(data){pedidos.unshift(data);if(tabAtual==='pedidos')renderPedidos();mostrarNotif()}
