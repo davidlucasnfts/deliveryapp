@@ -134,12 +134,13 @@
     .img-pos-img{position:absolute;width:150%;height:150%;object-fit:cover;pointer-events:none;}
     .img-pos-hint{position:absolute;bottom:0.5rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.6);color:#fff;font-size:0.68rem;font-weight:600;padding:0.3rem 0.75rem;border-radius:99px;white-space:nowrap;pointer-events:none;}
 
-    /* DRAG CATEGORIAS */
-    .cat-bloco{transition:opacity 0.15s,transform 0.15s;}
-    .cat-bloco.dragging{opacity:0.4;transform:scale(0.98);}
-    .cat-bloco.drag-over{border:2px dashed var(--or);background:var(--bg2);}
-    .cat-drag-handle{cursor:grab;color:var(--txt3);font-size:1.1rem;padding:0 0.25rem;flex-shrink:0;user-select:none;}
-    .cat-drag-handle:active{cursor:grabbing;}
+    /* REORDENAÇÃO CATEGORIAS */
+    .cat-bloco{transition:box-shadow 0.15s,transform 0.15s;}
+    .cat-bloco.selecionada{box-shadow:0 0 0 2.5px var(--or);transform:scale(1.01);}
+    .cat-ordem-btns{display:none;align-items:center;gap:0.25rem;}
+    .cat-bloco.selecionada .cat-ordem-btns{display:flex;}
+    .cat-ordem-btn{width:28px;height:28px;border-radius:7px;border:none;background:var(--or);color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;}
+    .cat-ordem-btn:active{background:#EA6C0A;}
 
     /* MODAIS */
     .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;align-items:flex-end;justify-content:center;}
@@ -667,13 +668,14 @@
         h+=`<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-txt">Nenhuma categoria ainda.<br>Crie sua primeira acima!</div></div>`
       }
 
-      categorias.forEach(cat=>{
+      categorias.forEach((cat,idx)=>{
         const itens=produtos.filter(p=>p.categoria_id===cat.id)
-        const aberta=catAberta[cat.id]!==false // aberto por padrão
+        const aberta=catAberta[cat.id]!==false
         const isCombo=cat.tipo==='combo'
-        h+=`<div class="cat-bloco" data-cat-id="${cat.id}" draggable="true">
+        const primeiro=idx===0
+        const ultimo=idx===categorias.length-1
+        h+=`<div class="cat-bloco" id="catbloco_${cat.id}">
           <div class="cat-header" onclick="toggleCat('${cat.id}')">
-            <span class="cat-drag-handle" draggable="false" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" data-drag-cat="${cat.id}">⠿</span>
             <span class="cat-header-icon">${isCombo?'🔥':'📁'}</span>
             <div class="cat-header-info">
               <div class="cat-header-nome">
@@ -683,8 +685,12 @@
               <div class="cat-header-count">${itens.length} produto${itens.length!==1?'s':''}</div>
             </div>
             <div class="cat-header-actions" onclick="event.stopPropagation()">
-              <button class="toggle ${cat.ativa?'on':''}" onclick="toggleCatAtiva('${cat.id}')" title="${cat.ativa?'Ativa':'Inativa'}"></button>
-              <button class="ce-edit" onclick="openEc('${cat.id}')">✏️</button>
+              <div class="cat-ordem-btns" id="ordem_${cat.id}">
+                <button class="cat-ordem-btn" onclick="moverCat('${cat.id}',-1)" ${primeiro?'disabled style="opacity:0.35"':''}>↑</button>
+                <button class="cat-ordem-btn" onclick="moverCat('${cat.id}',1)" ${ultimo?'disabled style="opacity:0.35"':''}>↓</button>
+              </div>
+              <button class="toggle ${cat.ativa?'on':''}" onclick="toggleCatAtiva('${cat.id}')"></button>
+              <button class="ce-edit" onclick="openEc('${cat.id}')">Editar</button>
             </div>
             <span class="cat-chevron ${aberta?'open':''}">▾</span>
           </div>
@@ -698,8 +704,8 @@
                   <div class="cat-prod-preco">${fmt(p.preco)}</div>
                 </div>
                 <div class="cat-prod-actions">
-                  <button class="toggle ${p.disponivel?'on':''}" onclick="toggleProd('${p.id}')" title="${p.disponivel?'Disponível':'Indisponível'}"></button>
-                  <button class="ce-edit" onclick="openEp('${p.id}')">✏️</button>
+                  <button class="toggle ${p.disponivel?'on':''}" onclick="toggleProd('${p.id}')"></button>
+                  <button class="ce-edit" onclick="openEp('${p.id}')">Editar</button>
                   <button class="ce-del" onclick="confirmarDelProd('${p.id}')">🗑️</button>
                 </div>
               </div>`).join('')}
@@ -711,6 +717,7 @@
       })
 
       document.getElementById('mainBody').innerHTML=h
+      setTimeout(initSeguraParaOrdenar,80)
     }
 
     window.toggleCat=function(id){
@@ -724,98 +731,96 @@
     }
 
 
-    // ===== DRAG & DROP CATEGORIAS =====
-    let dragCatId=null
 
-    function initCatDrag(){
-      const blocos=document.querySelectorAll('.cat-bloco[data-cat-id]')
-      blocos.forEach(bloco=>{
-        bloco.addEventListener('dragstart',e=>{
-          dragCatId=bloco.dataset.catId
-          bloco.classList.add('dragging')
-          e.dataTransfer.effectAllowed='move'
-        })
-        bloco.addEventListener('dragend',e=>{
-          bloco.classList.remove('dragging')
-          document.querySelectorAll('.cat-bloco.drag-over').forEach(el=>el.classList.remove('drag-over'))
-          dragCatId=null
-        })
-        bloco.addEventListener('dragover',e=>{
-          e.preventDefault()
-          e.dataTransfer.dropEffect='move'
-          if(bloco.dataset.catId!==dragCatId) bloco.classList.add('drag-over')
-        })
-        bloco.addEventListener('dragleave',()=>{
-          bloco.classList.remove('drag-over')
-        })
-        bloco.addEventListener('drop',async e=>{
-          e.preventDefault()
-          bloco.classList.remove('drag-over')
-          const targetId=bloco.dataset.catId
-          if(!dragCatId||dragCatId===targetId)return
-          // Reordena array local
-          const fromIdx=categorias.findIndex(x=>x.id===dragCatId)
-          const toIdx=categorias.findIndex(x=>x.id===targetId)
-          if(fromIdx===-1||toIdx===-1)return
-          const [moved]=categorias.splice(fromIdx,1)
-          categorias.splice(toIdx,0,moved)
-          // Salva nova ordem no banco
-          await salvarOrdemCategorias()
-          renderCardapio()
-          toast('✅ Ordem atualizada!')
+    // ===== REORDENAÇÃO DE CATEGORIAS =====
+    let catSelecionada=null
+    let holdTimer=null
+
+    function initSeguraParaOrdenar(){
+      // Limpa seleção anterior
+      catSelecionada=null
+      document.querySelectorAll('.cat-bloco.selecionada').forEach(el=>el.classList.remove('selecionada'))
+
+      document.querySelectorAll('.cat-bloco').forEach(bloco=>{
+        const header=bloco.querySelector('.cat-header')
+        if(!header)return
+
+        // DESKTOP: click duplo no header para selecionar
+        // MOBILE: pressionar e segurar por 400ms
+        let downTime=0
+
+        header.addEventListener('mousedown',()=>{ downTime=Date.now() })
+        header.addEventListener('mouseup',()=>{
+          if(Date.now()-downTime>400) selecionarCat(bloco.id.replace('catbloco_',''))
         })
 
-        // TOUCH (mobile)
-        let touchStartY=0,touchCatId=bloco.dataset.catId
-        const handle=bloco.querySelector('.cat-drag-handle')
-        if(handle){
-          handle.addEventListener('touchstart',e=>{
-            touchStartY=e.touches[0].clientY
-            dragCatId=touchCatId
-            bloco.classList.add('dragging')
-            e.stopPropagation()
-          },{passive:true})
-        }
+        // Touch: pressionar e segurar
+        header.addEventListener('touchstart',e=>{
+          const id=bloco.id.replace('catbloco_','')
+          holdTimer=setTimeout(()=>{
+            selecionarCat(id)
+            // Vibra levemente para confirmar (se suportado)
+            if(navigator.vibrate)navigator.vibrate(50)
+          },400)
+        },{passive:true})
+
+        header.addEventListener('touchend',()=>{
+          clearTimeout(holdTimer)
+        })
+        header.addEventListener('touchmove',()=>{
+          clearTimeout(holdTimer)
+        },{passive:true})
       })
+    }
 
-      // Touch move no documento para mobile
-      document.addEventListener('touchmove',e=>{
-        if(!dragCatId)return
-        const touch=e.touches[0]
-        const el=document.elementFromPoint(touch.clientX,touch.clientY)
-        const targetBloco=el?.closest('.cat-bloco[data-cat-id]')
-        document.querySelectorAll('.cat-bloco.drag-over').forEach(x=>x.classList.remove('drag-over'))
-        if(targetBloco&&targetBloco.dataset.catId!==dragCatId) targetBloco.classList.add('drag-over')
-      },{passive:true})
+    function selecionarCat(id){
+      // Desseleciona anterior
+      if(catSelecionada){
+        const ant=document.getElementById('catbloco_'+catSelecionada)
+        if(ant)ant.classList.remove('selecionada')
+      }
+      if(catSelecionada===id){
+        // Clicou na mesma — desseleciona
+        catSelecionada=null
+        return
+      }
+      catSelecionada=id
+      const bloco=document.getElementById('catbloco_'+id)
+      if(bloco){
+        bloco.classList.add('selecionada')
+        bloco.scrollIntoView({behavior:'smooth',block:'nearest'})
+      }
+    }
 
-      document.addEventListener('touchend',async e=>{
-        if(!dragCatId)return
-        const touch=e.changedTouches[0]
-        const el=document.elementFromPoint(touch.clientX,touch.clientY)
-        const targetBloco=el?.closest('.cat-bloco[data-cat-id]')
-        document.querySelectorAll('.cat-bloco').forEach(x=>{x.classList.remove('dragging');x.classList.remove('drag-over')})
-        if(targetBloco&&targetBloco.dataset.catId&&targetBloco.dataset.catId!==dragCatId){
-          const fromIdx=categorias.findIndex(x=>x.id===dragCatId)
-          const toIdx=categorias.findIndex(x=>x.id===targetBloco.dataset.catId)
-          if(fromIdx>-1&&toIdx>-1){
-            const [moved]=categorias.splice(fromIdx,1)
-            categorias.splice(toIdx,0,moved)
-            await salvarOrdemCategorias()
-            renderCardapio()
-            toast('✅ Ordem atualizada!')
-          }
+    window.moverCat=async function(id,direcao){
+      const idx=categorias.findIndex(x=>x.id===id)
+      const novoIdx=idx+direcao
+      if(novoIdx<0||novoIdx>=categorias.length)return
+      // Troca no array
+      const [item]=categorias.splice(idx,1)
+      categorias.splice(novoIdx,0,item)
+      // Salva no banco
+      await salvarOrdemCategorias()
+      // Mantém a categoria selecionada
+      catSelecionada=id
+      renderCardapio()
+      // Reaplica seleção após render
+      setTimeout(()=>{
+        const bloco=document.getElementById('catbloco_'+id)
+        if(bloco){
+          bloco.classList.add('selecionada')
+          bloco.scrollIntoView({behavior:'smooth',block:'nearest'})
         }
-        dragCatId=null
-      })
+      },60)
+      toast(direcao===-1?'↑ Categoria movida para cima':'↓ Categoria movida para baixo')
     }
 
     async function salvarOrdemCategorias(){
-      // Atualiza campo ordem de cada categoria no banco
-      const updates=categorias.map((cat,i)=>
+      await Promise.all(categorias.map((cat,i)=>
         supabase.from('categorias').update({ordem:i+1}).eq('id',cat.id)
-      )
-      await Promise.all(updates)
+      ))
     }
+ }
 
     window.toggleCatAtiva=async function(id){
       const cat=categorias.find(x=>x.id===id)
