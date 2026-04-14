@@ -129,10 +129,17 @@
     .new-cat-inp{flex:1;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.48rem 0.7rem;font-family:'Poppins',sans-serif;font-size:0.83rem;}
     .new-cat-inp:focus{outline:none;border-color:var(--or);}
     /* IMG POSITION */
-    .img-pos-wrap{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:12px;background:#F9FAFB;cursor:grab;margin-bottom:0.75rem;touch-action:none;}
+    .img-pos-wrap{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:12px;background:#F9FAFB;cursor:grab;margin-bottom:0.75rem;touch-action:none;border:2px dashed #FED7AA;}
     .img-pos-wrap:active{cursor:grabbing;}
-    .img-pos-img{position:absolute;width:150%;height:150%;object-fit:cover;}
-    .img-pos-hint{position:absolute;bottom:0.5rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.55);color:#fff;font-size:0.68rem;font-weight:600;padding:0.25rem 0.65rem;border-radius:99px;white-space:nowrap;pointer-events:none;}
+    .img-pos-img{position:absolute;width:150%;height:150%;object-fit:cover;pointer-events:none;}
+    .img-pos-hint{position:absolute;bottom:0.5rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.6);color:#fff;font-size:0.68rem;font-weight:600;padding:0.3rem 0.75rem;border-radius:99px;white-space:nowrap;pointer-events:none;}
+
+    /* DRAG CATEGORIAS */
+    .cat-bloco{transition:opacity 0.15s,transform 0.15s;}
+    .cat-bloco.dragging{opacity:0.4;transform:scale(0.98);}
+    .cat-bloco.drag-over{border:2px dashed var(--or);background:var(--bg2);}
+    .cat-drag-handle{cursor:grab;color:var(--txt3);font-size:1.1rem;padding:0 0.25rem;flex-shrink:0;user-select:none;}
+    .cat-drag-handle:active{cursor:grabbing;}
 
     /* MODAIS */
     .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;align-items:flex-end;justify-content:center;}
@@ -287,16 +294,36 @@
       <label class="ep-lbl">Categoria</label>
       <select class="ep-sel" id="epCat"></select>
       <label class="ep-lbl">Foto do produto</label>
-      <div class="ep-img-info">📐 Formato quadrado 1:1 recomendado · Máximo 800×800px · JPG ou PNG · até 1MB</div>
+      <div class="ep-img-info">📐 Alta qualidade 1080×1080px · JPG/PNG/WEBP · até 20MB</div>
+
+      <!-- ÁREA DE UPLOAD (estado inicial) -->
       <div class="ep-img-area" id="epImgArea">
-        <input type="file" accept="image/jpeg,image/png,image/webp" onchange="handleImgUpload(this)">
+        <input type="file" accept="image/jpeg,image/png,image/webp" id="epFileInput" onchange="handleImgUpload(this)">
         <div class="ep-img-icon">📷</div>
         <div class="ep-img-txt">Toque para adicionar foto</div>
-        <div class="ep-img-sub">A imagem será redimensionada automaticamente para 600×600px</div>
+        <div class="ep-img-sub">Após o upload, arraste para centralizar o produto</div>
       </div>
-      <img class="ep-img-preview" id="epImgPreview" alt="">
+
+      <!-- POSICIONADOR (aparece após upload) -->
+      <div id="epImgPosWrap" class="img-pos-wrap" style="display:none;">
+        <img id="epImgPos" class="img-pos-img" alt="">
+        <div class="img-pos-hint">👆 Arraste para centralizar · solte e toque em Confirmar</div>
+      </div>
+
+      <!-- BOTÃO CONFIRMAR POSIÇÃO -->
+      <button id="epUploadBtn" style="display:none;width:100%;background:var(--or);color:#fff;border:none;border-radius:10px;padding:0.65rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:0.75rem;">
+        ✓ Confirmar posição e enviar foto
+      </button>
+
+      <!-- TROCAR FOTO (aparece quando já tem foto) -->
+      <button id="epTrocarBtn" style="display:none;width:100%;background:var(--bg3);color:#92400E;border:none;border-radius:10px;padding:0.55rem;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:0.75rem;" onclick="document.getElementById('epFileInput').click()">
+        🔄 Trocar foto
+      </button>
+
+      <!-- BARRA DE PROGRESSO -->
       <div class="ep-progress" id="epProgress"><div class="ep-progress-bar" id="epProgressBar"></div></div>
       <div class="ep-progress-txt" id="epProgressTxt"></div>
+
       <button class="ep-save" onclick="saveEp()">Salvar produto</button>
       <button class="ep-del-prod" id="epDelBtn" onclick="deletarProduto()" style="display:none;">🗑️ Excluir este produto</button>
     </div>
@@ -536,6 +563,8 @@
         h+=`<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Nenhum pedido ainda.<br>Aparecerá aqui automaticamente.</div></div>`
       }
       document.getElementById('mainBody').innerHTML=h
+      // Inicia drag & drop após render
+      setTimeout(initCatDrag,50)
     }
 
     function cardPedido(p){
@@ -642,8 +671,9 @@
         const itens=produtos.filter(p=>p.categoria_id===cat.id)
         const aberta=catAberta[cat.id]!==false // aberto por padrão
         const isCombo=cat.tipo==='combo'
-        h+=`<div class="cat-bloco">
+        h+=`<div class="cat-bloco" data-cat-id="${cat.id}" draggable="true">
           <div class="cat-header" onclick="toggleCat('${cat.id}')">
+            <span class="cat-drag-handle" draggable="false" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" data-drag-cat="${cat.id}">⠿</span>
             <span class="cat-header-icon">${isCombo?'🔥':'📁'}</span>
             <div class="cat-header-info">
               <div class="cat-header-nome">
@@ -691,6 +721,100 @@
     window.toggleNovaCatForm=function(){
       const f=document.getElementById('newCatForm')
       if(f){f.classList.toggle('open');if(f.classList.contains('open'))document.getElementById('novaCatInput')?.focus()}
+    }
+
+
+    // ===== DRAG & DROP CATEGORIAS =====
+    let dragCatId=null
+
+    function initCatDrag(){
+      const blocos=document.querySelectorAll('.cat-bloco[data-cat-id]')
+      blocos.forEach(bloco=>{
+        bloco.addEventListener('dragstart',e=>{
+          dragCatId=bloco.dataset.catId
+          bloco.classList.add('dragging')
+          e.dataTransfer.effectAllowed='move'
+        })
+        bloco.addEventListener('dragend',e=>{
+          bloco.classList.remove('dragging')
+          document.querySelectorAll('.cat-bloco.drag-over').forEach(el=>el.classList.remove('drag-over'))
+          dragCatId=null
+        })
+        bloco.addEventListener('dragover',e=>{
+          e.preventDefault()
+          e.dataTransfer.dropEffect='move'
+          if(bloco.dataset.catId!==dragCatId) bloco.classList.add('drag-over')
+        })
+        bloco.addEventListener('dragleave',()=>{
+          bloco.classList.remove('drag-over')
+        })
+        bloco.addEventListener('drop',async e=>{
+          e.preventDefault()
+          bloco.classList.remove('drag-over')
+          const targetId=bloco.dataset.catId
+          if(!dragCatId||dragCatId===targetId)return
+          // Reordena array local
+          const fromIdx=categorias.findIndex(x=>x.id===dragCatId)
+          const toIdx=categorias.findIndex(x=>x.id===targetId)
+          if(fromIdx===-1||toIdx===-1)return
+          const [moved]=categorias.splice(fromIdx,1)
+          categorias.splice(toIdx,0,moved)
+          // Salva nova ordem no banco
+          await salvarOrdemCategorias()
+          renderCardapio()
+          toast('✅ Ordem atualizada!')
+        })
+
+        // TOUCH (mobile)
+        let touchStartY=0,touchCatId=bloco.dataset.catId
+        const handle=bloco.querySelector('.cat-drag-handle')
+        if(handle){
+          handle.addEventListener('touchstart',e=>{
+            touchStartY=e.touches[0].clientY
+            dragCatId=touchCatId
+            bloco.classList.add('dragging')
+            e.stopPropagation()
+          },{passive:true})
+        }
+      })
+
+      // Touch move no documento para mobile
+      document.addEventListener('touchmove',e=>{
+        if(!dragCatId)return
+        const touch=e.touches[0]
+        const el=document.elementFromPoint(touch.clientX,touch.clientY)
+        const targetBloco=el?.closest('.cat-bloco[data-cat-id]')
+        document.querySelectorAll('.cat-bloco.drag-over').forEach(x=>x.classList.remove('drag-over'))
+        if(targetBloco&&targetBloco.dataset.catId!==dragCatId) targetBloco.classList.add('drag-over')
+      },{passive:true})
+
+      document.addEventListener('touchend',async e=>{
+        if(!dragCatId)return
+        const touch=e.changedTouches[0]
+        const el=document.elementFromPoint(touch.clientX,touch.clientY)
+        const targetBloco=el?.closest('.cat-bloco[data-cat-id]')
+        document.querySelectorAll('.cat-bloco').forEach(x=>{x.classList.remove('dragging');x.classList.remove('drag-over')})
+        if(targetBloco&&targetBloco.dataset.catId&&targetBloco.dataset.catId!==dragCatId){
+          const fromIdx=categorias.findIndex(x=>x.id===dragCatId)
+          const toIdx=categorias.findIndex(x=>x.id===targetBloco.dataset.catId)
+          if(fromIdx>-1&&toIdx>-1){
+            const [moved]=categorias.splice(fromIdx,1)
+            categorias.splice(toIdx,0,moved)
+            await salvarOrdemCategorias()
+            renderCardapio()
+            toast('✅ Ordem atualizada!')
+          }
+        }
+        dragCatId=null
+      })
+    }
+
+    async function salvarOrdemCategorias(){
+      // Atualiza campo ordem de cada categoria no banco
+      const updates=categorias.map((cat,i)=>
+        supabase.from('categorias').update({ordem:i+1}).eq('id',cat.id)
+      )
+      await Promise.all(updates)
     }
 
     window.toggleCatAtiva=async function(id){
@@ -762,17 +886,24 @@
       const prev=document.getElementById('epImgPreview')
       const imgPosWrap=document.getElementById('epImgPosWrap')
       const area=document.getElementById('epImgArea')
+      const trocarBtn2=document.getElementById('epTrocarBtn')
+      const uploadBtn2=document.getElementById('epUploadBtn')
       if(p.foto_url){
-        prev.style.display='none'
         area.style.display='none'
+        prev.style.display='none'
+        if(uploadBtn2)uploadBtn2.style.display='none'
+        if(trocarBtn2)trocarBtn2.style.display='block'
         if(imgPosWrap){
           imgPosWrap.style.display='block'
           const imgEl=document.getElementById('epImgPos')
           if(imgEl){imgEl.src=p.foto_url;atualizarPosImagem()}
+          iniciarDragImagem()
         }
       } else {
         prev.style.display='none'
         if(imgPosWrap)imgPosWrap.style.display='none'
+        if(uploadBtn2)uploadBtn2.style.display='none'
+        if(trocarBtn2)trocarBtn2.style.display='none'
         area.style.display='block'
       }
       document.getElementById('epProgress').style.display='none'
@@ -800,70 +931,70 @@
       const area=document.getElementById('epImgArea')
       const imgPosWrap=document.getElementById('epImgPosWrap')
       const imgEl=document.getElementById('epImgPos')
-      const progress=document.getElementById('epProgress')
-      const progressBar=document.getElementById('epProgressBar')
-      const progressTxt=document.getElementById('epProgressTxt')
+      const uploadBtn=document.getElementById('epUploadBtn')
+      const trocarBtn=document.getElementById('epTrocarBtn')
 
-      // 1. Lê arquivo e mostra posicionador ANTES de comprimir
+      // Lê o arquivo e exibe posicionador
       const reader=new FileReader()
-      reader.onload=async e=>{
+      reader.onload=function(e){
+        // Mostra posicionador, esconde área de upload
         area.style.display='none'
+        uploadBtn.style.display='block'
+        trocarBtn.style.display='none'
         imgPosWrap.style.display='block'
         imgEl.src=e.target.result
-        imgOffsetX=50;imgOffsetY=50
+        imgOffsetX=50; imgOffsetY=50
         atualizarPosImagem()
         iniciarDragImagem()
-
-        // Aguarda o usuário reposicionar e clicar em "Enviar com esta posição"
-        document.getElementById('epUploadBtn').style.display='block'
-        document.getElementById('epUploadBtn').onclick=async function(){
-          this.style.display='none'
-          progress.style.display='block'
-          progressTxt.style.display='block'
-          progressTxt.textContent='Processando imagem 1080×1080...'
-          progressBar.style.width='20%'
-
-          try{
-            const blob=await comprimirImagem(file,1080)
-            progressBar.style.width='55%'
-            progressTxt.textContent='Enviando em alta qualidade...'
-
-            const path=`${loja.id}/${editingProdId||'novo'}_${Date.now()}.jpg`
-            const {data,error}=await supabase.storage.from('produtos').upload(path,blob,{
-              upsert:true,contentType:'image/jpeg'
-            })
-            if(error)throw new Error(error.message)
-
-            progressBar.style.width='90%'
-            const {data:urlData}=supabase.storage.from('produtos').getPublicUrl(path)
-            uploadedImgUrl=urlData.publicUrl
-
-            // Atualiza preview com posição correta
-            imgEl.src=uploadedImgUrl
-            atualizarPosImagem()
-            progressBar.style.width='100%'
-            progressTxt.textContent='✅ Enviada em 1080×1080!'
-            setTimeout(()=>{progress.style.display='none';progressTxt.style.display='none'},1800)
-
-            if(editingProdId){
-              await supabase.from('produtos').update({
-                foto_url:uploadedImgUrl,
-                img_offset_x:imgOffsetX,
-                img_offset_y:imgOffsetY
-              }).eq('id',editingProdId)
-              const p=produtos.find(x=>x.id===editingProdId)
-              if(p){p.foto_url=uploadedImgUrl;p.img_offset_x=imgOffsetX;p.img_offset_y=imgOffsetY}
-            }
-            toast('✅ Foto adicionada em alta qualidade!')
-          }catch(err){
-            console.error(err)
-            progress.style.display='none';progressTxt.style.display='none'
-            document.getElementById('epUploadBtn').style.display='block'
-            toast('❌ Erro ao enviar — tente novamente')
-          }
-        }
       }
       reader.readAsDataURL(file)
+
+      // Botão confirmar posição e enviar
+      uploadBtn.onclick=async function(){
+        uploadBtn.style.display='none'
+        const progress=document.getElementById('epProgress')
+        const progressBar=document.getElementById('epProgressBar')
+        const progressTxt=document.getElementById('epProgressTxt')
+        progress.style.display='block'
+        progressTxt.style.display='block'
+        progressTxt.textContent='Processando 1080×1080...'
+        progressBar.style.width='15%'
+        try{
+          const blob=await comprimirImagem(file,1080)
+          progressBar.style.width='50%'
+          progressTxt.textContent='Enviando em alta qualidade...'
+          const path=`${loja.id}/${editingProdId||('novo_'+Date.now())}_${Date.now()}.jpg`
+          const {error}=await supabase.storage.from('produtos').upload(path,blob,{upsert:true,contentType:'image/jpeg'})
+          if(error)throw new Error(error.message)
+          progressBar.style.width='85%'
+          const {data:urlData}=supabase.storage.from('produtos').getPublicUrl(path)
+          uploadedImgUrl=urlData.publicUrl
+          // Atualiza imagem no posicionador com URL final
+          imgEl.src=uploadedImgUrl
+          atualizarPosImagem()
+          progressBar.style.width='100%'
+          progressTxt.textContent='✅ Foto enviada em 1080×1080!'
+          trocarBtn.style.display='block'
+          setTimeout(()=>{progress.style.display='none';progressTxt.style.display='none'},2000)
+          // Salva direto se editando produto existente
+          if(editingProdId){
+            await supabase.from('produtos').update({
+              foto_url:uploadedImgUrl,
+              img_offset_x:imgOffsetX,
+              img_offset_y:imgOffsetY
+            }).eq('id',editingProdId)
+            const p=produtos.find(x=>x.id===editingProdId)
+            if(p){p.foto_url=uploadedImgUrl;p.img_offset_x=imgOffsetX;p.img_offset_y=imgOffsetY}
+          }
+          toast('✅ Foto adicionada — arraste para reajustar se precisar!')
+        }catch(err){
+          console.error('Upload error:',err)
+          progress.style.display='none'
+          progressTxt.style.display='none'
+          uploadBtn.style.display='block'
+          toast('❌ Erro ao enviar — '+err.message)
+        }
+      }
     }
 
     window.saveEp=async function(){
