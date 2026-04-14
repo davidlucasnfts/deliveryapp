@@ -107,8 +107,11 @@ export async function validarCupom(lojaId, codigo, totalPedido) {
     .single()
 
   if (error || !cupom) return { ok: false, msg: 'Cupom inválido ou não encontrado' }
-  if (cupom.validade && new Date(cupom.validade) < new Date())
-    return { ok: false, msg: 'Cupom expirado' }
+  if (cupom.validade) {
+    const hoje = new Date(); hoje.setHours(0,0,0,0)
+    const validade = new Date(cupom.validade + 'T23:59:59')
+    if (validade < hoje) return { ok: false, msg: 'Cupom expirado' }
+  }
   if (cupom.limite_usos !== null && cupom.usos_atual >= cupom.limite_usos)
     return { ok: false, msg: 'Cupom esgotado' }
   if (cupom.minimo_pedido > 0 && totalPedido < cupom.minimo_pedido)

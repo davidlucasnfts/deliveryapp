@@ -572,6 +572,7 @@
       // Produtos por categoria
       h+=`<div class="cardapio-header">
         <span class="cardapio-titulo">🍕 Produtos</span>
+        <button class="btn-add-cat" onclick="abrirNovoEp()">+ Novo produto</button>
       </div>`
 
       categorias.forEach(cat=>{
@@ -630,6 +631,22 @@
     }
 
     // ===== EDIT PRODUTO =====
+    window.abrirNovoEp=function(){
+      editingProdId=null;uploadedImgUrl=null
+      document.getElementById('epTitulo').textContent='Novo produto'
+      document.getElementById('epNome').value=''
+      document.getElementById('epDesc').value=''
+      document.getElementById('epPreco').value=''
+      document.getElementById('epCat').innerHTML=categorias.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('')
+      const prev=document.getElementById('epImgPreview')
+      const area=document.getElementById('epImgArea')
+      prev.style.display='none';area.style.display='block'
+      document.getElementById('epProgress').style.display='none'
+      document.getElementById('epProgressTxt').style.display='none'
+      document.getElementById('epDelBtn').style.display='none'
+      document.getElementById('epOverlay').classList.add('open')
+    }
+
     window.openEp=function(id){
       editingProdId=id;uploadedImgUrl=null
       const p=produtos.find(x=>x.id===id)
@@ -732,21 +749,33 @@
     }
 
     window.saveEp=async function(){
-      if(!editingProdId)return
-      const updates={
-        nome:document.getElementById('epNome').value.trim(),
-        descricao:document.getElementById('epDesc').value.trim(),
-        preco:parseFloat(document.getElementById('epPreco').value),
-        categoria_id:document.getElementById('epCat').value,
+      const nome=document.getElementById('epNome').value.trim()
+      const preco=parseFloat(document.getElementById('epPreco').value)
+      const categoria_id=document.getElementById('epCat').value
+      const descricao=document.getElementById('epDesc').value.trim()
+      if(!nome){toast('⚠️ Nome é obrigatório');return}
+      if(!preco||preco<=0){toast('⚠️ Preço inválido');return}
+      if(!categoria_id){toast('⚠️ Selecione uma categoria');return}
+
+      const dadosProduto={nome,descricao,preco,categoria_id,disponivel:true}
+      if(uploadedImgUrl)dadosProduto.foto_url=uploadedImgUrl
+
+      if(!editingProdId){
+        // NOVO PRODUTO
+        const {data:novo,error}=await supabase.from('produtos').insert({
+          ...dadosProduto,loja_id:loja.id
+        }).select('*,categorias(nome)').single()
+        if(error){toast('❌ Erro ao criar produto');return}
+        produtos.push(novo)
+        closeEp();renderCardapio();toast('✅ Produto criado!')
+      } else {
+        // EDITAR PRODUTO
+        await supabase.from('produtos').update(dadosProduto).eq('id',editingProdId)
+        const p=produtos.find(x=>x.id===editingProdId);Object.assign(p,dadosProduto)
+        const cat=categorias.find(c=>c.id===categoria_id)
+        if(p&&cat)p.categorias={nome:cat.nome}
+        closeEp();renderCardapio();toast('✅ Produto salvo!')
       }
-      if(!updates.nome){toast('⚠️ Nome é obrigatório');return}
-      if(uploadedImgUrl)updates.foto_url=uploadedImgUrl
-      await supabase.from('produtos').update(updates).eq('id',editingProdId)
-      const p=produtos.find(x=>x.id===editingProdId);Object.assign(p,updates)
-      // Atualiza nome da categoria no objeto
-      const cat=categorias.find(c=>c.id===updates.categoria_id)
-      if(p&&cat)p.categorias={nome:cat.nome}
-      closeEp();renderCardapio();toast('✅ Produto salvo!')
     }
 
     // ===== CATEGORIAS =====
