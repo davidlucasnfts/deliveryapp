@@ -39,10 +39,25 @@ export function renderConfig() {
     </div>
     <div class="cfg-card">
       <div class="cfg-title">Funcionamento</div>
-      <div class="cfg-row">
-        <span style="font-size:0.82rem;color:var(--txt);">Loja aberta para pedidos</span>
+      <div class="cfg-row" style="margin-bottom:0.75rem;">
+        <span style="font-size:0.82rem;color:var(--txt);">Loja aberta agora</span>
         <button class="toggle ${_loja.aberta ? 'on' : ''}" onclick="toggleLoja()"></button>
       </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:0.75rem;margin-bottom:0.5rem;">
+        <div style="font-size:0.75rem;font-weight:700;color:var(--txt2);margin-bottom:0.6rem;">⏰ Horário automático (opcional)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem;">
+          <div>
+            <label class="cfg-lbl">Abre às</label>
+            <input class="cfg-inp" id="cfgAbre" type="time" value="${_loja.hora_abre||''}" style="margin-bottom:0;">
+          </div>
+          <div>
+            <label class="cfg-lbl">Fecha às</label>
+            <input class="cfg-inp" id="cfgFecha" type="time" value="${_loja.hora_fecha||''}" style="margin-bottom:0;">
+          </div>
+        </div>
+        <p style="font-size:0.7rem;color:var(--txt3);">Se preenchido, a loja abre e fecha automaticamente nestes horários.</p>
+      </div>
+      <button class="cfg-save" onclick="salvarHorario()">Salvar horário</button>
     </div>`
 }
 
@@ -64,6 +79,14 @@ export function mascaraTelCfg(input) {
 export function copiarLink() {
   navigator.clipboard.writeText(document.getElementById('linkBox').textContent)
   toast('✅ Link copiado!')
+}
+
+export async function salvarHorario() {
+  const abre  = document.getElementById('cfgAbre').value
+  const fecha = document.getElementById('cfgFecha').value
+  await supabase.from('lojas').update({ hora_abre: abre||null, hora_fecha: fecha||null }).eq('id', _loja.id)
+  Object.assign(_loja, { hora_abre: abre, hora_fecha: fecha })
+  toast(abre && fecha ? `✅ Horário salvo — abre ${abre}, fecha ${fecha}` : '✅ Horário automático removido')
 }
 
 export async function salvarConfig() {

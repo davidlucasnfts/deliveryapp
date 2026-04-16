@@ -249,6 +249,14 @@ async function deletarProdutoById(id) {
 export function abrirNovoEpNaCat(catId) { abrirNovoEp(catId) }
 
 export function abrirNovoEp(catIdPre = null) {
+  // Se não há categorias, orienta o dono a criar uma primeiro
+  if (!_categorias.length) {
+    toast('⚠️ Crie uma categoria antes de adicionar produtos!')
+    // Abre o form de nova categoria automaticamente
+    const f = document.getElementById('newCatForm')
+    if (f) { f.classList.add('open'); document.getElementById('novaCatInput')?.focus() }
+    return
+  }
   editingProdId = null; uploadedImgUrl = null
   setImgOffset(50, 50)
   document.getElementById('epTitulo').textContent = 'Novo produto'

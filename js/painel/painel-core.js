@@ -7,7 +7,7 @@ import { atualizarData, toast }  from './utils.js'
 import { renderPedidos, setPedidos, getPedidos, abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp } from './painel-pedidos.js'
 import { renderCardapio, setDados as setDadosCardapio, toggleCat, toggleNovaCatForm, toggleCatAtiva, adicionarCat, moverCat, toggleProd, confirmarDelProd, abrirNovoEp, abrirNovoEpNaCat, openEp, closeEp, deletarProduto, handleImgUpload, saveEp, openEc, salvarCategoria, deletarCategoria, delProdDaCat } from './painel-cardapio.js'
 import { renderFidelidade, setLoja as setLojaFid, mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade, salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao } from './painel-fidelidade.js'
-import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig } from './painel-config.js'
+import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig, salvarHorario } from './painel-config.js'
 
 let loja  = null
 let canal = null
@@ -30,7 +30,7 @@ exp({
   mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade,
   salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao,
   // config
-  mascaraTelCfg, copiarLink, salvarConfig,
+  mascaraTelCfg, copiarLink, salvarConfig, salvarHorario,
   // loja
   toggleLoja, sair, trocarTab,
 })

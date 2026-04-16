@@ -22,11 +22,31 @@ export function renderPedidos() {
   const badge = document.getElementById('badgeNovos')
   if (badge) { badge.textContent = novos; badge.className = novos > 0 ? 'tab-badge show' : 'tab-badge' }
 
+  // Produto mais vendido hoje
+  const contagem = {}
+  _pedidos.forEach(p => (p.itens_pedido||[]).forEach(i => {
+    contagem[i.nome_produto] = (contagem[i.nome_produto]||0) + i.quantidade
+  }))
+  const topProd = Object.entries(contagem).sort((a,b)=>b[1]-a[1])[0]
+  const ticketMedio = _pedidos.length ? totalHoje / _pedidos.length : 0
+
   let h = `<div class="stats">
     <div class="stat"><div class="stat-val">${_pedidos.length}</div><div class="stat-lbl">Pedidos hoje</div></div>
     <div class="stat"><div class="stat-val">${emAberto.length}</div><div class="stat-lbl">Em aberto</div></div>
     <div class="stat"><div class="stat-val">${fmt(totalHoje)}</div><div class="stat-lbl">Faturamento</div></div>
-  </div>`
+  </div>
+  ${_pedidos.length > 0 ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1rem;">
+    <div class="stat">
+      <div style="font-size:0.68rem;color:var(--txt2);margin-bottom:0.15rem;">🏆 Mais vendido</div>
+      <div style="font-size:0.82rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${topProd?topProd[0]:'—'}</div>
+      <div style="font-size:0.68rem;color:var(--txt3);">${topProd?topProd[1]+' unidades':''}</div>
+    </div>
+    <div class="stat">
+      <div style="font-size:0.68rem;color:var(--txt2);margin-bottom:0.15rem;">💰 Ticket médio</div>
+      <div style="font-size:0.82rem;font-weight:700;color:var(--or);">${fmt(ticketMedio)}</div>
+      <div style="font-size:0.68rem;color:var(--txt3);">por pedido</div>
+    </div>
+  </div>` : ''}`
 
   if (emAberto.length) {
     h += `<div class="sec-title">Em aberto (${emAberto.length})</div>`

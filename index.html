@@ -49,6 +49,10 @@
     .hero-badges{display:flex;gap:0.5rem;flex-wrap:wrap;}
     .hero-badge{padding:0.3rem 0.85rem;border-radius:99px;font-size:0.7rem;font-weight:700;display:flex;align-items:center;gap:0.35rem;}
     .badge-open{background:var(--pr);color:#fff;}
+    .badge-fechado{background:rgba(0,0,0,0.5);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.3);}
+    .banner-fechado{display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#1C1917;color:#fff;padding:1rem 1.25rem;z-index:45;align-items:center;gap:0.75rem;border-top:2px solid #F97316;}
+    .banner-fechado-txt{flex:1;font-size:0.82rem;font-weight:600;}
+    .banner-fechado-sub{font-size:0.72rem;color:rgba(255,255,255,0.55);margin-top:0.1rem;}
     .badge-glass{background:rgba(255,255,255,0.2);backdrop-filter:blur(8px);color:#fff;border:1px solid rgba(255,255,255,0.25);}
     .pulse{width:7px;height:7px;border-radius:50%;background:#fff;animation:pulse 1.5s ease-in-out infinite;}
     @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.6;transform:scale(1.3);}}
@@ -225,6 +229,20 @@
       </div>
     </div>
     <div class="cats-wrap"><div class="cats" id="catsBar"></div></div>
+
+    <!-- BUSCA -->
+    <div style="padding:0 1.25rem 0.5rem;">
+      <div style="position:relative;">
+        <span class="mi" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);font-size:18px;color:var(--txt3);pointer-events:none;">search</span>
+        <input id="searchInput" type="search"
+          placeholder="Buscar no cardápio..."
+          style="width:100%;border:1.5px solid rgba(56,56,53,0.12);border-radius:14px;padding:0.65rem 0.9rem 0.65rem 2.6rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;color:var(--txt);background:var(--surf);outline:none;"
+          oninput="buscarProdutos(this.value)">
+        <button id="searchClear" onclick="limparBusca()"
+          style="display:none;position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;font-size:1rem;color:var(--txt3);cursor:pointer;">✕</button>
+      </div>
+    </div>
+
     <div class="menu-body" id="menuBody"></div>
   </div>
 
@@ -252,6 +270,15 @@
         </div>
         <button class="im-add" id="imAddBtn" onclick="addCarrinho()">Adicionar ao pedido</button>
       </div>
+    </div>
+  </div>
+
+  <!-- BANNER LOJA FECHADA -->
+  <div class="banner-fechado" id="bannerFechado">
+    <span style="font-size:1.5rem;">🔒</span>
+    <div>
+      <div class="banner-fechado-txt">Loja fechada no momento</div>
+      <div class="banner-fechado-sub">Você pode montar seu pedido, mas não enviar enquanto fechado</div>
     </div>
   </div>
 
@@ -382,6 +409,25 @@
     let cupomAtivo=null,descontoAtivo=0,clienteLocal=null,fidelidadeConfig=null
 
     const fmt=v=>'R$'+Number(v).toFixed(2).replace('.',',')
+    const CART_KEY='cart_'+lojaId
+
+    // Carrega carrinho salvo
+    function carregarCartSalvo(){
+      try{
+        const salvo=localStorage.getItem(CART_KEY)
+        if(salvo)cart=JSON.parse(salvo)
+      }catch(e){cart=[]}
+    }
+
+    // Salva carrinho no localStorage
+    function salvarCart(){
+      try{ localStorage.setItem(CART_KEY,JSON.stringify(cart)) }catch(e){}
+    }
+
+    // Limpa carrinho salvo após pedido confirmado
+    function limparCartSalvo(){
+      try{ localStorage.removeItem(CART_KEY) }catch(e){}
+    }
 
     function showToast(nome){
       const t=document.getElementById('toastAdd')
@@ -519,6 +565,55 @@
       }
     }
 
+    // ============================================================
+    // BUSCA NO CARDÁPIO
+    // ============================================================
+    window.buscarProdutos=function(termo){
+      const clear=document.getElementById('searchClear')
+      if(clear)clear.style.display=termo?'block':'none'
+      if(!termo.trim()){
+        renderMenu(); return
+      }
+      const t=termo.toLowerCase().trim()
+      const encontrados=produtos.filter(p=>
+        p.nome.toLowerCase().includes(t)||
+        (p.descricao&&p.descricao.toLowerCase().includes(t))
+      )
+      let h=''
+      if(!encontrados.length){
+        h=`<div style="text-align:center;padding:3rem 1rem;">
+          <div style="font-size:2.5rem;margin-bottom:0.75rem;">🔍</div>
+          <div style="font-size:0.88rem;font-weight:700;color:var(--txt2);">Nenhum produto encontrado</div>
+          <div style="font-size:0.78rem;color:var(--txt3);margin-top:0.35rem;">Tente outro termo</div>
+        </div>`
+      } else {
+        h+=`<div class="sec-hd">${encontrados.length} resultado${encontrados.length!==1?'s':''} para "${termo}"</div>`
+        encontrados.forEach((p,idx)=>{
+          const rot=idx%2===0?'rotate(6deg)':'rotate(-6deg)'
+          h+=`<div class="item-card" onclick="abrirItem('${p.id}')" style="padding-top:1.5rem;margin-top:${idx===0?'1.5rem':'1rem'};">
+            ${p.foto_url?`<img class="item-float-img" src="${p.foto_url}" alt="${p.nome}" loading="lazy" style="transform:${rot};">`:`<div class="item-float-ph" style="transform:${rot};">🍽️</div>`}
+            <div class="item-body">
+              <div class="iname">${p.nome}</div>
+              <div class="idesc">${p.descricao||''}</div>
+              <div class="iprice">${fmt(p.preco)}</div>
+            </div>
+            <button class="iadd-float" onclick="event.stopPropagation();quickAdd('${p.id}')">
+              <span class="mi" style="font-size:20px;">add</span>
+            </button>
+          </div>`
+        })
+      }
+      document.getElementById('menuBody').innerHTML=h
+    }
+
+    window.limparBusca=function(){
+      const inp=document.getElementById('searchInput')
+      if(inp)inp.value=''
+      const clear=document.getElementById('searchClear')
+      if(clear)clear.style.display='none'
+      renderMenu()
+    }
+
     async function init(){
       if(!lojaId){
         document.getElementById('loading').innerHTML='<div class="inativa"><div class="inativa-icon">🔗</div><div class="inativa-txt">Link inválido</div><div class="inativa-sub">Solicite o link correto ao estabelecimento.</div></div>'
@@ -537,7 +632,9 @@
           document.getElementById('loading').innerHTML='<div class="inativa"><div class="inativa-icon">🔒</div><div class="inativa-txt">Loja indisponível</div><div class="inativa-sub">Este estabelecimento está temporariamente fora do ar.</div></div>'
           return
         }
+        carregarCartSalvo()
         renderHero();renderCats();renderMenu()
+        atualizarCartBar()
         document.getElementById('loading').style.display='none'
         document.getElementById('app').style.display='block'
         document.title=loja.nome+' — Cardápio'
@@ -555,15 +652,34 @@
         document.getElementById('heroBanner').outerHTML=`<img class="hero-img" src="${loja.banner_url}" alt="${loja.nome}">`
       }
       document.getElementById('storeMeta').innerHTML=`
-        <span class="hero-badge badge-open"><span class="pulse"></span>${loja.aberta?'ABERTO':'FECHADO'}</span>
+        <span class="hero-badge ${loja.aberta?'badge-open':'badge-fechado'}">
+          <span class="${loja.aberta?'pulse':''}"></span>
+          ${loja.aberta?'ABERTO':'FECHADO'}
+        </span>
         ${loja.tempo_entrega?`<span class="hero-badge badge-glass"><span class="mi" style="font-size:13px;">schedule</span>${loja.tempo_entrega}</span>`:''}
         ${loja.cidade?`<span class="hero-badge badge-glass"><span class="mi" style="font-size:13px;">location_on</span>${loja.cidade}</span>`:''}`
+      // Banner de fechado
+      const bannerFechado=document.getElementById('bannerFechado')
+      if(bannerFechado)bannerFechado.style.display=loja.aberta?'none':'flex'
     }
 
     function renderCats(){
       let h=`<button class="cat-btn active" onclick="filtrar('todos',this)">Todos</button>`
       categorias.forEach(c=>{h+=`<button class="cat-btn" onclick="filtrar('${c.id}',this)">${c.nome}</button>`})
       document.getElementById('catsBar').innerHTML=h
+    }
+
+    function getCatEmoji(nomeCat){
+      const n=(nomeCat||'').toLowerCase()
+      if(n.includes('pizza')||n.includes('lanch')||n.includes('hambur')) return '🍕'
+      if(n.includes('bebid')||n.includes('drink')||n.includes('suco'))   return '🥤'
+      if(n.includes('sobrem')||n.includes('doce')||n.includes('açaí'))   return '🍦'
+      if(n.includes('porção')||n.includes('porcao')||n.includes('frit')) return '🍟'
+      if(n.includes('combo')||n.includes('promo'))                        return '🔥'
+      if(n.includes('massa')||n.includes('macar')||n.includes('esnob'))  return '🍝'
+      if(n.includes('frango')||n.includes('carne')||n.includes('churr')) return '🍗'
+      if(n.includes('salad')||n.includes('vegano')||n.includes('saud'))  return '🥗'
+      return '🍽️'
     }
 
     function renderMenu(){
@@ -622,13 +738,13 @@
       const p=produtos.find(x=>x.id===id)
       const ex=cart.find(c=>c.id===id)
       if(ex)ex.qty++;else cart.push({...p,qty:1})
-      atualizarCartBar();showToast(p.nome)
+      salvarCart();atualizarCartBar();showToast(p.nome)
     }
     window.addCarrinho=function(){
       if(!itemAtual)return
       const ex=cart.find(c=>c.id===itemAtual.id)
       if(ex)ex.qty+=qty;else cart.push({...itemAtual,qty})
-      fecharItem();atualizarCartBar();showToast(itemAtual.nome)
+      salvarCart();fecharItem();atualizarCartBar();showToast(itemAtual.nome)
     }
 
     function atualizarCartBar(){
@@ -671,13 +787,17 @@
     window.alterarQty=function(id,d){
       const idx=cart.findIndex(c=>c.id===id);if(idx===-1)return
       cart[idx].qty+=d;if(cart[idx].qty<=0)cart.splice(idx,1)
-      atualizarCartBar();renderCarrinho()
+      salvarCart();atualizarCartBar();renderCarrinho()
     }
 
     window.abrirCarrinho=function(){renderCarrinho();document.getElementById('cartScreen').classList.add('open')}
     window.fecharCarrinho=()=>document.getElementById('cartScreen').classList.remove('open')
 
     window.enviarPedido=async function(){
+      if(loja&&!loja.aberta){
+        alert('A loja esta fechada no momento. Aguarde a reabertura para finalizar o pedido.')
+        return
+      }
       const nome=document.getElementById('cliNome').value.trim()
       const tel=document.getElementById('cliTel').value.replace(/\D/g,'')
       const rua=document.getElementById('cliRua').value.trim()
@@ -739,7 +859,7 @@
             </div>`:''}
             <button class="cs-novo-btn" onclick="location.reload()">Fazer novo pedido</button>
           </div>`
-        cart=[];atualizarCartBar()
+        cart=[];limparCartSalvo();atualizarCartBar()
       }catch(e){
         console.error(e)
         alert('Erro ao enviar pedido. Tente novamente.')
