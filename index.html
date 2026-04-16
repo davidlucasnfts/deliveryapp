@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cardápio Digital</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0..1&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
@@ -198,6 +199,51 @@
     .cs-success-pontos-txt{font-size:0.82rem;color:rgba(255,255,255,0.7);}
     .cs-success-pontos-val{font-size:1.4rem;font-weight:900;color:var(--gold);margin-top:0.25rem;}
     .cs-novo-btn{margin-top:1.25rem;background:var(--pr);color:#fff;border:none;border-radius:99px;padding:0.75rem 2rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;cursor:pointer;font-size:0.88rem;}
+
+    /* TELA DE PAGAMENTO */
+    .pgto-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:65;flex-direction:column;max-width:480px;margin:0 auto;}
+    .pgto-screen.open{display:flex;}
+    .pgto-header{background:var(--bg);padding:1.1rem 1.25rem;display:flex;align-items:center;gap:0.85rem;border-bottom:1px solid rgba(56,56,53,0.06);flex-shrink:0;}
+    .pgto-back{background:var(--bg3);border:none;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+    .pgto-title{font-size:1rem;font-weight:900;color:var(--txt);}
+    .pgto-body{flex:1;overflow-y:auto;padding:1.25rem;}
+    .pgto-total{background:var(--bg2);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;}
+    .pgto-total-lbl{font-size:0.82rem;color:var(--txt2);font-weight:600;}
+    .pgto-total-val{font-size:1.4rem;font-weight:900;color:var(--pr);}
+    .pgto-section{font-size:0.68rem;font-weight:800;color:var(--txt3);letter-spacing:2px;text-transform:uppercase;margin-bottom:0.85rem;}
+    .pgto-opcao{border:1.5px solid rgba(56,56,53,0.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;transition:all 0.15s;background:var(--surf);}
+    .pgto-opcao:active{transform:scale(0.98);}
+    .pgto-opcao.selecionado{border-color:var(--pr);background:rgba(188,48,0,0.04);}
+    .pgto-opcao-header{display:flex;align-items:center;gap:0.75rem;}
+    .pgto-opcao-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+    .pgto-opcao-info{flex:1;}
+    .pgto-opcao-nome{font-size:0.92rem;font-weight:800;color:var(--txt);}
+    .pgto-opcao-desc{font-size:0.75rem;color:var(--txt2);margin-top:0.1rem;}
+    .pgto-radio{width:20px;height:20px;border-radius:50%;border:2px solid rgba(56,56,53,0.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+    .pgto-opcao.selecionado .pgto-radio{border-color:var(--pr);background:var(--pr);}
+    .pgto-radio-inner{width:8px;height:8px;border-radius:50%;background:#fff;display:none;}
+    .pgto-opcao.selecionado .pgto-radio-inner{display:block;}
+    /* PIX */
+    .pix-area{margin-top:0.85rem;padding-top:0.85rem;border-top:1px solid rgba(56,56,53,0.08);display:none;}
+    .pgto-opcao.selecionado .pix-area{display:block;}
+    .pix-chave{background:var(--bg3);border-radius:12px;padding:0.75rem 1rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;}
+    .pix-chave-lbl{font-size:0.72rem;color:var(--txt2);margin-bottom:0.15rem;}
+    .pix-chave-val{font-size:0.88rem;font-weight:700;color:var(--txt);word-break:break-all;}
+    .pix-copy-btn{background:var(--pr);color:#fff;border:none;border-radius:9px;padding:0.4rem 0.85rem;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;flex-shrink:0;margin-left:0.75rem;}
+    .pix-instrucao{font-size:0.78rem;color:var(--txt2);line-height:1.6;background:rgba(34,197,94,0.08);border-radius:10px;padding:0.65rem 0.85rem;border-left:3px solid var(--grn);}
+    .pgto-confirmar{width:100%;background:var(--pr);color:#fff;border:none;border-radius:16px;padding:1rem;font-size:0.95rem;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-top:1.5rem;box-shadow:0 4px 16px rgba(188,48,0,0.3);transition:transform 0.15s;}
+    .pgto-confirmar:disabled{background:#FCA5A5;box-shadow:none;cursor:not-allowed;}
+    .pgto-confirmar:active{transform:scale(0.98);}
+
+    /* FORMULÁRIO CARTÃO MP */
+    .mp-form-wrap{margin-top:0.85rem;padding-top:0.85rem;border-top:1px solid rgba(56,56,53,0.08);display:none;}
+    .pgto-opcao.selecionado .mp-form-wrap{display:block;}
+    .mp-loading{text-align:center;padding:1.5rem;color:var(--txt3);font-size:0.82rem;}
+    .mp-erro{background:#FEE2E2;border-radius:10px;padding:0.75rem 1rem;font-size:0.82rem;color:#B91C1C;margin-top:0.75rem;display:none;}
+    .mp-erro.show{display:block;}
+    .mp-aprovado{background:#DCFCE7;border-radius:10px;padding:0.75rem 1rem;font-size:0.82rem;color:#15803D;margin-top:0.75rem;display:none;font-weight:700;}
+    .mp-aprovado.show{display:block;}
+    .pgto-parcelas{width:100%;border:1.5px solid rgba(56,56,53,0.12);border-radius:12px;padding:0.65rem 0.9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;color:var(--txt);background:var(--surf);margin-top:0.65rem;outline:none;}
   </style>
 </head>
 <body>
@@ -398,15 +444,38 @@
     </div><!-- fecha cs-body -->
   </div>
 
+  <!-- TELA DE PAGAMENTO -->
+  <div class="pgto-screen" id="pgtoScreen">
+    <div class="pgto-header">
+      <button class="pgto-back" onclick="fecharPagamento()">
+        <span class="mi" style="font-size:20px;color:var(--txt2);">arrow_back</span>
+      </button>
+      <span class="pgto-title">Como vai pagar?</span>
+    </div>
+    <div class="pgto-body" id="pgtoBody">
+      <div class="pgto-total">
+        <span class="pgto-total-lbl">Total do pedido</span>
+        <span class="pgto-total-val" id="pgtoTotalVal">R$0,00</span>
+      </div>
+      <div class="pgto-section">Escolha a forma de pagamento</div>
+      <div id="pgtoOpcoes"></div>
+      <button class="pgto-confirmar" id="pgtoConfirmar" onclick="confirmarPagamento()" disabled>
+        Confirmar pagamento
+      </button>
+    </div>
+  </div>
+
   <script type="module">
     import { supabase } from './js/supabase.js'
     import { getLoja, getCategorias } from './js/cardapio.js'
-    import { criarPedido, validarCupom, buscarClientePorTelefone } from './js/pedidos.js'
+    import { criarPedido, validarCupom, buscarClientePorTelefone, atualizarFormaPagamento, msgWhatsAppStatus } from './js/pedidos.js'
 
     const params=new URLSearchParams(window.location.search)
     const lojaId=params.get('loja')
     let loja=null,produtos=[],categorias=[],cart=[],itemAtual=null,qty=1,catAtual='todos'
     let cupomAtivo=null,descontoAtivo=0,clienteLocal=null,fidelidadeConfig=null
+    let pedidoAtual=null,pgtoSelecionado=null
+    let mpInstance=null,mpCardId=null,mpFormReady=false
 
     const fmt=v=>'R$'+Number(v).toFixed(2).replace('.',',')
     const CART_KEY='cart_'+lojaId
@@ -793,6 +862,9 @@
     window.abrirCarrinho=function(){renderCarrinho();document.getElementById('cartScreen').classList.add('open')}
     window.fecharCarrinho=()=>document.getElementById('cartScreen').classList.remove('open')
 
+    // ============================================================
+    // PAGAMENTO
+    // ============================================================
     window.enviarPedido=async function(){
       if(loja&&!loja.aberta){
         alert('A loja esta fechada no momento. Aguarde a reabertura para finalizar o pedido.')
@@ -814,56 +886,322 @@
       if(!num)erros.push('Número é obrigatório')
       if(!bairro)erros.push('Bairro é obrigatório')
       if(erros.length){alert('Por favor corrija:\n\n• '+erros.join('\n• '));return}
-      const enderecoCompleto=`${rua}, ${num}${comp?' — '+comp:''}, ${bairro}${cidade?' — '+cidade:''} (CEP: ${cep})`
+
       const btn=document.getElementById('btnEnviar')
-      btn.disabled=true;btn.textContent='Enviando...'
+      btn.disabled=true;btn.textContent='Salvando pedido...'
+
       try{
+        const enderecoCompleto=`${rua}, ${num}${comp?' — '+comp:''}, ${bairro}${cidade?' — '+cidade:''} (CEP: ${cep})`
         const itens=cart.map(i=>({produto_id:i.id,nome:i.nome||'Produto',preco:i.preco,quantidade:i.qty,subtotal:i.preco*i.qty}))
-        const clienteData={
-          nome,telefone:document.getElementById('cliTel').value,
-          endereco:enderecoCompleto,obs,
-          rua,num,comp,bairro,cidade,cep
-        }
+        const clienteData={nome,telefone:document.getElementById('cliTel').value,endereco:enderecoCompleto,obs,rua,num,comp,bairro,cidade,cep}
+
+        // Cria pedido com status aguardando pagamento
+        pedidoAtual=await criarPedido(lojaId,clienteData,itens,cupomAtivo?.id||null,descontoAtivo,'pendente')
+        pedidoAtual._clienteData=clienteData
+        pedidoAtual._itens=itens
+        pedidoAtual._rua=rua;pedidoAtual._num=num;pedidoAtual._comp=comp
+        pedidoAtual._bairro=bairro;pedidoAtual._cidade=cidade;pedidoAtual._cep=cep
+
+        // Abre tela de pagamento
+        abrirPagamento()
+        btn.disabled=false;btn.textContent='Confirmar pedido'
+      }catch(e){
+        console.error(e)
+        alert('Erro ao registrar pedido. Tente novamente.')
+        btn.disabled=false;btn.textContent='Confirmar pedido'
+      }
+    }
+
+    function abrirPagamento(){
+      const subtotal=cart.reduce((s,i)=>s+i.preco*i.qty,0)
+      const total=Math.max(0,subtotal-descontoAtivo)
+      document.getElementById('pgtoTotalVal').textContent=fmt(total)
+      pgtoSelecionado=null
+      document.getElementById('pgtoConfirmar').disabled=true
+
+      // Monta opções baseado na configuração da loja
+      const pixAtivo=loja.pix_ativo&&loja.chave_pix
+      const cartaoAtivo=loja.cartao_ativo
+      const dinheiroAtivo=loja.dinheiro_ativo!==false
+
+      let h=''
+
+      if(pixAtivo){
+        h+=`<div class="pgto-opcao" id="pgto-pix" onclick="selecionarPgto('pix')">
+          <div class="pgto-opcao-header">
+            <div class="pgto-opcao-icon" style="background:#E8F5E9;">💚</div>
+            <div class="pgto-opcao-info">
+              <div class="pgto-opcao-nome">PIX</div>
+              <div class="pgto-opcao-desc">Instantâneo · aprovação na hora</div>
+            </div>
+            <div class="pgto-radio"><div class="pgto-radio-inner"></div></div>
+          </div>
+          <div class="pix-area">
+            <div class="pix-chave">
+              <div>
+                <div class="pix-chave-lbl">Chave PIX</div>
+                <div class="pix-chave-val">${loja.chave_pix}</div>
+              </div>
+              <button class="pix-copy-btn" onclick="copiarPix(event)">Copiar</button>
+            </div>
+            <div class="pix-instrucao">
+              1. Copie a chave PIX acima<br>
+              2. Abra seu banco e faça o pagamento de ${fmt(total)}<br>
+              3. Envie o comprovante pelo WhatsApp ao confirmar
+            </div>
+          </div>
+        </div>`
+      }
+
+      // Cartão online (MP) — só aparece se mp_ativo e mp_public_key configurados
+      const mpAtivo = loja.mp_ativo && loja.mp_public_key
+      if(mpAtivo){
+        h+=`<div class="pgto-opcao" id="pgto-cartao" onclick="selecionarPgto('cartao')">
+          <div class="pgto-opcao-header">
+            <div class="pgto-opcao-icon" style="background:#E3F2FD;">💳</div>
+            <div class="pgto-opcao-info">
+              <div class="pgto-opcao-nome">Cartão de crédito ou débito</div>
+              <div class="pgto-opcao-desc">Online · aprovação imediata · seguro</div>
+            </div>
+            <div class="pgto-radio"><div class="pgto-radio-inner"></div></div>
+          </div>
+          <div class="mp-form-wrap">
+            <div class="mp-loading" id="mpLoading">Carregando formulário seguro...</div>
+            <div id="mpCardForm"></div>
+            <select class="pgto-parcelas" id="mpParcelas" style="display:none;">
+              <option value="1">1x sem juros</option>
+            </select>
+            <div class="mp-erro" id="mpErro"></div>
+            <div class="mp-aprovado" id="mpAprovado">Pagamento aprovado!</div>
+          </div>
+        </div>`
+      }
+
+      if(dinheiroAtivo){
+        h+=`<div class="pgto-opcao" id="pgto-dinheiro" onclick="selecionarPgto('dinheiro')">
+          <div class="pgto-opcao-header">
+            <div class="pgto-opcao-icon" style="background:#FFF8E1;">💵</div>
+            <div class="pgto-opcao-info">
+              <div class="pgto-opcao-nome">Dinheiro na entrega</div>
+              <div class="pgto-opcao-desc">Pague ao receber o pedido</div>
+            </div>
+            <div class="pgto-radio"><div class="pgto-radio-inner"></div></div>
+          </div>
+        </div>`
+      }
+
+      if(!h){
+        h=`<div style="text-align:center;padding:2rem;color:var(--txt2);font-size:0.88rem;">
+          Nenhuma forma de pagamento configurada.<br>Entre em contato com o estabelecimento.
+        </div>`
+      }
+
+      document.getElementById('pgtoOpcoes').innerHTML=h
+      document.getElementById('pgtoScreen').classList.add('open')
+    }
+
+    window.fecharPagamento=function(){
+      document.getElementById('pgtoScreen').classList.remove('open')
+    }
+
+    window.selecionarPgto=function(tipo){
+      pgtoSelecionado=tipo
+      document.querySelectorAll('.pgto-opcao').forEach(el=>el.classList.remove('selecionado'))
+      const el=document.getElementById('pgto-'+tipo)
+      if(el)el.classList.add('selecionado')
+      const labels={pix:'Confirmar — paguei no PIX',cartao:'Pagar com cartão',dinheiro:'Confirmar — pago na entrega'}
+      document.getElementById('pgtoConfirmar').textContent=labels[tipo]||'Confirmar pagamento'
+      // Cartão: inicializa formulário MP e deixa o botão desabilitado até preencher
+      if(tipo==='cartao'){
+        document.getElementById('pgtoConfirmar').disabled=true
+        inicializarMPForm()
+      } else {
+        document.getElementById('pgtoConfirmar').disabled=false
+      }
+    }
+
+    function inicializarMPForm(){
+      if(mpFormReady)return
+      if(!loja.mp_public_key)return
+      try{
+        mpInstance=new MercadoPago(loja.mp_public_key,{locale:'pt-BR'})
+        const cardForm=mpInstance.cardForm({
+          amount: String(Math.max(0,cart.reduce((s,i)=>s+i.preco*i.qty,0)-descontoAtivo)),
+          iframe: true,
+          form:{
+            id:'mpCardForm',
+            cardNumber:{id:'form-checkout__cardNumber',placeholder:'Número do cartão'},
+            expirationDate:{id:'form-checkout__expirationDate',placeholder:'MM/AA'},
+            securityCode:{id:'form-checkout__securityCode',placeholder:'CVV'},
+            cardholderName:{id:'form-checkout__cardholderName',placeholder:'Nome como no cartão'},
+            issuer:{id:'form-checkout__issuer',placeholder:'Banco emissor'},
+            installments:{id:'form-checkout__installments',placeholder:'Parcelas'},
+            identificationType:{id:'form-checkout__identificationType',placeholder:'Tipo de doc.'},
+            identificationNumber:{id:'form-checkout__identificationNumber',placeholder:'CPF'},
+            cardholderEmail:{id:'form-checkout__cardholderEmail',placeholder:'E-mail (opcional)'},
+          },
+          callbacks:{
+            onFormMounted: err=>{
+              document.getElementById('mpLoading').style.display='none'
+              if(err)console.warn('Form mount error:',err)
+              else mpFormReady=true
+            },
+            onSubmit: async event=>{
+              event.preventDefault()
+              await processarCartaoMP(cardForm.getCardFormData())
+            },
+            onFetching: resource=>{
+              const btn=document.getElementById('pgtoConfirmar')
+              btn.disabled=true;btn.textContent='Verificando cartão...'
+              return ()=>{
+                btn.disabled=false;btn.textContent='Pagar com cartão'
+              }
+            },
+            onValidityChange: (errors,field)=>{
+              // Habilita botão quando formulário válido
+              const erros=mpInstance?.cardForm?.getCardFormData?.()
+              document.getElementById('pgtoConfirmar').disabled=false
+            }
+          }
+        })
+        mpCardId=cardForm
+        document.getElementById('pgtoConfirmar').disabled=false
+      }catch(e){
+        console.error('Erro ao inicializar MP:',e)
+        document.getElementById('mpLoading').textContent='Erro ao carregar formulário. Recarregue a página.'
+      }
+    }
+
+    window.copiarPix=function(e){
+      e.stopPropagation()
+      navigator.clipboard.writeText(loja.chave_pix||'')
+      const btn=e.target
+      btn.textContent='Copiado!'
+      setTimeout(()=>{btn.textContent='Copiar'},2000)
+    }
+
+    // Processa cartão via Vercel Function
+    async function processarCartaoMP(formData){
+      const btn=document.getElementById('pgtoConfirmar')
+      const erroEl=document.getElementById('mpErro')
+      const aprovEl=document.getElementById('mpAprovado')
+      erroEl.classList.remove('show');aprovEl.classList.remove('show')
+      btn.disabled=true;btn.textContent='Processando pagamento...'
+
+      try{
         const subtotal=cart.reduce((s,i)=>s+i.preco*i.qty,0)
-        const pedido=await criarPedido(lojaId,clienteData,itens,cupomAtivo?.id||null,descontoAtivo)
-        // Mensagem WhatsApp
         const total=Math.max(0,subtotal-descontoAtivo)
-        let msg=`*Novo Pedido — ${loja.nome}*\n\n*Cliente:* ${nome}\n*Celular:* ${document.getElementById('cliTel').value}\n\n`
-        msg+=`*Endereço:*\n${rua}, ${num}${comp?' — '+comp:''}\n${bairro}${cidade?' — '+cidade:''}\nCEP: ${cep}\n\n*Itens:*\n`
+
+        const res=await fetch('/api/processar-pagamento',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            token:              formData.token,
+            valor:              total,
+            payment_method_id:  formData.paymentMethodId,
+            parcelas:           formData.installments||1,
+            descricao:          `Pedido ${loja.nome}`,
+            lojaId:             lojaId,
+            pagador:{
+              email:    formData.cardholderEmail||'cliente@deliveryapp.com',
+              doc_tipo: formData.identificationType||'CPF',
+              doc_num:  formData.identificationNumber||'00000000000'
+            }
+          })
+        })
+
+        const data=await res.json()
+
+        if(data.aprovado){
+          aprovEl.textContent='Pagamento aprovado!'
+          aprovEl.classList.add('show')
+          btn.textContent='Confirmado!'
+          // Continua com o fluxo normal de confirmação
+          await finalizarPedido('cartao_online')
+        } else {
+          erroEl.textContent=data.mensagem||'Pagamento recusado. Tente outro cartão.'
+          erroEl.classList.add('show')
+          btn.disabled=false;btn.textContent='Tentar novamente'
+        }
+      }catch(e){
+        console.error('Erro pagamento:',e)
+        erroEl.textContent='Erro de conexão. Verifique sua internet e tente novamente.'
+        erroEl.classList.add('show')
+        btn.disabled=false;btn.textContent='Tentar novamente'
+      }
+    }
+
+    window.confirmarPagamento=async function(){
+      if(!pgtoSelecionado||!pedidoAtual)return
+      // Cartão online: o submit é feito pelo SDK do MP (onSubmit callback)
+      if(pgtoSelecionado==='cartao'&&mpCardId){
+        mpCardId.cardForm?.submit?.()
+        return
+      }
+      await finalizarPedido(pgtoSelecionado)
+    }
+
+    async function finalizarPedido(formaPagamento){
+      const btn=document.getElementById('pgtoConfirmar')
+      btn.disabled=true;btn.textContent='Confirmando...'
+
+      try{
+        // Atualiza forma de pagamento no banco
+        await atualizarFormaPagamento(pedidoAtual.id, formaPagamento)
+
+        // Monta mensagem WhatsApp com pagamento incluído
+        const subtotal=cart.reduce((s,i)=>s+i.preco*i.qty,0)
+        const total=Math.max(0,subtotal-descontoAtivo)
+        const nome=pedidoAtual._clienteData.nome
+        const tel=pedidoAtual._clienteData.telefone
+        const rua=pedidoAtual._rua,num=pedidoAtual._num,comp=pedidoAtual._comp
+        const bairro=pedidoAtual._bairro,cidade=pedidoAtual._cidade,cep=pedidoAtual._cep
+        const obs=pedidoAtual._clienteData.obs
+
+        const pgtoLabel={pix:'PIX (comprovante em anexo)',cartao:'Cartão na entrega',dinheiro:'Dinheiro na entrega'}
+
+        let msg=`*Novo Pedido — ${loja.nome}*\n\n`
+        msg+=`*Cliente:* ${nome}\n*Celular:* ${tel}\n\n`
+        msg+=`*Endereço:*\n${rua}, ${num}${comp?' — '+comp:''}\n${bairro}${cidade?' — '+cidade:''}\nCEP: ${cep}\n\n`
+        msg+=`*Itens:*\n`
         cart.forEach(i=>{msg+=`• ${i.qty}x ${i.nome} — ${fmt(i.preco*i.qty)}\n`})
-        if(descontoAtivo>0)msg+=`\n*Desconto cupom:* −${fmt(descontoAtivo)}`
+        if(descontoAtivo>0)msg+=`\n*Desconto:* −${fmt(descontoAtivo)}`
         msg+=`\n*Total: ${fmt(total)}*`
+        msg+=`\n*Pagamento:* ${pgtoLabel[pgtoSelecionado]}`
         if(obs)msg+=`\n\n*Obs:* ${obs}`
+
         if(loja.whatsapp)window.open(`https://wa.me/55${loja.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`,'_blank')
-        // Calcula pontos ganhos para mostrar na tela de sucesso
+
+        // Calcula pontos
         let pontosGanhos=0
-        if(fidelidadeConfig&&fidelidadeConfig.ativo){
+        if(fidelidadeConfig&&fidelidadeConfig.ativo&&fidelidadeConfig.id){
           if(fidelidadeConfig.tipo_pontuacao==='compra'){
             pontosGanhos=Math.floor(total/(fidelidadeConfig.valor_por_ponto||10))
           } else {
-            pontosGanhos=itens.reduce((s,i)=>s+(i.quantidade*(fidelidadeConfig.pontos_por_real||1)),0)
+            pontosGanhos=pedidoAtual._itens.reduce((s,i)=>s+(i.quantidade*(fidelidadeConfig.pontos_por_real||1)),0)
           }
         }
+
+        // Fecha tela de pagamento e mostra sucesso
+        mpFormReady=false;mpInstance=null;mpCardId=null
+        document.getElementById('pgtoScreen').classList.remove('open')
         document.getElementById('cartScreen').innerHTML=`
           <div class="cs-success">
             <div class="cs-success-icon">🎉</div>
             <div class="cs-success-title">Pedido confirmado!</div>
             <div class="cs-success-sub">
-              Seu pedido foi registrado e enviado pelo WhatsApp.<br>
-              Aguarde a confirmação do estabelecimento.<br><br>
+              Pedido enviado pelo WhatsApp com sucesso!<br><br>
+              <strong>Pagamento:</strong> ${pgtoLabel[pgtoSelecionado]}<br><br>
               <strong>Entrega em:</strong><br>${rua}, ${num}${comp?' — '+comp:''}<br>${bairro}${cidade?' — '+cidade:''} · CEP: ${cep}
             </div>
-            ${pontosGanhos>0?`<div class="cs-success-pontos">
-              <div class="cs-success-pontos-txt">⭐ Você ganhou neste pedido</div>
-              <div class="cs-success-pontos-val">+${pontosGanhos} pontos</div>
-            </div>`:''}
+            ${pontosGanhos>0?`<div class="cs-success-pontos"><div class="cs-success-pontos-txt">Voce ganhou neste pedido</div><div class="cs-success-pontos-val">+${pontosGanhos} pontos</div></div>`:''}
             <button class="cs-novo-btn" onclick="location.reload()">Fazer novo pedido</button>
           </div>`
         cart=[];limparCartSalvo();atualizarCartBar()
       }catch(e){
         console.error(e)
-        alert('Erro ao enviar pedido. Tente novamente.')
-        btn.disabled=false;btn.textContent='Confirmar pedido'
+        alert('Erro ao confirmar. Tente novamente.')
+        btn.disabled=false;btn.textContent='Confirmar pagamento'
       }
     }
 

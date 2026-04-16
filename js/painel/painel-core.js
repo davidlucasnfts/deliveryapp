@@ -4,10 +4,10 @@ import { supabase }      from '../supabase.js'
 import { escutarPedidos } from '../pedidos.js'
 import { getTodosProdutos, getTodasCategorias } from '../cardapio.js'
 import { atualizarData, toast }  from './utils.js'
-import { renderPedidos, setPedidos, getPedidos, abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp } from './painel-pedidos.js'
+import { renderPedidos, setPedidos, getPedidos, abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp, notificarCliente } from './painel-pedidos.js'
 import { renderCardapio, setDados as setDadosCardapio, toggleCat, toggleNovaCatForm, toggleCatAtiva, adicionarCat, moverCat, toggleProd, confirmarDelProd, abrirNovoEp, abrirNovoEpNaCat, openEp, closeEp, deletarProduto, handleImgUpload, saveEp, openEc, salvarCategoria, deletarCategoria, delProdDaCat } from './painel-cardapio.js'
 import { renderFidelidade, setLoja as setLojaFid, mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade, salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao } from './painel-fidelidade.js'
-import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig, salvarHorario } from './painel-config.js'
+import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento } from './painel-config.js'
 
 let loja  = null
 let canal = null
@@ -18,7 +18,7 @@ const exp = obj => Object.entries(obj).forEach(([k, v]) => { window[k] = v })
 
 exp({
   // pedidos
-  abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp,
+  abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp, notificarCliente,
   fecharDetalhes: () => document.getElementById('modalDetalhes').classList.remove('open'),
   // cardápio
   toggleCat, toggleNovaCatForm, toggleCatAtiva, adicionarCat, moverCat,
@@ -30,7 +30,7 @@ exp({
   mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade,
   salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao,
   // config
-  mascaraTelCfg, copiarLink, salvarConfig, salvarHorario,
+  mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento,
   // loja
   toggleLoja, sair, trocarTab,
 })

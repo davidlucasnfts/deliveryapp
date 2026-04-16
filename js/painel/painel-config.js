@@ -10,9 +10,52 @@ export function renderConfig() {
   const link = `${window.location.origin}/index.html?loja=${_loja.id}`
   document.getElementById('mainBody').innerHTML = `
     <div class="cfg-card" style="border-color:var(--or);">
-      <div class="cfg-title">💳 Pagamentos</div>
-      <p style="font-size:0.78rem;color:var(--txt2);margin-bottom:0.75rem;">Configure PIX, cartão e seu gateway</p>
-      <a href="pagamento.html" style="display:inline-block;background:var(--or);color:#fff;border-radius:9px;padding:0.48rem 1.1rem;font-size:0.8rem;font-weight:700;text-decoration:none;">Configurar pagamentos →</a>
+      <div class="cfg-title">Formas de pagamento</div>
+      <p style="font-size:0.78rem;color:var(--txt2);margin-bottom:0.85rem;">Configure o que aparece para o cliente na hora de pagar</p>
+
+      <!-- PIX -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+        <div>
+          <div style="font-size:0.83rem;font-weight:700;color:var(--txt);">PIX</div>
+          <div style="font-size:0.72rem;color:var(--txt3);">Pagamento instantâneo</div>
+        </div>
+        <button class="toggle ${_loja.pix_ativo?'on':''}" id="togPix" onclick="togglePgto('pix')"></button>
+      </div>
+      <div id="pixChaveWrap" style="display:${_loja.pix_ativo?'block':'none'};margin-bottom:0.85rem;">
+        <label class="cfg-lbl">Chave PIX</label>
+        <input class="cfg-inp" id="cfgPixChave" value="${_loja.chave_pix||''}" placeholder="CPF, CNPJ, telefone ou e-mail">
+      </div>
+
+      <!-- CARTÃO ONLINE — Mercado Pago -->
+      <div style="background:var(--bg3);border-radius:12px;padding:0.85rem;margin-bottom:0.85rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;">
+          <div>
+            <div style="font-size:0.83rem;font-weight:700;color:var(--txt);">Cartão online (crédito/débito)</div>
+            <div style="font-size:0.72rem;color:var(--txt3);">Via Mercado Pago · aprovação imediata</div>
+          </div>
+          <button class="toggle ${_loja.mp_ativo?'on':''}" id="togMP" onclick="togglePgto('mp')"></button>
+        </div>
+        <div id="mpWrap" style="display:${_loja.mp_ativo?'block':'none'};">
+          <label class="cfg-lbl">Public Key do Mercado Pago</label>
+          <input class="cfg-inp" id="cfgMpPublicKey" value="${_loja.mp_public_key||''}" placeholder="TEST-xxxxxxxx ou APP_USR-xxxxxxxx" style="font-size:0.75rem;">
+          <label class="cfg-lbl">Access Token do Mercado Pago</label>
+          <input class="cfg-inp" id="cfgMpToken" value="${_loja.mp_access_token||''}" placeholder="TEST-xxxx... ou APP_USR-xxxx..." style="font-size:0.75rem;" type="password">
+          <p style="font-size:0.7rem;color:var(--txt3);margin-top:-0.3rem;margin-bottom:0.5rem;">
+            Pegue em mercadopago.com.br → Seu negócio → Credenciais
+          </p>
+        </div>
+      </div>
+
+      <!-- DINHEIRO / CARTÃO PRESENCIAL -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem;">
+        <div>
+          <div style="font-size:0.83rem;font-weight:700;color:var(--txt);">Dinheiro ou cartão na entrega</div>
+          <div style="font-size:0.72rem;color:var(--txt3);">Pagamento presencial ao receber</div>
+        </div>
+        <button class="toggle ${_loja.dinheiro_ativo!==false?'on':''}" id="togDinheiro" onclick="togglePgto('dinheiro')"></button>
+      </div>
+
+      <button class="cfg-save" onclick="salvarPagamento()">Salvar formas de pagamento</button>
     </div>
     <div class="cfg-card">
       <div class="cfg-title">Link do cardápio</div>
@@ -59,6 +102,46 @@ export function renderConfig() {
       </div>
       <button class="cfg-save" onclick="salvarHorario()">Salvar horário</button>
     </div>`
+}
+
+export function togglePgto(tipo) {
+  const ids = {pix:'togPix', mp:'togMP', dinheiro:'togDinheiro'}
+  const btn = document.getElementById(ids[tipo])
+  if (!btn) return
+  btn.classList.toggle('on')
+  const on = btn.classList.contains('on')
+  if (tipo === 'pix') {
+    const wrap = document.getElementById('pixChaveWrap')
+    if (wrap) wrap.style.display = on ? 'block' : 'none'
+  }
+  if (tipo === 'mp') {
+    const wrap = document.getElementById('mpWrap')
+    if (wrap) wrap.style.display = on ? 'block' : 'none'
+  }
+}
+
+export async function salvarPagamento() {
+  const pixAtivo  = document.getElementById('togPix')?.classList.contains('on')
+  const mpAtivo   = document.getElementById('togMP')?.classList.contains('on')
+  const dinAtivo  = document.getElementById('togDinheiro')?.classList.contains('on')
+  const chavePix  = document.getElementById('cfgPixChave')?.value.trim()
+  const mpPubKey  = document.getElementById('cfgMpPublicKey')?.value.trim()
+  const mpToken   = document.getElementById('cfgMpToken')?.value.trim()
+
+  if (pixAtivo && !chavePix) { toast('Informe a chave PIX'); return }
+  if (mpAtivo && (!mpPubKey || !mpToken)) { toast('Informe a Public Key e o Access Token do Mercado Pago'); return }
+
+  const updates = {
+    pix_ativo:      pixAtivo || false,
+    mp_ativo:       mpAtivo || false,
+    dinheiro_ativo: dinAtivo !== false,
+    chave_pix:      chavePix || null,
+    mp_public_key:  mpPubKey || null,
+    mp_access_token: mpToken || null
+  }
+  await supabase.from('lojas').update(updates).eq('id', _loja.id)
+  Object.assign(_loja, updates)
+  toast('Formas de pagamento salvas!')
 }
 
 export function mascaraTelCfg(input) {

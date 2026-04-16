@@ -2,7 +2,7 @@
 
 import { supabase } from '../supabase.js'
 import { fmt, toast, tempoDecorrido, isUrgente } from './utils.js'
-import { atualizarStatus } from '../pedidos.js'
+import { atualizarStatus, msgWhatsAppStatus } from '../pedidos.js'
 
 const statusLabel     = { novo:'Novo', prep:'Em preparo', saiu:'Saiu p/ entrega', entregue:'Entregue' }
 const statusNext      = { novo:'prep', prep:'saiu', saiu:'entregue' }
@@ -69,6 +69,8 @@ function cardPedido(p) {
   const tempo   = tempoDecorrido(p.criado_em)
   const urgente = isUrgente(p.criado_em, p.status)
   const num     = p.numero || p.id.slice(0, 6).toUpperCase()
+  const pgtoIcon = {pix:'💚 PIX', cartao:'💳 Cartão', dinheiro:'💵 Dinheiro', pendente:'⏳ Pendente'}
+  const pgtoLabel = pgtoIcon[p.forma_pagamento] || ''
 
   return `<div class="order-card ${p.status}" onclick="abrirDetalhes('${p.id}')">
     <div class="oc-top">
@@ -76,6 +78,7 @@ function cardPedido(p) {
         <div class="oc-num">#${num}</div>
         <div class="oc-name">${p.nome_cliente}</div>
         <div class="oc-addr">📍 ${p.endereco_entrega || '—'}</div>
+            ${pgtoLabel?`<div style="font-size:0.68rem;font-weight:700;margin-top:0.2rem;color:var(--txt2);">${pgtoLabel}</div>`:''}
       </div>
       <div class="oc-right">
         <span class="status-pill s-${p.status}">${statusLabel[p.status]}</span>
@@ -87,7 +90,8 @@ function cardPedido(p) {
     <div class="oc-footer">
       <span class="oc-total">${fmt(p.total)}</span>
       <div class="oc-actions">
-        ${p.telefone_cliente ? `<button class="oc-btn btn-wpp" onclick="event.stopPropagation();chamarWpp('${p.telefone_cliente}','${p.nome_cliente}')">WhatsApp</button>` : ''}
+        ${p.telefone_cliente && p.status !== 'novo' ? `<button class="oc-btn btn-wpp" onclick="event.stopPropagation();notificarCliente('${p.id}')">WhatsApp</button>` : ''}
+        ${p.telefone_cliente && p.status === 'novo' ? `<button class="oc-btn btn-wpp" onclick="event.stopPropagation();chamarWpp('${p.telefone_cliente}','${p.nome_cliente}')">WhatsApp</button>` : ''}
         ${prox ? `<button class="oc-btn btn-avancar" onclick="event.stopPropagation();avancarPedido('${p.id}','${prox}')">→ ${statusNextLabel[p.status]}</button>` : ''}
       </div>
     </div>
@@ -132,4 +136,12 @@ export async function avancarModalPedido(id, novo) {
 
 export function chamarWpp(tel, nome) {
   window.open(`https://wa.me/55${tel.replace(/\D/g, '')}?text=${encodeURIComponent(`Olá ${nome}, tudo bem com seu pedido?`)}`, '_blank')
+}
+
+export function notificarCliente(id) {
+  const p = _pedidos.find(x => x.id === id)
+  if (!p || !p.telefone_cliente) return
+  const msg = msgWhatsAppStatus(p.status, p.nome_cliente, '(nome da loja)')
+  if (!msg) { chamarWpp(p.telefone_cliente, p.nome_cliente); return }
+  window.open(`https://wa.me/55${p.telefone_cliente.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank')
 }
