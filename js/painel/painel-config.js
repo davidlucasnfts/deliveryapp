@@ -104,6 +104,38 @@ export function renderConfig() {
     </div>`
 }
 
+export async function carregarTaxas() {
+  const { data: taxas } = await supabase.from('taxas_entrega').select('*').eq('loja_id', _loja.id).eq('ativo', true).order('bairro')
+  const lista = document.getElementById('taxasLista')
+  if (!lista) return
+  if (!taxas?.length) { lista.innerHTML = '<div style="font-size:0.78rem;color:var(--txt3);text-align:center;padding:0.5rem;">Nenhuma taxa cadastrada — entrega a combinar</div>'; return }
+  lista.innerHTML = taxas.map(t => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #F9FAFB;">
+      <div style="font-size:0.83rem;font-weight:600;color:var(--txt);">${t.bairro}</div>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <div style="font-size:0.83rem;font-weight:700;color:var(--or);">${t.taxa===0?'Grátis':'R$'+Number(t.taxa).toFixed(2).replace('.',',')}</div>
+        <button onclick="excluirTaxa('${t.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;border-radius:7px;padding:0.2rem 0.5rem;cursor:pointer;font-size:0.72rem;">🗑️</button>
+      </div>
+    </div>`).join('')
+}
+
+export async function adicionarTaxa() {
+  const bairro = document.getElementById('novoBairro')?.value.trim()
+  const taxa   = parseFloat(document.getElementById('novaTaxa')?.value) || 0
+  if (!bairro) { toast('⚠️ Digite o nome do bairro'); return }
+  const { error } = await supabase.from('taxas_entrega').insert({ loja_id: _loja.id, bairro, taxa, ativo: true })
+  if (error) { toast('❌ Erro ao adicionar'); return }
+  document.getElementById('novoBairro').value = ''
+  document.getElementById('novaTaxa').value   = ''
+  await carregarTaxas()
+  toast('✅ Taxa adicionada!')
+}
+
+export async function excluirTaxa(id) {
+  await supabase.from('taxas_entrega').delete().eq('id', id)
+  await carregarTaxas(); toast('🗑️ Taxa removida')
+}
+
 export function togglePgto(tipo) {
   const ids = {pix:'togPix', mp:'togMP', dinheiro:'togDinheiro'}
   const btn = document.getElementById(ids[tipo])
@@ -162,6 +194,10 @@ export function mascaraTelCfg(input) {
 export function copiarLink() {
   navigator.clipboard.writeText(document.getElementById('linkBox').textContent)
   toast('✅ Link copiado!')
+}
+
+export async function renderTaxasConfig() {
+  await carregarTaxas()
 }
 
 export async function salvarHorario() {

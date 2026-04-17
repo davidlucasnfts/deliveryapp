@@ -205,6 +205,48 @@
     .cs-success-pontos-val{font-size:1.4rem;font-weight:900;color:var(--gold);margin-top:0.25rem;}
     .cs-novo-btn{margin-top:1.25rem;background:var(--pr);color:#fff;border:none;border-radius:99px;padding:0.75rem 2rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;cursor:pointer;font-size:0.88rem;}
 
+    /* ADICIONAIS */
+    .add-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:80;align-items:flex-end;justify-content:center;}
+    .add-overlay.open{display:flex;}
+    .add-box{background:var(--bg);border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding-bottom:1.5rem;}
+    .add-hd{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.25rem 0.5rem;position:sticky;top:0;background:var(--bg);z-index:2;}
+    .add-titulo{font-size:1rem;font-weight:900;color:var(--txt);}
+    .add-close{background:var(--bg3);border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+    .add-produto-info{padding:0 1.25rem 1rem;border-bottom:1px solid rgba(56,56,53,0.08);}
+    .add-produto-nome{font-size:0.92rem;font-weight:700;color:var(--txt);}
+    .add-produto-preco{font-size:0.82rem;color:var(--pr);font-weight:700;margin-top:0.15rem;}
+    .add-grupo{padding:1rem 1.25rem 0;}
+    .add-grupo-titulo{font-size:0.78rem;font-weight:800;color:var(--txt);margin-bottom:0.2rem;display:flex;align-items:center;gap:0.5rem;}
+    .add-grupo-sub{font-size:0.7rem;color:var(--txt3);margin-bottom:0.75rem;}
+    .add-grupo-obrig{background:var(--pr);color:#fff;font-size:0.6rem;font-weight:700;padding:0.15rem 0.45rem;border-radius:99px;}
+    .add-grupo-opcao{border-radius:99px;font-size:0.6rem;font-weight:700;padding:0.15rem 0.45rem;background:var(--bg3);color:var(--txt3);}
+    .add-item{display:flex;align-items:center;padding:0.65rem 0;border-bottom:1px solid rgba(56,56,53,0.06);}
+    .add-item:last-child{border:none;}
+    .add-item-info{flex:1;}
+    .add-item-nome{font-size:0.88rem;font-weight:600;color:var(--txt);}
+    .add-item-preco{font-size:0.78rem;color:var(--pr);font-weight:600;margin-top:0.1rem;}
+    .add-item-ctrl{flex-shrink:0;margin-left:0.75rem;}
+    /* Checkbox estilo radio para max=1, checkbox para max>1 */
+    .add-radio{width:22px;height:22px;border-radius:50%;border:2px solid rgba(56,56,53,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;}
+    .add-radio.sel{border-color:var(--pr);background:var(--pr);}
+    .add-radio.sel::after{content:'';width:8px;height:8px;border-radius:50%;background:#fff;}
+    .add-check{width:22px;height:22px;border-radius:6px;border:2px solid rgba(56,56,53,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;}
+    .add-check.sel{border-color:var(--pr);background:var(--pr);}
+    .add-check.sel::after{content:'✓';color:#fff;font-size:13px;font-weight:700;}
+    .add-footer{position:sticky;bottom:0;background:var(--bg);padding:1rem 1.25rem 0;border-top:1px solid rgba(56,56,53,0.08);}
+    .add-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;}
+    .add-total-lbl{font-size:0.82rem;color:var(--txt2);}
+    .add-total-val{font-size:1.1rem;font-weight:900;color:var(--pr);}
+    .add-confirmar{width:100%;background:var(--pr);color:#fff;border:none;border-radius:14px;padding:0.9rem;font-size:0.92rem;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+    .add-confirmar:disabled{background:#FCA5A5;cursor:not-allowed;}
+
+    /* TAXA DE ENTREGA */
+    .taxa-row{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;font-size:0.82rem;}
+    .taxa-lbl{color:var(--txt2);}
+    .taxa-val{font-weight:700;color:var(--txt);}
+    .taxa-val.gratis{color:var(--grn);}
+    .taxa-val.combinar{color:var(--gold);}
+
     /* TELA DE PAGAMENTO */
     .pgto-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:65;flex-direction:column;max-width:480px;margin:0 auto;}
     .pgto-screen.open{display:flex;}
@@ -362,6 +404,10 @@
         <span class="cs-total-lbl">Subtotal</span>
         <span class="cs-total-val" id="csSubtotal">R$0,00</span>
       </div>
+      <div class="cs-total-row taxa-row" id="taxaEntregaRow">
+        <span class="taxa-lbl">Taxa de entrega</span>
+        <span class="taxa-val combinar">Informe o bairro</span>
+      </div>
       <div class="cs-total-row" id="csDescontoRow" style="display:none;">
         <span class="cs-total-desc">Desconto do cupom</span>
         <span class="cs-total-desc-val" id="csDesconto">−R$0,00</span>
@@ -491,6 +537,41 @@
     </div><!-- fecha cs-body -->
   </div>
 
+  <!-- MODAL ADICIONAIS -->
+  <div class="add-overlay" id="addOverlay">
+    <div class="add-box" id="addBox">
+      <div class="add-hd">
+        <span class="add-titulo" id="addTitulo">Personalize seu pedido</span>
+        <button class="add-close" onclick="fecharAdicionais()">
+          <span class="mi" style="font-size:18px;color:var(--txt2);">close</span>
+        </button>
+      </div>
+      <div class="add-produto-info">
+        <div class="add-produto-nome" id="addProdNome"></div>
+        <div class="add-produto-preco" id="addProdPreco"></div>
+      </div>
+      <div id="addGrupos"></div>
+      <!-- Quantidade -->
+      <div style="padding:1rem 1.25rem 0;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:0.85rem;font-weight:700;color:var(--txt);">Quantidade</span>
+        <div class="qrow">
+          <button class="qbtn minus" onclick="chAddQty(-1)"><span class="mi" style="font-size:18px;">remove</span></button>
+          <span class="qnum" id="addQtyNum">1</span>
+          <button class="qbtn" onclick="chAddQty(1)"><span class="mi" style="font-size:18px;">add</span></button>
+        </div>
+      </div>
+      <div class="add-footer">
+        <div class="add-total-row">
+          <span class="add-total-lbl">Total do item</span>
+          <span class="add-total-val" id="addTotalVal">R$0,00</span>
+        </div>
+        <button class="add-confirmar" id="addConfirmar" onclick="confirmarAdicionais()">
+          Adicionar ao pedido
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TELA DE PAGAMENTO -->
   <div class="pgto-screen" id="pgtoScreen">
     <div class="pgto-header">
@@ -516,6 +597,7 @@
     import { supabase } from './js/supabase.js'
     import { getLoja, getCategorias } from './js/cardapio.js'
     import { criarPedido, validarCupom, buscarClientePorTelefone, atualizarFormaPagamento, msgWhatsAppStatus } from './js/pedidos.js'
+    import { getGruposAdicionais, getTaxaEntrega } from './js/cardapio.js'
 
     const params=new URLSearchParams(window.location.search)
     const lojaId=params.get('loja')
@@ -523,6 +605,8 @@
     let cupomAtivo=null,descontoAtivo=0,clienteLocal=null,fidelidadeConfig=null
     let pedidoAtual=null,pgtoSelecionado=null
     let mpInstance=null,mpCardId=null,mpFormReady=false
+    // Adicionais
+    let addProdutoAtual=null,addGruposAtual=[],addSelecionados={},addQty=1,addTaxaEntrega=null
 
     const fmt=v=>'R$'+Number(v).toFixed(2).replace('.',',')
     const CART_KEY='cart_'+lojaId
@@ -699,7 +783,8 @@
 
     function renderTotais(){
       const subtotal=cart.reduce((s,i)=>s+i.preco*i.qty,0)
-      const total=Math.max(0,subtotal-descontoAtivo)
+      const taxa=addTaxaEntrega?Number(addTaxaEntrega.taxa):0
+      const total=Math.max(0,subtotal+taxa-descontoAtivo)
       document.getElementById('csSubtotal').textContent=fmt(subtotal)
       document.getElementById('csTotalFinal').textContent=fmt(total)
       document.getElementById('cbTot').textContent=fmt(total)
@@ -759,6 +844,168 @@
       const clear=document.getElementById('searchClear')
       if(clear)clear.style.display='none'
       renderMenu()
+    }
+
+    // ============================================================
+    // ADICIONAIS
+    // ============================================================
+    function abrirAdicionais(produto, grupos){
+      addProdutoAtual=produto; addGruposAtual=grupos; addSelecionados={}; addQty=1
+      document.getElementById('addProdNome').textContent=produto.nome
+      document.getElementById('addProdPreco').textContent=fmt(produto.preco)
+      document.getElementById('addQtyNum').textContent=1
+
+      let h=''
+      grupos.forEach(grupo=>{
+        const isRadio=grupo.max_escolha===1
+        const sub=grupo.obrigatorio
+          ?`Obrigatório · escolha ${grupo.max_escolha===1?'1 opção':`até ${grupo.max_escolha}`}`
+          :`Opcional · escolha até ${grupo.max_escolha}`
+        h+=`<div class="add-grupo" data-grupo="${grupo.id}">
+          <div class="add-grupo-titulo">
+            ${grupo.nome}
+            <span class="${grupo.obrigatorio?'add-grupo-obrig':'add-grupo-opcao'}">${grupo.obrigatorio?'Obrigatório':'Opcional'}</span>
+          </div>
+          <div class="add-grupo-sub">${sub}</div>`
+        grupo.itens.forEach(item=>{
+          h+=`<div class="add-item" data-item="${item.id}" data-grupo="${grupo.id}" data-preco="${item.preco}" onclick="toggleAdicional('${grupo.id}','${item.id}',${grupo.max_escolha},${item.preco},'${item.nome.replace(/'/g,'\'')}')">
+            <div class="add-item-info">
+              <div class="add-item-nome">${item.nome}</div>
+              ${item.preco>0?`<div class="add-item-preco">+${fmt(item.preco)}</div>`:'<div class="add-item-preco" style="color:var(--grn)">Grátis</div>'}
+            </div>
+            <div class="add-item-ctrl">
+              <div class="${isRadio?'add-radio':'add-check'}" id="ctrl_${item.id}"></div>
+            </div>
+          </div>`
+        })
+        h+=`</div>`
+      })
+      document.getElementById('addGrupos').innerHTML=h
+      atualizarTotalAdd()
+      atualizarBotaoAdd()
+      document.getElementById('addOverlay').classList.add('open')
+    }
+
+    window.fecharAdicionais=function(){
+      document.getElementById('addOverlay').classList.remove('open')
+      addProdutoAtual=null; addGruposAtual=[]; addSelecionados={}
+    }
+
+    window.toggleAdicional=function(grupoId,itemId,maxEscolha,preco,nome){
+      if(!addSelecionados[grupoId]) addSelecionados[grupoId]=[]
+      const idx=addSelecionados[grupoId].findIndex(x=>x.id===itemId)
+      if(maxEscolha===1){
+        // Radio — desseleciona anterior
+        const anterior=addSelecionados[grupoId][0]
+        if(anterior){
+          const ctrlAnt=document.getElementById('ctrl_'+anterior.id)
+          if(ctrlAnt)ctrlAnt.classList.remove('sel')
+        }
+        if(idx>=0){
+          addSelecionados[grupoId]=[]
+        } else {
+          addSelecionados[grupoId]=[{id:itemId,preco,nome}]
+          const ctrl=document.getElementById('ctrl_'+itemId)
+          if(ctrl)ctrl.classList.add('sel')
+        }
+      } else {
+        // Checkbox com limite
+        if(idx>=0){
+          addSelecionados[grupoId].splice(idx,1)
+          const ctrl=document.getElementById('ctrl_'+itemId)
+          if(ctrl)ctrl.classList.remove('sel')
+        } else {
+          if(addSelecionados[grupoId].length>=maxEscolha) return
+          addSelecionados[grupoId].push({id:itemId,preco,nome})
+          const ctrl=document.getElementById('ctrl_'+itemId)
+          if(ctrl)ctrl.classList.add('sel')
+        }
+      }
+      atualizarTotalAdd()
+      atualizarBotaoAdd()
+    }
+
+    function calcTotalAdd(){
+      if(!addProdutoAtual) return 0
+      let extra=0
+      Object.values(addSelecionados).forEach(sel=>sel.forEach(s=>extra+=Number(s.preco)))
+      return (addProdutoAtual.preco+extra)*addQty
+    }
+
+    function atualizarTotalAdd(){
+      document.getElementById('addTotalVal').textContent=fmt(calcTotalAdd())
+    }
+
+    function atualizarBotaoAdd(){
+      // Verifica se todos os grupos obrigatórios têm seleção
+      const ok=addGruposAtual.every(g=>
+        !g.obrigatorio||((addSelecionados[g.id]||[]).length>=Math.max(1,g.min_escolha))
+      )
+      const btn=document.getElementById('addConfirmar')
+      btn.disabled=!ok
+      const qtdStr=addQty>1?` ${addQty}x`:''
+      btn.textContent=`Adicionar${qtdStr} — ${fmt(calcTotalAdd())}`
+    }
+
+    window.chAddQty=function(d){
+      addQty=Math.max(1,addQty+d)
+      document.getElementById('addQtyNum').textContent=addQty
+      atualizarTotalAdd(); atualizarBotaoAdd()
+    }
+
+    window.confirmarAdicionais=function(){
+      if(!addProdutoAtual)return
+      // Monta item com adicionais
+      const adicionaisEscolhidos=[]
+      addGruposAtual.forEach(g=>{
+        const sel=addSelecionados[g.id]||[]
+        sel.forEach(s=>adicionaisEscolhidos.push({
+          grupo_id:g.id, nome_grupo:g.nome,
+          adicional_id:s.id, nome_adicional:s.nome, preco:s.preco
+        }))
+      })
+      const extraPreco=adicionaisEscolhidos.reduce((s,a)=>s+Number(a.preco),0)
+      const precoFinal=addProdutoAtual.preco+extraPreco
+      // Item no carrinho tem ID único (produto+adicionais)
+      const cartKey=addProdutoAtual.id+'_'+adicionaisEscolhidos.map(a=>a.adicional_id).join('_')
+      const ex=cart.find(c=>c._cartKey===cartKey)
+      if(ex){
+        ex.qty+=addQty
+      } else {
+        cart.push({
+          ...addProdutoAtual,
+          _cartKey:cartKey,
+          preco:precoFinal,
+          qty:addQty,
+          adicionais:adicionaisEscolhidos,
+          _descAdicionais:adicionaisEscolhidos.map(a=>a.nome_adicional).join(', ')
+        })
+      }
+      salvarCart(); atualizarCartBar(); fecharAdicionais()
+      showToast(addProdutoAtual.nome+' adicionado!')
+    }
+
+    // ============================================================
+    // TAXA DE ENTREGA
+    // ============================================================
+    async function verificarTaxaEntrega(bairro){
+      addTaxaEntrega=null
+      if(!bairro) return
+      const taxa=await getTaxaEntrega(lojaId,bairro)
+      addTaxaEntrega=taxa
+      atualizarTaxaUI()
+    }
+
+    function atualizarTaxaUI(){
+      const taxaRow=document.getElementById('taxaEntregaRow')
+      if(!taxaRow) return
+      if(!addTaxaEntrega){
+        taxaRow.innerHTML=`<span class="taxa-lbl">Taxa de entrega</span><span class="taxa-val combinar">A combinar</span>`
+      } else if(addTaxaEntrega.taxa===0){
+        taxaRow.innerHTML=`<span class="taxa-lbl">Taxa de entrega</span><span class="taxa-val gratis">Grátis</span>`
+      } else {
+        taxaRow.innerHTML=`<span class="taxa-lbl">Taxa de entrega</span><span class="taxa-val">+${fmt(addTaxaEntrega.taxa)}</span>`
+      }
     }
 
     async function init(){
@@ -861,8 +1108,17 @@
       el.classList.add('active');renderMenu()
     }
 
-    window.abrirItem=function(id){
+    window.abrirItem=async function(id){
       itemAtual=produtos.find(p=>p.id===id);qty=1
+      // Verifica se produto tem adicionais
+      const grupos=await getGruposAdicionais(id)
+      if(grupos.length){
+        // Tem adicionais — abre modal de personalização
+        fecharItem()
+        abrirAdicionais(itemAtual,grupos)
+        return
+      }
+      // Sem adicionais — abre modal simples
       document.getElementById('imName').textContent=itemAtual.nome
       document.getElementById('imDesc').textContent=itemAtual.descricao||''
       document.getElementById('imPrice').textContent=fmt(itemAtual.preco)
@@ -881,8 +1137,14 @@
         qty>1?`Adicionar ${qty}x — ${fmt(itemAtual.preco*qty)}`:'Adicionar ao pedido'
     }
 
-    window.quickAdd=function(id){
+    window.quickAdd=async function(id){
       const p=produtos.find(x=>x.id===id)
+      // Se tem adicionais, abre modal em vez de adicionar direto
+      const grupos=await getGruposAdicionais(id)
+      if(grupos.length){
+        abrirAdicionais(p,grupos)
+        return
+      }
       const ex=cart.find(c=>c.id===id)
       if(ex)ex.qty++;else cart.push({...p,qty:1})
       salvarCart();atualizarCartBar();showToast(p.nome)
@@ -915,24 +1177,31 @@
       }
       tw.style.display='block';form.style.display='block'
       renderTotais()
-      document.getElementById('csBodyItens').innerHTML=cart.map(i=>`
-        <div class="cs-item">
+      document.getElementById('csBodyItens').innerHTML=cart.map(i=>{
+        const key=i._cartKey||i.id
+        return `<div class="cs-item">
           ${i.foto_url?`<img class="csi-img" src="${i.foto_url}" alt="${i.nome}">`:`<div class="csi-img-ph">🍽️</div>`}
           <div class="csi-info">
             <div class="csi-name">${i.nome}</div>
+            ${i._descAdicionais?`<div style="font-size:0.68rem;color:var(--txt3);margin-top:0.1rem;">${i._descAdicionais}</div>`:''}
             <div class="csi-price">${fmt(i.preco)} un.</div>
           </div>
           <div class="csi-controls">
-            <button class="csi-btn remove" onclick="alterarQty('${i.id}',-1)">−</button>
+            <button class="csi-btn remove" onclick="alterarQtyKey('${key}',-1)">−</button>
             <span class="csi-qty">${i.qty}</span>
-            <button class="csi-btn" onclick="alterarQty('${i.id}',1)">+</button>
+            <button class="csi-btn" onclick="alterarQtyKey('${key}',1)">+</button>
           </div>
           <span class="csi-subtotal">${fmt(i.preco*i.qty)}</span>
-        </div>`).join('')
+        </div>`}).join('')
     }
 
     window.alterarQty=function(id,d){
-      const idx=cart.findIndex(c=>c.id===id);if(idx===-1)return
+      const idx=cart.findIndex(c=>c.id===id&&!c._cartKey);if(idx===-1)return
+      cart[idx].qty+=d;if(cart[idx].qty<=0)cart.splice(idx,1)
+      salvarCart();atualizarCartBar();renderCarrinho()
+    }
+    window.alterarQtyKey=function(key,d){
+      const idx=cart.findIndex(c=>(c._cartKey||c.id)===key);if(idx===-1)return
       cart[idx].qty+=d;if(cart[idx].qty<=0)cart.splice(idx,1)
       salvarCart();atualizarCartBar();renderCarrinho()
     }
@@ -973,8 +1242,9 @@
         const itens=cart.map(i=>({produto_id:i.id,nome:i.nome||'Produto',preco:i.preco,quantidade:i.qty,subtotal:i.preco*i.qty}))
         const clienteData={nome,telefone:document.getElementById('cliTel').value,endereco:enderecoCompleto,obs,rua,num,comp,bairro,cidade,cep}
 
-        // Cria pedido com status aguardando pagamento
-        pedidoAtual=await criarPedido(lojaId,clienteData,itens,cupomAtivo?.id||null,descontoAtivo,'pendente')
+        // Cria pedido com status aguardando pagamento (inclui taxa de entrega)
+        const taxaEntregaValor=addTaxaEntrega?Number(addTaxaEntrega.taxa):0
+        pedidoAtual=await criarPedido(lojaId,clienteData,itens,cupomAtivo?.id||null,descontoAtivo,'pendente',taxaEntregaValor)
         pedidoAtual._clienteData=clienteData
         pedidoAtual._itens=itens
         pedidoAtual._rua=rua;pedidoAtual._num=num;pedidoAtual._comp=comp

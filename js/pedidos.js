@@ -124,9 +124,9 @@ export async function buscarClientePorTelefone(lojaId, telefone) {
 }
 
 // Cria pedido principal
-export async function criarPedido(lojaId, cliente, itens, cupomId = null, desconto = 0, formaPagamento = 'pendente') {
+export async function criarPedido(lojaId, cliente, itens, cupomId = null, desconto = 0, formaPagamento = 'pendente', taxaEntrega = 0) {
   const subtotal = itens.reduce((s, i) => s + i.subtotal, 0)
-  const total    = Math.max(0, subtotal - desconto)
+  const total    = Math.max(0, subtotal + taxaEntrega - desconto)
 
   // Monta dados do pedido — forma_pagamento é opcional (depende do SQL ter rodado)
   const dadosPedido = {
@@ -149,11 +149,34 @@ export async function criarPedido(lojaId, cliente, itens, cupomId = null, descon
 
   if (error) throw error
 
-  await supabase.from('itens_pedido').insert(itens.map(i => ({
+  const { data: itensCriados } = await supabase.from('itens_pedido').insert(itens.map(i => ({
     pedido_id: pedido.id, produto_id: i.produto_id,
     nome_produto: i.nome || 'Produto',
     preco_unitario: i.preco, quantidade: i.quantidade, subtotal: i.subtotal
-  })))
+  }))).select()
+
+  // Salva adicionais escolhidos
+  const adicionaisParaSalvar = []
+  if (itensCriados) {
+    itensCriados.forEach((itemCriado, idx) => {
+      const itemOriginal = itens[idx]
+      if (itemOriginal?.adicionais?.length) {
+        itemOriginal.adicionais.forEach(a => {
+          adicionaisParaSalvar.push({
+            item_pedido_id:  itemCriado.id,
+            adicional_id:    a.adicional_id,
+            grupo_id:        a.grupo_id,
+            nome_adicional:  a.nome_adicional,
+            nome_grupo:      a.nome_grupo,
+            preco:           a.preco
+          })
+        })
+      }
+    })
+  }
+  if (adicionaisParaSalvar.length) {
+    await supabase.from('itens_pedido_adicionais').insert(adicionaisParaSalvar)
+  }
 
   // Incrementa uso do cupom
   if (cupomId) {
