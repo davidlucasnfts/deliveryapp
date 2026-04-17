@@ -567,38 +567,19 @@
       input.value=v
     }
 
-    // AUTOPREENCHIMENTO ao sair do campo celular
+    // Ao digitar celular — só busca pontos de fidelidade
     window.onTelBlur=async function(){
       const tel=document.getElementById('cliTel').value
       if(tel.replace(/\D/g,'').length<10)return
       const cli=await buscarClientePorTelefone(lojaId,tel)
       if(!cli)return
       clienteLocal=cli
-      // Preenche nome
+      // Preenche nome se ainda não preenchido
       if(cli.nome){
         const n=document.getElementById('cliNome')
         if(n&&!n.value)n.value=cli.nome
       }
-      // Preenche endereço completo
-      const campos={
-        cliCep:     cli.endereco_cep,
-        cliRua:     cli.endereco_rua,
-        cliNum:     cli.endereco_num,
-        cliComp:    cli.endereco_comp,
-        cliBairro:  cli.endereco_bairro,
-        cliCidade:  cli.endereco_cidade
-      }
-      let algumPreenchido=false
-      Object.entries(campos).forEach(([id,val])=>{
-        if(val){
-          const el=document.getElementById(id)
-          if(el&&!el.value){el.value=val;algumPreenchido=true}
-        }
-      })
-      if(algumPreenchido){
-        showToast('Dados preenchidos automaticamente!')
-      }
-      // Pontos
+      // Só mostra pontos — endereço é pelo CEP
       if(fidelidadeConfig&&fidelidadeConfig.ativo&&fidelidadeConfig.id){
         mostrarPontos(cli.total_pontos||0,fidelidadeConfig.meta_pontos||100,fidelidadeConfig)
       }
@@ -633,22 +614,65 @@
       if(v.length===8)await buscarCep()
     }
     window.buscarCep=async function(){
-      const v=document.getElementById('cliCep').value.replace(/\D/g,'')
+      const cepRaw=document.getElementById('cliCep').value.replace(/\D/g,'')
       const h=document.getElementById('cepHint')
-      if(v.length!==8){if(v.length>0){h.textContent='CEP incompleto';h.className='cep-hint err';}return}
-      h.textContent='🔍 Buscando...';h.className='cep-hint'
+      if(cepRaw.length!==8){
+        if(cepRaw.length>0){h.textContent='CEP incompleto';h.className='cep-hint err';}
+        return
+      }
+      h.textContent='Buscando...';h.className='cep-hint'
       try{
-        const r=await fetch(`https://viacep.com.br/ws/${v}/json/`)
+        // 1. Busca endereço no ViaCEP
+        const r=await fetch(`https://viacep.com.br/ws/${cepRaw}/json/`)
         const d=await r.json()
-        if(d.erro){h.textContent='❌ CEP não encontrado';h.className='cep-hint err';}
-        else{
-          document.getElementById('cliRua').value=d.logradouro||''
-          document.getElementById('cliBairro').value=d.bairro||''
-          document.getElementById('cliCidade').value=`${d.localidade} — ${d.uf}`
-          h.textContent=`✅ ${d.localidade} — ${d.uf}`;h.className='cep-hint ok'
-          document.getElementById('cliNum').focus()
+        if(d.erro){h.textContent='CEP não encontrado';h.className='cep-hint err';return}
+
+        // Preenche rua, bairro e cidade sempre (vem do ViaCEP)
+        document.getElementById('cliRua').value=d.logradouro||''
+        document.getElementById('cliBairro').value=d.bairro||''
+        document.getElementById('cliCidade').value=`${d.localidade} — ${d.uf}`
+        h.textContent=`${d.localidade} — ${d.uf}`;h.className='cep-hint ok'
+
+        // 2. Busca cliente no banco que já usou esse CEP
+        // (busca pelo telefone se já preenchido, ou pelo CEP)
+        const telAtual=document.getElementById('cliTel').value.replace(/\D/g,'')
+        let cli=null
+
+        if(telAtual.length===11){
+          // Se já tem telefone, busca por ele
+          cli=await buscarClientePorTelefone(lojaId,telAtual)
         }
-      }catch(e){h.textContent='Erro ao buscar. Preencha manualmente.';h.className='cep-hint err';}
+
+        if(cli){
+          clienteLocal=cli
+          // Preenche nome se vazio
+          const nomeEl=document.getElementById('cliNome')
+          if(nomeEl&&!nomeEl.value&&cli.nome) nomeEl.value=cli.nome
+
+          // Preenche número e complemento do endereço anterior nesse CEP
+          // só se o CEP bate com o do cadastro
+          const cepCadastro=(cli.endereco_cep||'').replace(/\D/g,'')
+          if(cepCadastro===cepRaw){
+            const numEl=document.getElementById('cliNum')
+            const compEl=document.getElementById('cliComp')
+            if(numEl&&!numEl.value&&cli.endereco_num) numEl.value=cli.endereco_num
+            if(compEl&&!compEl.value&&cli.endereco_comp) compEl.value=cli.endereco_comp
+            showToast('Endereço reconhecido!')
+          }
+
+          // Pontos
+          if(fidelidadeConfig&&fidelidadeConfig.ativo&&fidelidadeConfig.id){
+            mostrarPontos(cli.total_pontos||0,fidelidadeConfig.meta_pontos||100,fidelidadeConfig)
+          }
+        }
+
+        // Foca no número para o cliente completar
+        document.getElementById('cliNum').focus()
+
+      }catch(e){
+        console.error('buscarCep:',e)
+        h.textContent='Erro ao buscar. Preencha manualmente.';h.className='cep-hint err'
+      }
     }
 
     // CUPOM
