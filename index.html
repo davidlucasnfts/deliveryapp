@@ -166,26 +166,31 @@
     .cupom-msg.ok{display:block;color:var(--grn);}
     .cupom-msg.err{display:block;color:var(--red);}
 
-    /* FORM */
-    .cs-form{padding:0.5rem 1.25rem 2rem;}
-    .cs-section{font-size:0.68rem;font-weight:800;color:var(--txt3);letter-spacing:2px;text-transform:uppercase;margin:1rem 0 0.65rem;display:flex;align-items:center;gap:0.5rem;}
+    /* FORM — Clean */
+    .cs-form{padding:0.75rem 1.25rem 2rem;}
+    .cs-section{font-size:0.65rem;font-weight:800;color:var(--txt3);letter-spacing:1.5px;text-transform:uppercase;margin:1.25rem 0 0.75rem;display:flex;align-items:center;gap:0.5rem;}
     .cs-section::after{content:'';flex:1;height:1px;background:rgba(56,56,53,0.08);}
-    .cs-label{font-size:0.75rem;font-weight:700;color:var(--txt2);margin-bottom:0.3rem;display:block;}
-    .cs-input{width:100%;border:1.5px solid rgba(56,56,53,0.12);border-radius:14px;padding:0.65rem 0.9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;color:var(--txt);background:var(--surf);transition:border-color 0.15s;margin-bottom:0.65rem;}
-    .cs-input:focus{outline:none;border-color:var(--pr);}
-    .cs-input:disabled{background:var(--bg3);color:var(--txt3);}
-    .cs-input.valido{border-color:var(--grn);}
-    .cs-input.invalido{border-color:var(--red);}
-    .cs-row{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;}
-    .cs-textarea{width:100%;border:1.5px solid rgba(56,56,53,0.12);border-radius:14px;padding:0.65rem 0.9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.85rem;color:var(--txt);height:70px;resize:none;margin-bottom:0.65rem;background:var(--surf);}
-    .cs-textarea:focus{outline:none;border-color:var(--pr);}
-    .cep-row{display:flex;gap:0.5rem;align-items:flex-start;margin-bottom:0.65rem;}
-    .cep-row .cs-input{margin-bottom:0;flex:1;}
-    .cep-btn{background:var(--bg3);border:1.5px solid rgba(56,56,53,0.12);border-radius:14px;padding:0.65rem 0.85rem;font-size:0.75rem;font-weight:800;color:var(--pr);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;height:46px;}
-    .cep-hint{font-size:0.7rem;color:var(--txt3);margin-bottom:0.65rem;}
-    .cep-hint.ok{color:var(--grn);}
-    .cep-hint.err{color:var(--red);}
-    .field-msg{font-size:0.7rem;color:var(--red);margin-top:-0.4rem;margin-bottom:0.5rem;display:none;}
+    .cs-group{background:var(--surf);border:1.5px solid rgba(56,56,53,0.09);border-radius:16px;overflow:hidden;margin-bottom:0.85rem;}
+    .cs-field{display:flex;align-items:center;padding:0 1rem;border-bottom:1px solid rgba(56,56,53,0.07);}
+    .cs-field:last-child{border:none;}
+    .cs-field-icon{font-size:1rem;margin-right:0.65rem;flex-shrink:0;opacity:0.5;}
+    .cs-field-wrap{flex:1;position:relative;}
+    .cs-field-lbl{font-size:0.65rem;font-weight:700;color:var(--txt3);padding-top:0.55rem;display:block;}
+    .cs-field-inp{width:100%;border:none;outline:none;padding:0.2rem 0 0.55rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;color:var(--txt);background:transparent;}
+    .cs-field-inp:disabled{color:var(--txt3);}
+    .cs-field-inp::placeholder{color:var(--txt3);font-size:0.82rem;}
+    .cs-field-row{display:grid;grid-template-columns:1fr 1fr;}
+    .cs-field-row .cs-field{border-bottom:none;}
+    .cs-field-row .cs-field:first-child{border-right:1px solid rgba(56,56,53,0.07);}
+    .cs-field-row-wrap{border-bottom:1px solid rgba(56,56,53,0.07);}
+    .cs-field-row-wrap:last-child{border:none;}
+    .cep-search-btn{background:none;border:none;cursor:pointer;padding:0.5rem;color:var(--pr);font-size:0.75rem;font-weight:700;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;}
+    .cep-hint{font-size:0.7rem;padding:0.3rem 1rem 0.4rem;display:none;}
+    .cep-hint.ok{display:block;color:var(--grn);}
+    .cep-hint.err{display:block;color:var(--red);}
+    .cs-obs{width:100%;border:none;outline:none;padding:0.75rem 1rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.85rem;color:var(--txt);background:transparent;resize:none;height:70px;}
+    .cs-obs::placeholder{color:var(--txt3);}
+    .field-msg{font-size:0.7rem;color:var(--red);padding:0 1rem 0.4rem;display:none;}
     .field-msg.show{display:block;}
     .cs-send{width:100%;background:var(--pr);color:#fff;border:none;border-radius:16px;padding:1rem;font-size:0.95rem;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-top:0.75rem;box-shadow:0 4px 16px rgba(188,48,0,0.3);transition:transform 0.15s;}
     .cs-send:disabled{background:#FCA5A5;box-shadow:none;cursor:not-allowed;}
@@ -370,25 +375,48 @@
     <div class="cs-form" id="csForm" style="display:none;">
 
       <!-- CUPOM -->
-      <div class="cs-section">Cupom de desconto</div>
       <div class="cupom-wrap">
         <div class="cupom-row">
-          <input class="cupom-input" id="cupomInput" placeholder="CÓDIGO DO CUPOM" maxlength="20"
+          <input class="cupom-input" id="cupomInput" placeholder="CUPOM DE DESCONTO" maxlength="20"
             oninput="this.value=this.value.toUpperCase()">
           <button class="cupom-btn" onclick="aplicarCupom()">Aplicar</button>
         </div>
         <div class="cupom-msg" id="cupomMsg"></div>
       </div>
 
+      <!-- DADOS PESSOAIS -->
       <div class="cs-section">Seus dados</div>
-      <label class="cs-label">Nome completo *</label>
-      <input class="cs-input" id="cliNome" placeholder="Ex: João Silva" autocomplete="name">
-      <div class="field-msg" id="msgNome"></div>
+      <div class="cs-group">
+        <div class="cs-field">
+          <span class="cs-field-icon">📍</span>
+          <div class="cs-field-wrap">
+            <span class="cs-field-lbl">CEP *</span>
+            <div style="display:flex;align-items:center;">
+              <input class="cs-field-inp" id="cliCep" placeholder="00000-000" type="tel" maxlength="9"
+                oninput="mascaraCep(this)" onblur="buscarCep()" style="flex:1;">
+              <button class="cep-search-btn" onclick="buscarCep()">Buscar</button>
+            </div>
+          </div>
+        </div>
+        <div class="cep-hint" id="cepHint"></div>
 
-      <label class="cs-label">Celular / WhatsApp *</label>
-      <input class="cs-input" id="cliTel" placeholder="(99) 99999-9999" type="tel" maxlength="15"
-        autocomplete="tel" oninput="mascaraTel(this)" onblur="onTelBlur()">
-      <div class="field-msg" id="msgTel"></div>
+        <div class="cs-field">
+          <span class="cs-field-icon">👤</span>
+          <div class="cs-field-wrap">
+            <span class="cs-field-lbl">Nome completo *</span>
+            <input class="cs-field-inp" id="cliNome" placeholder="Como prefere ser chamado" autocomplete="name">
+          </div>
+        </div>
+
+        <div class="cs-field">
+          <span class="cs-field-icon">📱</span>
+          <div class="cs-field-wrap">
+            <span class="cs-field-lbl">WhatsApp *</span>
+            <input class="cs-field-inp" id="cliTel" placeholder="(99) 99999-9999" type="tel" maxlength="15"
+              autocomplete="tel" oninput="mascaraTel(this)" onblur="onTelBlur()">
+          </div>
+        </div>
+      </div>
 
       <!-- PONTOS DO CLIENTE -->
       <div class="pontos-card" id="pontosCard">
@@ -408,36 +436,55 @@
         </div>
       </div>
 
+      <!-- ENDEREÇO -->
       <div class="cs-section">Endereço de entrega</div>
-      <label class="cs-label">CEP *</label>
-      <div class="cep-row">
-        <input class="cs-input" id="cliCep" placeholder="00000-000" type="tel" maxlength="9"
-          oninput="mascaraCep(this)" onblur="validarCep()">
-        <button class="cep-btn" onclick="buscarCep()">🔍 Buscar</button>
-      </div>
-      <div class="cep-hint" id="cepHint">Digite o CEP para preencher automaticamente</div>
-
-      <label class="cs-label">Rua / Logradouro *</label>
-      <input class="cs-input" id="cliRua" placeholder="Nome da rua">
-      <div class="cs-row">
-        <div>
-          <label class="cs-label">Número *</label>
-          <input class="cs-input" id="cliNum" placeholder="123" type="tel" style="margin-bottom:0;">
+      <div class="cs-group">
+        <div class="cs-field">
+          <span class="cs-field-icon">🏠</span>
+          <div class="cs-field-wrap">
+            <span class="cs-field-lbl">Rua / Logradouro *</span>
+            <input class="cs-field-inp" id="cliRua" placeholder="Preenchido pelo CEP">
+          </div>
         </div>
-        <div>
-          <label class="cs-label">Complemento</label>
-          <input class="cs-input" id="cliComp" placeholder="Apto, casa..." style="margin-bottom:0;">
+        <div class="cs-field-row-wrap">
+          <div class="cs-field-row">
+            <div class="cs-field">
+              <div class="cs-field-wrap">
+                <span class="cs-field-lbl">Número *</span>
+                <input class="cs-field-inp" id="cliNum" placeholder="123" type="tel">
+              </div>
+            </div>
+            <div class="cs-field">
+              <div class="cs-field-wrap">
+                <span class="cs-field-lbl">Complemento</span>
+                <input class="cs-field-inp" id="cliComp" placeholder="Apto, casa...">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cs-field">
+          <span class="cs-field-icon">🏘️</span>
+          <div class="cs-field-wrap">
+            <span class="cs-field-lbl">Bairro *</span>
+            <input class="cs-field-inp" id="cliBairro" placeholder="Preenchido pelo CEP">
+          </div>
+        </div>
+        <div class="cs-field">
+          <span class="cs-field-icon">🌆</span>
+          <div class="cs-field-wrap">
+            <span class="cs-field-lbl">Cidade / Estado</span>
+            <input class="cs-field-inp" id="cliCidade" placeholder="Preenchido pelo CEP" disabled>
+          </div>
         </div>
       </div>
-      <div style="height:0.65rem;"></div>
-      <label class="cs-label">Bairro *</label>
-      <input class="cs-input" id="cliBairro" placeholder="Nome do bairro">
-      <label class="cs-label">Cidade / Estado</label>
-      <input class="cs-input" id="cliCidade" placeholder="Preenchido pelo CEP" disabled>
 
-      <div class="cs-section">Observações</div>
-      <textarea class="cs-textarea" id="cliObs"
-        placeholder="Ex: sem cebola, troco para R$50, portão azul..."></textarea>
+      <!-- OBS -->
+      <div class="cs-group">
+        <div class="cs-field" style="padding:0;">
+          <textarea class="cs-obs" id="cliObs"
+            placeholder="Observações: sem cebola, troco para R$50, portão azul..."></textarea>
+        </div>
+      </div>
 
       <button class="cs-send" id="btnEnviar" onclick="enviarPedido()">Confirmar pedido</button>
     </div>
@@ -522,31 +569,38 @@
 
     // AUTOPREENCHIMENTO ao sair do campo celular
     window.onTelBlur=async function(){
-      const v=document.getElementById('cliTel').value.replace(/\D/g,'')
-      const msg=document.getElementById('msgTel')
-      const inp=document.getElementById('cliTel')
-      if(v.length===11){
-        inp.classList.add('valido');inp.classList.remove('invalido');msg.className='field-msg'
-        // Busca cliente cadastrado
-        const cli=await buscarClientePorTelefone(lojaId,v)
-        if(cli){
-          clienteLocal=cli
-          // Preenche campos automaticamente
-          if(cli.nome)document.getElementById('cliNome').value=cli.nome
-          if(cli.endereco_cep)document.getElementById('cliCep').value=formatarCep(cli.endereco_cep)
-          if(cli.endereco_rua)document.getElementById('cliRua').value=cli.endereco_rua
-          if(cli.endereco_num)document.getElementById('cliNum').value=cli.endereco_num
-          if(cli.endereco_comp)document.getElementById('cliComp').value=cli.endereco_comp||''
-          if(cli.endereco_bairro)document.getElementById('cliBairro').value=cli.endereco_bairro
-          if(cli.endereco_cidade)document.getElementById('cliCidade').value=cli.endereco_cidade
-          // Mostra pontos se fidelidade ativa
-          if(fidelidadeConfig&&fidelidadeConfig.ativo){
-            mostrarPontos(cli.total_pontos||0,fidelidadeConfig.meta_pontos||100,fidelidadeConfig)
-          }
+      const tel=document.getElementById('cliTel').value
+      if(tel.replace(/\D/g,'').length<10)return
+      const cli=await buscarClientePorTelefone(lojaId,tel)
+      if(!cli)return
+      clienteLocal=cli
+      // Preenche nome
+      if(cli.nome){
+        const n=document.getElementById('cliNome')
+        if(n&&!n.value)n.value=cli.nome
+      }
+      // Preenche endereço completo
+      const campos={
+        cliCep:     cli.endereco_cep,
+        cliRua:     cli.endereco_rua,
+        cliNum:     cli.endereco_num,
+        cliComp:    cli.endereco_comp,
+        cliBairro:  cli.endereco_bairro,
+        cliCidade:  cli.endereco_cidade
+      }
+      let algumPreenchido=false
+      Object.entries(campos).forEach(([id,val])=>{
+        if(val){
+          const el=document.getElementById(id)
+          if(el&&!el.value){el.value=val;algumPreenchido=true}
         }
-      } else if(v.length>0){
-        inp.classList.add('invalido');inp.classList.remove('valido')
-        msg.textContent='Celular deve ter 11 dígitos — Ex: (99) 99999-9999';msg.className='field-msg show'
+      })
+      if(algumPreenchido){
+        showToast('Dados preenchidos automaticamente!')
+      }
+      // Pontos
+      if(fidelidadeConfig&&fidelidadeConfig.ativo&&fidelidadeConfig.id){
+        mostrarPontos(cli.total_pontos||0,fidelidadeConfig.meta_pontos||100,fidelidadeConfig)
       }
     }
 

@@ -94,17 +94,24 @@ export async function criarPedido(lojaId, cliente, itens, cupomId = null, descon
   const subtotal = itens.reduce((s, i) => s + i.subtotal, 0)
   const total    = Math.max(0, subtotal - desconto)
 
-  const { data: pedido, error } = await supabase.from('pedidos').insert({
+  // Monta dados do pedido — forma_pagamento é opcional (depende do SQL ter rodado)
+  const dadosPedido = {
     loja_id:          lojaId,
     nome_cliente:     cliente.nome,
     telefone_cliente: cliente.telefone,
     endereco_entrega: cliente.endereco,
     observacoes:      cliente.obs,
     total,
-    status:           'novo',
-    forma_pagamento:  formaPagamento,
-    status_pagamento: formaPagamento === 'dinheiro' ? 'na_entrega' : 'pendente'
-  }).select().single()
+    status:           'novo'
+  }
+  // Tenta incluir forma_pagamento (só funciona se update_pagamento.sql foi rodado)
+  try {
+    dadosPedido.forma_pagamento  = formaPagamento
+    dadosPedido.status_pagamento = formaPagamento === 'dinheiro' ? 'na_entrega' : 'pendente'
+  } catch(e) {}
+
+  const { data: pedido, error } = await supabase.from('pedidos')
+    .insert(dadosPedido).select().single()
 
   if (error) throw error
 
