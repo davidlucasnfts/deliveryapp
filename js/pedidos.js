@@ -1,30 +1,64 @@
 import { supabase } from './supabase.js'
 
 // Busca ou cria cliente pelo celular (cadastro automático)
+// Só salva campos que existem com certeza na tabela
 async function salvarCliente(lojaId, cliente) {
   const tel = cliente.telefone.replace(/\D/g, '')
-  const { data: existente } = await supabase
-    .from('clientes').select('*')
-    .eq('loja_id', lojaId).eq('telefone', tel).single()
-  if (existente) {
-    await supabase.from('clientes').update({
-      nome:            cliente.nome,
-      endereco_rua:    cliente.rua    || existente.endereco_rua,
-      endereco_num:    cliente.num    || existente.endereco_num,
-      endereco_comp:   cliente.comp   || existente.endereco_comp,
-      endereco_bairro: cliente.bairro || existente.endereco_bairro,
-      endereco_cidade: cliente.cidade || existente.endereco_cidade,
-      endereco_cep:    cliente.cep    || existente.endereco_cep,
-    }).eq('id', existente.id)
-    return existente.id
+  
+  try {
+    const { data: existente } = await supabase
+      .from('clientes').select('id,nome,total_pontos,total_pedidos,total_gasto')
+      .eq('loja_id', lojaId).eq('telefone', tel).single()
+
+    if (existente) {
+      // Atualiza só nome — campos de endereço podem não existir ainda
+      await supabase.from('clientes')
+        .update({ nome: cliente.nome })
+        .eq('id', existente.id)
+      
+      // Tenta atualizar endereço se as colunas existirem
+      try {
+        await supabase.from('clientes').update({
+          endereco_rua:    cliente.rua    || null,
+          endereco_num:    cliente.num    || null,
+          endereco_comp:   cliente.comp   || null,
+          endereco_bairro: cliente.bairro || null,
+          endereco_cidade: cliente.cidade || null,
+          endereco_cep:    cliente.cep    || null,
+        }).eq('id', existente.id)
+      } catch(e) {} // silencia se colunas não existirem
+
+      return existente.id
+    }
+
+    // Cria novo cliente com campos básicos
+    const { data: novo, error } = await supabase.from('clientes').insert({
+      loja_id:  lojaId,
+      nome:     cliente.nome,
+      telefone: tel,
+    }).select('id').single()
+
+    if (error || !novo) return null
+
+    // Tenta salvar endereço separadamente
+    try {
+      await supabase.from('clientes').update({
+        endereco_rua:    cliente.rua    || null,
+        endereco_num:    cliente.num    || null,
+        endereco_comp:   cliente.comp   || null,
+        endereco_bairro: cliente.bairro || null,
+        endereco_cidade: cliente.cidade || null,
+        endereco_cep:    cliente.cep    || null,
+      }).eq('id', novo.id)
+    } catch(e) {}
+
+    return novo.id
+
+  } catch(e) {
+    // Se falhar tudo, não quebra o pedido
+    console.warn('salvarCliente falhou (não crítico):', e.message)
+    return null
   }
-  const { data: novo } = await supabase.from('clientes').insert({
-    loja_id: lojaId, nome: cliente.nome, telefone: tel,
-    endereco_rua: cliente.rua, endereco_num: cliente.num,
-    endereco_comp: cliente.comp, endereco_bairro: cliente.bairro,
-    endereco_cidade: cliente.cidade, endereco_cep: cliente.cep,
-  }).select().single()
-  return novo?.id || null
 }
 
 // Acumula pontos (trigger no banco faz o update, só registra o histórico)

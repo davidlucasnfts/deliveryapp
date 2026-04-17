@@ -374,16 +374,6 @@
 
     <div class="cs-form" id="csForm" style="display:none;">
 
-      <!-- CUPOM -->
-      <div class="cupom-wrap">
-        <div class="cupom-row">
-          <input class="cupom-input" id="cupomInput" placeholder="CUPOM DE DESCONTO" maxlength="20"
-            oninput="this.value=this.value.toUpperCase()">
-          <button class="cupom-btn" onclick="aplicarCupom()">Aplicar</button>
-        </div>
-        <div class="cupom-msg" id="cupomMsg"></div>
-      </div>
-
       <!-- DADOS PESSOAIS -->
       <div class="cs-section">Seus dados</div>
       <div class="cs-group">
@@ -484,6 +474,16 @@
           <textarea class="cs-obs" id="cliObs"
             placeholder="Observações: sem cebola, troco para R$50, portão azul..."></textarea>
         </div>
+      </div>
+
+      <!-- CUPOM -->
+      <div class="cupom-wrap" style="margin-top:0.5rem;">
+        <div class="cupom-row">
+          <input class="cupom-input" id="cupomInput" placeholder="CUPOM DE DESCONTO" maxlength="20"
+            oninput="this.value=this.value.toUpperCase()">
+          <button class="cupom-btn" onclick="aplicarCupom()">Aplicar</button>
+        </div>
+        <div class="cupom-msg" id="cupomMsg"></div>
       </div>
 
       <button class="cs-send" id="btnEnviar" onclick="enviarPedido()">Confirmar pedido</button>
@@ -960,8 +960,12 @@
         abrirPagamento()
         btn.disabled=false;btn.textContent='Confirmar pedido'
       }catch(e){
-        console.error(e)
-        alert('Erro ao registrar pedido. Tente novamente.')
+        console.error('Erro criarPedido:', e?.message || e)
+        // Mostra erro mais detalhado em dev
+        const msg = e?.message?.includes('column') 
+          ? 'Erro de configuração do banco. Rode o SQL update_pagamento.sql no Supabase.'
+          : 'Erro ao registrar pedido. Tente novamente.'
+        alert(msg)
         btn.disabled=false;btn.textContent='Confirmar pedido'
       }
     }
