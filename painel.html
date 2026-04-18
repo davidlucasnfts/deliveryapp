@@ -163,6 +163,26 @@
 
     /* EDIT PRODUTO */
     .ep-overlay{display:none;position:fixed;inset:0;background:rgba(28,25,23,0.6);z-index:70;align-items:flex-end;justify-content:center;}
+    /* ADICIONAIS PAINEL */
+    .add-pg{border:1.5px solid #E7E5E4;border-radius:12px;margin-bottom:0.75rem;overflow:hidden;}
+    .add-pg-hd{display:flex;align-items:center;gap:0.5rem;padding:0.65rem 0.85rem;background:#FAFAFA;border-bottom:1px solid #F3F4F6;}
+    .add-pg-nome{flex:1;border:none;outline:none;font-size:0.88rem;font-weight:700;color:var(--txt);background:transparent;font-family:'Poppins',sans-serif;}
+    .add-pg-nome::placeholder{color:var(--txt3);font-weight:400;}
+    .add-pg-sel{border:1.5px solid #E7E5E4;border-radius:8px;padding:0.28rem 0.4rem;font-size:0.72rem;font-family:'Poppins',sans-serif;}
+    .add-pg-del{background:#FEE2E2;border:none;border-radius:8px;padding:0.28rem 0.55rem;cursor:pointer;font-size:0.8rem;color:#B91C1C;}
+    .add-pg-body{padding:0.5rem 0.85rem;}
+    .add-it{display:flex;align-items:center;gap:0.4rem;padding:0.35rem 0;border-bottom:1px solid #F9FAFB;}
+    .add-it:last-child{border:none;}
+    .add-it-nome{flex:2;border:1.5px solid #E7E5E4;border-radius:8px;padding:0.32rem 0.55rem;font-size:0.82rem;font-family:'Poppins',sans-serif;outline:none;}
+    .add-it-nome:focus{border-color:var(--or);}
+    .add-it-preco{width:80px;flex-shrink:0;border:1.5px solid #E7E5E4;border-radius:8px;padding:0.32rem 0.55rem;font-size:0.82rem;font-family:'Poppins',sans-serif;outline:none;}
+    .add-it-preco:focus{border-color:var(--or);}
+    .add-it-del{background:none;border:none;cursor:pointer;color:#D1D5DB;font-size:1.1rem;flex-shrink:0;}
+    .add-it-del:hover{color:#B91C1C;}
+    .add-pg-add{width:100%;background:none;border:1.5px dashed #D1D5DB;border-radius:8px;padding:0.38rem;font-size:0.78rem;color:var(--txt3);cursor:pointer;font-family:'Poppins',sans-serif;margin-top:0.35rem;}
+    .add-pg-add:hover{border-color:var(--or);color:var(--or);}
+    .add-pg-foot{display:flex;gap:0.5rem;padding:0.4rem 0.85rem 0.6rem;font-size:0.7rem;color:var(--txt3);}
+
     .ep-overlay.open{display:flex;}
     .ep-box{background:#fff;border-radius:20px 20px 0 0;padding:1.25rem;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;}
     .ep-hd{font-size:0.95rem;font-weight:700;color:var(--txt);margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;}

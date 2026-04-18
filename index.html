@@ -205,40 +205,49 @@
     .cs-success-pontos-val{font-size:1.4rem;font-weight:900;color:var(--gold);margin-top:0.25rem;}
     .cs-novo-btn{margin-top:1.25rem;background:var(--pr);color:#fff;border:none;border-radius:99px;padding:0.75rem 2rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;cursor:pointer;font-size:0.88rem;}
 
-    /* ADICIONAIS */
-    .add-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:80;align-items:flex-end;justify-content:center;}
+    /* ADICIONAIS — estilo igual concorrente */
+    .add-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:80;flex-direction:column;max-width:480px;margin:0 auto;}
     .add-overlay.open{display:flex;}
-    .add-box{background:var(--bg);border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding-bottom:1.5rem;}
-    .add-hd{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.25rem 0.5rem;position:sticky;top:0;background:var(--bg);z-index:2;}
-    .add-titulo{font-size:1rem;font-weight:900;color:var(--txt);}
-    .add-close{background:var(--bg3);border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-    .add-produto-info{padding:0 1.25rem 1rem;border-bottom:1px solid rgba(56,56,53,0.08);}
-    .add-produto-nome{font-size:0.92rem;font-weight:700;color:var(--txt);}
-    .add-produto-preco{font-size:0.82rem;color:var(--pr);font-weight:700;margin-top:0.15rem;}
-    .add-grupo{padding:1rem 1.25rem 0;}
-    .add-grupo-titulo{font-size:0.78rem;font-weight:800;color:var(--txt);margin-bottom:0.2rem;display:flex;align-items:center;gap:0.5rem;}
-    .add-grupo-sub{font-size:0.7rem;color:var(--txt3);margin-bottom:0.75rem;}
-    .add-grupo-obrig{background:var(--pr);color:#fff;font-size:0.6rem;font-weight:700;padding:0.15rem 0.45rem;border-radius:99px;}
-    .add-grupo-opcao{border-radius:99px;font-size:0.6rem;font-weight:700;padding:0.15rem 0.45rem;background:var(--bg3);color:var(--txt3);}
-    .add-item{display:flex;align-items:center;padding:0.65rem 0;border-bottom:1px solid rgba(56,56,53,0.06);}
+    .add-top-header{display:flex;align-items:center;gap:0.75rem;padding:1rem 1.25rem;border-bottom:1px solid rgba(56,56,53,0.08);background:var(--bg);position:sticky;top:0;z-index:5;}
+    .add-back-btn{background:var(--bg3);border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+    .add-top-nome{font-size:0.95rem;font-weight:800;color:var(--txt);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .add-scroll{flex:1;overflow-y:auto;}
+    .add-prod-foto{width:100%;height:200px;object-fit:cover;display:block;}
+    .add-prod-foto-ph{width:100%;height:160px;background:linear-gradient(135deg,#FEF3C7,#FED7AA);display:flex;align-items:center;justify-content:center;font-size:4rem;}
+    .add-prod-info{padding:1rem 1.25rem;border-bottom:1px solid rgba(56,56,53,0.08);}
+    .add-prod-nome{font-size:1.1rem;font-weight:900;color:var(--txt);}
+    .add-prod-preco{font-size:1rem;font-weight:700;color:var(--pr);margin-top:0.2rem;}
+    .add-prod-desc{font-size:0.82rem;color:var(--txt2);margin-top:0.35rem;line-height:1.5;}
+    .add-grupo{border-bottom:1px solid rgba(56,56,53,0.08);}
+    .add-grupo-hd{display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1.25rem;cursor:pointer;background:rgba(56,56,53,0.03);}
+    .add-grupo-info{}
+    .add-grupo-titulo{font-size:0.88rem;font-weight:800;color:var(--txt);}
+    .add-grupo-sub{font-size:0.72rem;color:var(--txt3);margin-top:0.15rem;}
+    .add-grupo-badge{font-size:0.65rem;font-weight:700;padding:0.2rem 0.55rem;border-radius:99px;}
+    .add-grupo-badge.obrig{background:var(--pr);color:#fff;}
+    .add-grupo-badge.opcao{background:var(--bg3);color:var(--txt3);}
+    .add-grupo-body{padding:0 1.25rem;}
+    .add-item{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid rgba(56,56,53,0.05);}
     .add-item:last-child{border:none;}
+    .add-item-foto{width:48px;height:48px;border-radius:10px;object-fit:cover;background:var(--bg3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;overflow:hidden;}
     .add-item-info{flex:1;}
     .add-item-nome{font-size:0.88rem;font-weight:600;color:var(--txt);}
-    .add-item-preco{font-size:0.78rem;color:var(--pr);font-weight:600;margin-top:0.1rem;}
-    .add-item-ctrl{flex-shrink:0;margin-left:0.75rem;}
-    /* Checkbox estilo radio para max=1, checkbox para max>1 */
-    .add-radio{width:22px;height:22px;border-radius:50%;border:2px solid rgba(56,56,53,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;}
-    .add-radio.sel{border-color:var(--pr);background:var(--pr);}
-    .add-radio.sel::after{content:'';width:8px;height:8px;border-radius:50%;background:#fff;}
-    .add-check{width:22px;height:22px;border-radius:6px;border:2px solid rgba(56,56,53,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;}
-    .add-check.sel{border-color:var(--pr);background:var(--pr);}
-    .add-check.sel::after{content:'✓';color:#fff;font-size:13px;font-weight:700;}
-    .add-footer{position:sticky;bottom:0;background:var(--bg);padding:1rem 1.25rem 0;border-top:1px solid rgba(56,56,53,0.08);}
-    .add-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;}
-    .add-total-lbl{font-size:0.82rem;color:var(--txt2);}
-    .add-total-val{font-size:1.1rem;font-weight:900;color:var(--pr);}
-    .add-confirmar{width:100%;background:var(--pr);color:#fff;border:none;border-radius:14px;padding:0.9rem;font-size:0.92rem;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
-    .add-confirmar:disabled{background:#FCA5A5;cursor:not-allowed;}
+    .add-item-max{font-size:0.7rem;color:var(--txt3);}
+    .add-item-preco{font-size:0.82rem;color:var(--pr);font-weight:700;}
+    .add-item-ctrl{flex-shrink:0;}
+    .add-ctrl-radio{width:24px;height:24px;border-radius:50%;border:2px solid rgba(56,56,53,0.25);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+    .add-ctrl-radio.sel{border-color:var(--pr);background:var(--pr);}
+    .add-ctrl-radio.sel::after{content:'';width:9px;height:9px;border-radius:50%;background:#fff;}
+    .add-ctrl-mais{width:32px;height:32px;border-radius:50%;background:rgba(188,48,0,0.1);border:none;color:var(--pr);font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;}
+    .add-ctrl-mais.ativo{background:var(--pr);color:#fff;}
+    .add-ctrl-counter{display:flex;align-items:center;gap:0.4rem;}
+    .add-ctrl-counter span{font-size:0.88rem;font-weight:700;min-width:16px;text-align:center;}
+    .add-ctrl-menos{width:28px;height:28px;border-radius:50%;background:var(--bg3);border:none;color:var(--txt2);font-size:1.1rem;cursor:pointer;}
+    .add-qty-row{padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(56,56,53,0.08);}
+    .add-footer{padding:1rem 1.25rem;background:var(--bg);border-top:1px solid rgba(56,56,53,0.08);position:sticky;bottom:0;}
+    .add-avancar{width:100%;background:var(--pr);color:#fff;border:none;border-radius:16px;padding:1rem;font-size:0.95rem;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;justify-content:space-between;}
+    .add-avancar:disabled{background:#FCA5A5;cursor:not-allowed;}
+    .add-avancar-lbl{font-size:0.78rem;opacity:0.85;}
 
     /* TAXA DE ENTREGA */
     .taxa-row{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;font-size:0.82rem;}
@@ -537,38 +546,36 @@
     </div><!-- fecha cs-body -->
   </div>
 
-  <!-- MODAL ADICIONAIS -->
+  <!-- MODAL ADICIONAIS — tela cheia igual concorrente -->
   <div class="add-overlay" id="addOverlay">
-    <div class="add-box" id="addBox">
-      <div class="add-hd">
-        <span class="add-titulo" id="addTitulo">Personalize seu pedido</span>
-        <button class="add-close" onclick="fecharAdicionais()">
-          <span class="mi" style="font-size:18px;color:var(--txt2);">close</span>
-        </button>
-      </div>
-      <div class="add-produto-info">
-        <div class="add-produto-nome" id="addProdNome"></div>
-        <div class="add-produto-preco" id="addProdPreco"></div>
+    <div class="add-top-header">
+      <button class="add-back-btn" onclick="fecharAdicionais()">
+        <span class="mi" style="font-size:20px;color:var(--txt2);">arrow_back</span>
+      </button>
+      <span class="add-top-nome" id="addTopNome">Personalize</span>
+    </div>
+    <div class="add-scroll" id="addScroll">
+      <div id="addFotoWrap"></div>
+      <div class="add-prod-info">
+        <div class="add-prod-nome" id="addProdNome"></div>
+        <div class="add-prod-preco" id="addProdPreco"></div>
+        <div class="add-prod-desc" id="addProdDesc"></div>
       </div>
       <div id="addGrupos"></div>
-      <!-- Quantidade -->
-      <div style="padding:1rem 1.25rem 0;display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:0.85rem;font-weight:700;color:var(--txt);">Quantidade</span>
-        <div class="qrow">
-          <button class="qbtn minus" onclick="chAddQty(-1)"><span class="mi" style="font-size:18px;">remove</span></button>
-          <span class="qnum" id="addQtyNum">1</span>
-          <button class="qbtn" onclick="chAddQty(1)"><span class="mi" style="font-size:18px;">add</span></button>
+      <div class="add-qty-row">
+        <span style="font-size:0.88rem;font-weight:700;color:var(--txt);">Quantidade</span>
+        <div class="add-ctrl-counter">
+          <button class="add-ctrl-menos" onclick="chAddQty(-1)">−</button>
+          <span id="addQtyNum">1</span>
+          <button class="add-ctrl-mais ativo" onclick="chAddQty(1)">+</button>
         </div>
       </div>
-      <div class="add-footer">
-        <div class="add-total-row">
-          <span class="add-total-lbl">Total do item</span>
-          <span class="add-total-val" id="addTotalVal">R$0,00</span>
-        </div>
-        <button class="add-confirmar" id="addConfirmar" onclick="confirmarAdicionais()">
-          Adicionar ao pedido
-        </button>
-      </div>
+    </div>
+    <div class="add-footer">
+      <button class="add-avancar" id="addConfirmar" onclick="confirmarAdicionais()" disabled>
+        <span class="add-avancar-lbl">Adicionar ao pedido</span>
+        <span id="addTotalVal">R$0,00</span>
+      </button>
     </div>
   </div>
 
@@ -847,42 +854,73 @@
     }
 
     // ============================================================
-    // ADICIONAIS
+    // ADICIONAIS — interface igual ao concorrente
     // ============================================================
     function abrirAdicionais(produto, grupos){
       addProdutoAtual=produto; addGruposAtual=grupos; addSelecionados={}; addQty=1
+
+      // Foto e info do produto
+      document.getElementById('addTopNome').textContent=produto.nome
       document.getElementById('addProdNome').textContent=produto.nome
       document.getElementById('addProdPreco').textContent=fmt(produto.preco)
+      document.getElementById('addProdDesc').textContent=produto.descricao||''
+      document.getElementById('addFotoWrap').innerHTML=produto.foto_url
+        ?`<img class="add-prod-foto" src="${produto.foto_url}" alt="${produto.nome}" loading="lazy">`
+        :`<div class="add-prod-foto-ph">🍽️</div>`
       document.getElementById('addQtyNum').textContent=1
 
+      // Renderiza grupos
       let h=''
       grupos.forEach(grupo=>{
         const isRadio=grupo.max_escolha===1
-        const sub=grupo.obrigatorio
-          ?`Obrigatório · escolha ${grupo.max_escolha===1?'1 opção':`até ${grupo.max_escolha}`}`
-          :`Opcional · escolha até ${grupo.max_escolha}`
-        h+=`<div class="add-grupo" data-grupo="${grupo.id}">
-          <div class="add-grupo-titulo">
-            ${grupo.nome}
-            <span class="${grupo.obrigatorio?'add-grupo-obrig':'add-grupo-opcao'}">${grupo.obrigatorio?'Obrigatório':'Opcional'}</span>
+        const subTxt=grupo.obrigatorio
+          ?`Escolha ${grupo.max_escolha===1?'1 item':`até ${grupo.max_escolha} itens`}`
+          :`Escolha até ${grupo.max_escolha} ${grupo.max_escolha===1?'item':'itens'}`
+        h+=`<div class="add-grupo">
+          <div class="add-grupo-hd">
+            <div class="add-grupo-info">
+              <div class="add-grupo-titulo">${grupo.nome}</div>
+              <div class="add-grupo-sub">${subTxt}</div>
+            </div>
+            <span class="add-grupo-badge ${grupo.obrigatorio?'obrig':'opcao'}">${grupo.obrigatorio?'Obrigatório':'Opcional'}</span>
           </div>
-          <div class="add-grupo-sub">${sub}</div>`
+          <div class="add-grupo-body">`
         grupo.itens.forEach(item=>{
-          h+=`<div class="add-item" data-item="${item.id}" data-grupo="${grupo.id}" data-preco="${item.preco}" onclick="toggleAdicional('${grupo.id}','${item.id}',${grupo.max_escolha},${item.preco},'${item.nome.replace(/'/g,'\'')}')">
-            <div class="add-item-info">
-              <div class="add-item-nome">${item.nome}</div>
-              ${item.preco>0?`<div class="add-item-preco">+${fmt(item.preco)}</div>`:'<div class="add-item-preco" style="color:var(--grn)">Grátis</div>'}
-            </div>
-            <div class="add-item-ctrl">
-              <div class="${isRadio?'add-radio':'add-check'}" id="ctrl_${item.id}"></div>
-            </div>
-          </div>`
+          if(isRadio){
+            h+=`<div class="add-item" onclick="toggleAdicional('${grupo.id}','${item.id}',${grupo.max_escolha},${item.preco},'${item.nome.replace(/'/g,"\'")}')">
+              <div class="add-item-foto">🍽️</div>
+              <div class="add-item-info">
+                <div class="add-item-nome">${item.nome}</div>
+                <div class="add-item-max">Máx ${grupo.max_escolha}</div>
+                ${item.preco>0?`<div class="add-item-preco">+${fmt(item.preco)}</div>`:``}
+              </div>
+              <div class="add-item-ctrl">
+                <div class="add-ctrl-radio" id="ctrl_${item.id}"></div>
+              </div>
+            </div>`
+          } else {
+            h+=`<div class="add-item">
+              <div class="add-item-foto">🍽️</div>
+              <div class="add-item-info">
+                <div class="add-item-nome">${item.nome}</div>
+                <div class="add-item-max">Máx ${grupo.max_escolha}</div>
+                ${item.preco>0?`<div class="add-item-preco">+${fmt(item.preco)}</div>`:``}
+              </div>
+              <div class="add-item-ctrl" id="ctrl_wrap_${item.id}">
+                <button class="add-ctrl-mais" id="ctrl_${item.id}"
+                  onclick="toggleAdicional('${grupo.id}','${item.id}',${grupo.max_escolha},${item.preco},'${item.nome.replace(/'/g,"\'")}')">+</button>
+              </div>
+            </div>`
+          }
         })
-        h+=`</div>`
+        h+=`</div></div>`
       })
       document.getElementById('addGrupos').innerHTML=h
       atualizarTotalAdd()
       atualizarBotaoAdd()
+      // Scroll pro topo
+      const scroll=document.getElementById('addScroll')
+      if(scroll)scroll.scrollTop=0
       document.getElementById('addOverlay').classList.add('open')
     }
 
@@ -894,8 +932,9 @@
     window.toggleAdicional=function(grupoId,itemId,maxEscolha,preco,nome){
       if(!addSelecionados[grupoId]) addSelecionados[grupoId]=[]
       const idx=addSelecionados[grupoId].findIndex(x=>x.id===itemId)
+
       if(maxEscolha===1){
-        // Radio — desseleciona anterior
+        // RADIO — limpa anterior e seleciona novo
         const anterior=addSelecionados[grupoId][0]
         if(anterior){
           const ctrlAnt=document.getElementById('ctrl_'+anterior.id)
@@ -903,22 +942,62 @@
         }
         if(idx>=0){
           addSelecionados[grupoId]=[]
+          const ctrl=document.getElementById('ctrl_'+itemId)
+          if(ctrl)ctrl.classList.remove('sel')
         } else {
           addSelecionados[grupoId]=[{id:itemId,preco,nome}]
           const ctrl=document.getElementById('ctrl_'+itemId)
           if(ctrl)ctrl.classList.add('sel')
         }
       } else {
-        // Checkbox com limite
+        // MÚLTIPLA ESCOLHA — botão + e contador
+        const total=addSelecionados[grupoId].reduce((s,x)=>s+x.qty,0)
         if(idx>=0){
-          addSelecionados[grupoId].splice(idx,1)
-          const ctrl=document.getElementById('ctrl_'+itemId)
-          if(ctrl)ctrl.classList.remove('sel')
+          addSelecionados[grupoId][idx].qty=(addSelecionados[grupoId][idx].qty||1)+1
+          if(addSelecionados[grupoId][idx].qty>maxEscolha){
+            addSelecionados[grupoId].splice(idx,1)
+          }
         } else {
-          if(addSelecionados[grupoId].length>=maxEscolha) return
-          addSelecionados[grupoId].push({id:itemId,preco,nome})
-          const ctrl=document.getElementById('ctrl_'+itemId)
-          if(ctrl)ctrl.classList.add('sel')
+          if(total>=maxEscolha){showToast('Máximo de '+maxEscolha+' opções neste grupo');return}
+          addSelecionados[grupoId].push({id:itemId,preco,nome,qty:1})
+        }
+        // Atualiza visual do botão +
+        const qtdAtual=(addSelecionados[grupoId].find(x=>x.id===itemId)||{qty:0}).qty
+        const ctrlWrap=document.getElementById('ctrl_wrap_'+itemId)
+        if(ctrlWrap){
+          if(qtdAtual>0){
+            ctrlWrap.innerHTML=`<div class="add-ctrl-counter">
+              <button class="add-ctrl-menos" onclick="event.stopPropagation();decrementAdicional('${grupoId}','${itemId}',${preco},'${nome}')">−</button>
+              <span>${qtdAtual}</span>
+              <button class="add-ctrl-mais ativo" onclick="event.stopPropagation();toggleAdicional('${grupoId}','${itemId}',${maxEscolha},${preco},'${nome}')">+</button>
+            </div>`
+          } else {
+            ctrlWrap.innerHTML=`<button class="add-ctrl-mais" id="ctrl_${itemId}"
+              onclick="toggleAdicional('${grupoId}','${itemId}',${maxEscolha},${preco},'${nome}')">+</button>`
+          }
+        }
+      }
+      atualizarTotalAdd()
+      atualizarBotaoAdd()
+    }
+
+    window.decrementAdicional=function(grupoId,itemId,preco,nome){
+      if(!addSelecionados[grupoId]) return
+      const idx=addSelecionados[grupoId].findIndex(x=>x.id===itemId)
+      if(idx<0) return
+      addSelecionados[grupoId][idx].qty=(addSelecionados[grupoId][idx].qty||1)-1
+      if(addSelecionados[grupoId][idx].qty<=0) addSelecionados[grupoId].splice(idx,1)
+      const qtdAtual=(addSelecionados[grupoId].find(x=>x.id===itemId)||{qty:0}).qty
+      const ctrlWrap=document.getElementById('ctrl_wrap_'+itemId)
+      if(ctrlWrap){
+        if(qtdAtual>0){
+          ctrlWrap.innerHTML=`<div class="add-ctrl-counter">
+            <button class="add-ctrl-menos" onclick="event.stopPropagation();decrementAdicional('${grupoId}','${itemId}',${preco},'${nome}')">−</button>
+            <span>${qtdAtual}</span>
+            <button class="add-ctrl-mais ativo" onclick="event.stopPropagation();toggleAdicional('${grupoId}','${itemId}',1,${preco},'${nome}')">+</button>
+          </div>`
+        } else {
+          ctrlWrap.innerHTML=`<button class="add-ctrl-mais" onclick="toggleAdicional('${grupoId}','${itemId}',1,${preco},'${nome}')">+</button>`
         }
       }
       atualizarTotalAdd()
@@ -928,7 +1007,7 @@
     function calcTotalAdd(){
       if(!addProdutoAtual) return 0
       let extra=0
-      Object.values(addSelecionados).forEach(sel=>sel.forEach(s=>extra+=Number(s.preco)))
+      Object.values(addSelecionados).forEach(sel=>sel.forEach(s=>extra+=Number(s.preco)*(s.qty||1)))
       return (addProdutoAtual.preco+extra)*addQty
     }
 
@@ -937,14 +1016,13 @@
     }
 
     function atualizarBotaoAdd(){
-      // Verifica se todos os grupos obrigatórios têm seleção
       const ok=addGruposAtual.every(g=>
-        !g.obrigatorio||((addSelecionados[g.id]||[]).length>=Math.max(1,g.min_escolha))
+        !g.obrigatorio||((addSelecionados[g.id]||[]).length>=1)
       )
       const btn=document.getElementById('addConfirmar')
       btn.disabled=!ok
-      const qtdStr=addQty>1?` ${addQty}x`:''
-      btn.textContent=`Adicionar${qtdStr} — ${fmt(calcTotalAdd())}`
+      const totalEl=document.getElementById('addTotalVal')
+      if(totalEl)totalEl.textContent=fmt(calcTotalAdd())
     }
 
     window.chAddQty=function(d){
@@ -955,14 +1033,19 @@
 
     window.confirmarAdicionais=function(){
       if(!addProdutoAtual)return
-      // Monta item com adicionais
       const adicionaisEscolhidos=[]
       addGruposAtual.forEach(g=>{
         const sel=addSelecionados[g.id]||[]
-        sel.forEach(s=>adicionaisEscolhidos.push({
-          grupo_id:g.id, nome_grupo:g.nome,
-          adicional_id:s.id, nome_adicional:s.nome, preco:s.preco
-        }))
+        sel.forEach(s=>{
+          // Para múltiplos, repete o item conforme qty
+          const qty=s.qty||1
+          for(let i=0;i<qty;i++){
+            adicionaisEscolhidos.push({
+              grupo_id:g.id, nome_grupo:g.nome,
+              adicional_id:s.id, nome_adicional:s.nome, preco:s.preco
+            })
+          }
+        })
       })
       const extraPreco=adicionaisEscolhidos.reduce((s,a)=>s+Number(a.preco),0)
       const precoFinal=addProdutoAtual.preco+extraPreco
