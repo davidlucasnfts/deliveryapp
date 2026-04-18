@@ -49,7 +49,7 @@
     .hero-desc{font-size:0.82rem;color:rgba(255,255,255,0.85);margin-bottom:0.85rem;}
     .hero-badges{display:flex;gap:0.5rem;flex-wrap:wrap;}
     .hero-badge{padding:0.3rem 0.85rem;border-radius:99px;font-size:0.7rem;font-weight:700;display:flex;align-items:center;gap:0.35rem;}
-    .badge-open{background:var(--pr);color:#fff;}
+    .badge-open{background:#16A34A;color:#fff;}
     .badge-fechado{background:rgba(0,0,0,0.5);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.3);}
     .banner-fechado{display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#1C1917;color:#fff;padding:1rem 1.25rem;z-index:45;align-items:center;gap:0.75rem;border-top:2px solid #F97316;}
     .banner-fechado-txt{flex:1;font-size:0.82rem;font-weight:600;}
@@ -1091,6 +1091,29 @@
       }
     }
 
+    function verificarHorarioAutomatico(){
+      if(!loja||!loja.hora_abre||!loja.hora_fecha) return
+      const agora=new Date()
+      const [ha,ma]=(loja.hora_abre||'00:00').split(':').map(Number)
+      const [hf,mf]=(loja.hora_fecha||'23:59').split(':').map(Number)
+      const minAtual=agora.getHours()*60+agora.getMinutes()
+      const minAbre=ha*60+ma
+      const minFecha=hf*60+mf
+      let deveEstarAberta
+      if(minAbre<minFecha){
+        deveEstarAberta=minAtual>=minAbre&&minAtual<minFecha
+      } else {
+        // passa da meia-noite
+        deveEstarAberta=minAtual>=minAbre||minAtual<minFecha
+      }
+      if(loja.aberta!==deveEstarAberta){
+        loja.aberta=deveEstarAberta
+        renderHero()
+        const banner=document.getElementById('bannerFechado')
+        if(banner) banner.style.display=deveEstarAberta?'none':'flex'
+      }
+    }
+
     async function init(){
       if(!lojaId){
         document.getElementById('loading').innerHTML='<div class="inativa"><div class="inativa-icon">🔗</div><div class="inativa-txt">Link inválido</div><div class="inativa-sub">Solicite o link correto ao estabelecimento.</div></div>'
@@ -1109,9 +1132,13 @@
           document.getElementById('loading').innerHTML='<div class="inativa"><div class="inativa-icon">🔒</div><div class="inativa-txt">Loja indisponível</div><div class="inativa-sub">Este estabelecimento está temporariamente fora do ar.</div></div>'
           return
         }
+        // Verifica horário automático
+        verificarHorarioAutomatico()
         carregarCartSalvo()
         renderHero();renderCats();renderMenu()
         atualizarCartBar()
+        // Reverifica a cada minuto
+        setInterval(verificarHorarioAutomatico, 60000)
         document.getElementById('loading').style.display='none'
         document.getElementById('app').style.display='block'
         document.title=loja.nome+' — Cardápio'

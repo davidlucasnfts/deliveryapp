@@ -1,4 +1,4 @@
-// js/painel/painel-fidelidade.js — pontos, cupons, clientes, transmissão
+// js/painel/painel-fidelidade.js
 
 import { supabase } from '../supabase.js'
 import { fmt, toast } from './utils.js'
@@ -16,109 +16,165 @@ export async function renderFidelidade() {
   const listaCupons = cupons || []
 
   document.getElementById('mainBody').innerHTML = `
-    <!-- PONTOS -->
-    <div class="cfg-card" style="border:1.5px solid var(--or);">
-      <div class="cfg-title">⭐ Programa de pontos</div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
-        <span style="font-size:0.82rem;color:var(--txt);">Programa ativo</span>
-        <button class="toggle ${cfg?.ativo ? 'on' : ''}" id="fidToggle" onclick="toggleFidelidade()"></button>
+
+  <!-- ── PROGRAMA DE PONTOS ── -->
+  <div class="cfg-card" style="border-left:3px solid var(--or);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem;">
+      <div>
+        <div class="cfg-title" style="margin:0;">⭐ Programa de pontos</div>
+        <div style="font-size:0.72rem;color:var(--txt3);margin-top:0.15rem;">Recompense seus clientes por cada compra</div>
       </div>
-      <label class="cfg-lbl">Tipo de pontuação</label>
-      <select class="ep-sel" id="fidTipo" style="margin-bottom:0.65rem;" onchange="mostrarCamposPontuacao()">
-        <option value="compra"  ${cfg?.tipo_pontuacao === 'compra'  ? 'selected' : ''}>Por compra (R$ gasto)</option>
-        <option value="produto" ${cfg?.tipo_pontuacao === 'produto' ? 'selected' : ''}>Por produto (un. comprada)</option>
-      </select>
+      <button class="toggle ${cfg?.ativo ? 'on' : ''}" id="fidToggle" onclick="toggleFidelidade()"></button>
+    </div>
+
+    <!-- Linha 1: tipo de pontuação + valor -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem;">
+      <div>
+        <label class="cfg-lbl">Como pontuar</label>
+        <select class="ep-sel" id="fidTipo" style="margin-bottom:0;" onchange="mostrarCamposPontuacao()">
+          <option value="compra"  ${cfg?.tipo_pontuacao !== 'produto' ? 'selected' : ''}>Por valor gasto (R$)</option>
+          <option value="produto" ${cfg?.tipo_pontuacao === 'produto'  ? 'selected' : ''}>Por produto comprado</option>
+        </select>
+      </div>
       <div id="fidCampoCompra" style="display:${cfg?.tipo_pontuacao !== 'produto' ? 'block' : 'none'}">
-        <label class="cfg-lbl">1 ponto a cada quantos reais?</label>
-        <input class="cfg-inp" id="fidValorPonto" type="number" step="0.01" value="${cfg?.valor_por_ponto || 10}">
+        <label class="cfg-lbl">1 ponto a cada R$</label>
+        <input class="cfg-inp" id="fidValorPonto" type="number" step="1" min="1" value="${cfg?.valor_por_ponto || 10}" style="margin-bottom:0;">
       </div>
       <div id="fidCampoProduto" style="display:${cfg?.tipo_pontuacao === 'produto' ? 'block' : 'none'}">
-        <label class="cfg-lbl">Pontos por produto comprado</label>
-        <input class="cfg-inp" id="fidPontosProd" type="number" value="${cfg?.pontos_por_real || 1}">
+        <label class="cfg-lbl">Pontos por unidade</label>
+        <input class="cfg-inp" id="fidPontosProd" type="number" min="1" value="${cfg?.pontos_por_real || 1}" style="margin-bottom:0;">
       </div>
-      <label class="cfg-lbl">Meta de pontos para resgatar</label>
-      <input class="cfg-inp" id="fidMeta" type="number" value="${cfg?.meta_pontos || 100}">
-      <label class="cfg-lbl">Tipo de recompensa</label>
-      <select class="ep-sel" id="fidRecompensa" style="margin-bottom:0.65rem;" onchange="mostrarCampoRecompensa()">
-        <option value="desconto_pct"  ${cfg?.tipo_recompensa === 'desconto_pct'  ? 'selected' : ''}>Desconto em %</option>
-        <option value="desconto_fixo" ${cfg?.tipo_recompensa === 'desconto_fixo' ? 'selected' : ''}>Desconto em R$ fixo</option>
-        <option value="brinde"        ${cfg?.tipo_recompensa === 'brinde'        ? 'selected' : ''}>Brinde</option>
-      </select>
-      <div id="fidCampoDescPct"  style="display:${!cfg?.tipo_recompensa || cfg?.tipo_recompensa === 'desconto_pct' ? 'block' : 'none'}">
-        <label class="cfg-lbl">Percentual de desconto (%)</label>
-        <input class="cfg-inp" id="fidPct" type="number" value="${cfg?.recompensa_valor || 10}">
-      </div>
-      <div id="fidCampoDescFixo" style="display:${cfg?.tipo_recompensa === 'desconto_fixo' ? 'block' : 'none'}">
-        <label class="cfg-lbl">Valor do desconto (R$)</label>
-        <input class="cfg-inp" id="fidFixo" type="number" step="0.01" value="${cfg?.recompensa_valor || 0}">
-      </div>
-      <div id="fidCampoBrinde"   style="display:${cfg?.tipo_recompensa === 'brinde' ? 'block' : 'none'}">
-        <label class="cfg-lbl">Descrição do brinde</label>
-        <input class="cfg-inp" id="fidBrinde" value="${cfg?.brinde_descricao || ''}" placeholder="Ex: Pizza broto grátis">
-      </div>
-      <button class="cfg-save" onclick="salvarFidelidade()">Salvar configuração</button>
     </div>
 
-    <!-- CUPONS -->
-    <div class="cfg-card">
-      <div class="cfg-title">🎟️ Criar cupom</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.65rem;">
-        <div><label class="cfg-lbl">Código</label><input class="cfg-inp" id="cupomCodigo" placeholder="EX: PROMO10" style="text-transform:uppercase;margin-bottom:0;" oninput="this.value=this.value.toUpperCase()"></div>
-        <div><label class="cfg-lbl">Tipo</label><select class="ep-sel" id="cupomTipo" style="margin-bottom:0;"><option value="pct">%</option><option value="fixo">R$ fixo</option></select></div>
+    <!-- Linha 2: meta + recompensa -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem;">
+      <div>
+        <label class="cfg-lbl">Meta de pontos</label>
+        <input class="cfg-inp" id="fidMeta" type="number" min="1" value="${cfg?.meta_pontos || 100}" style="margin-bottom:0;">
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.65rem;">
-        <div><label class="cfg-lbl">Valor</label><input class="cfg-inp" id="cupomValor" type="number" step="0.01" placeholder="Ex: 10" style="margin-bottom:0;"></div>
-        <div><label class="cfg-lbl">Pedido mínimo (R$)</label><input class="cfg-inp" id="cupomMinimo" type="number" step="0.01" placeholder="0" style="margin-bottom:0;"></div>
+      <div>
+        <label class="cfg-lbl">Tipo de prêmio</label>
+        <select class="ep-sel" id="fidRecompensa" style="margin-bottom:0;" onchange="mostrarCampoRecompensa()">
+          <option value="desconto_pct"  ${!cfg?.tipo_recompensa || cfg?.tipo_recompensa === 'desconto_pct'  ? 'selected' : ''}>Desconto %</option>
+          <option value="desconto_fixo" ${cfg?.tipo_recompensa === 'desconto_fixo' ? 'selected' : ''}>Desconto R$</option>
+          <option value="brinde"        ${cfg?.tipo_recompensa === 'brinde'        ? 'selected' : ''}>Brinde</option>
+        </select>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.65rem;">
-        <div><label class="cfg-lbl">Validade</label><input class="cfg-inp" id="cupomValidade" type="date" style="margin-bottom:0;"></div>
-        <div><label class="cfg-lbl">Limite de usos</label><input class="cfg-inp" id="cupomLimite" type="number" placeholder="∞" style="margin-bottom:0;"></div>
-      </div>
-      <label class="cfg-lbl">Descrição</label>
-      <input class="cfg-inp" id="cupomDesc" placeholder="Ex: Promoção de fim de semana">
-      <button class="cfg-save" onclick="criarCupom()">Criar cupom</button>
     </div>
 
-    ${listaCupons.length ? `
-    <div class="cfg-card">
-      <div class="cfg-title">🎟️ Cupons ativos</div>
-      ${listaCupons.map(c => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid #F9FAFB;">
-          <div>
-            <div style="font-size:0.85rem;font-weight:700;color:var(--txt);">${c.codigo}</div>
-            <div style="font-size:0.72rem;color:var(--txt3);">${c.tipo === 'pct' ? c.valor + '%' : 'R$' + Number(c.valor).toFixed(2).replace('.', ',')} · ${c.usos_atual || 0}/${c.limite_usos || '∞'} usos${c.validade ? ' · até ' + new Date(c.validade).toLocaleDateString('pt-BR') : ''}</div>
-          </div>
-          <div style="display:flex;gap:0.35rem;">
-            <button class="toggle ${c.ativo ? 'on' : ''}" onclick="toggleCupom('${c.id}',${!c.ativo})"></button>
-            <button class="ce-del" onclick="deletarCupom('${c.id}')">🗑️</button>
-          </div>
-        </div>`).join('')}
-    </div>` : ''}
+    <!-- Campo condicional da recompensa -->
+    <div id="fidCampoDescPct" style="display:${!cfg?.tipo_recompensa || cfg?.tipo_recompensa === 'desconto_pct' ? 'block' : 'none'}">
+      <label class="cfg-lbl">Desconto ao resgatar (%)</label>
+      <input class="cfg-inp" id="fidPct" type="number" min="1" max="100" value="${cfg?.recompensa_valor || 10}">
+    </div>
+    <div id="fidCampoDescFixo" style="display:${cfg?.tipo_recompensa === 'desconto_fixo' ? 'block' : 'none'}">
+      <label class="cfg-lbl">Desconto ao resgatar (R$)</label>
+      <input class="cfg-inp" id="fidFixo" type="number" step="0.01" value="${cfg?.recompensa_valor || 0}">
+    </div>
+    <div id="fidCampoBrinde" style="display:${cfg?.tipo_recompensa === 'brinde' ? 'block' : 'none'}">
+      <label class="cfg-lbl">Descrição do brinde</label>
+      <input class="cfg-inp" id="fidBrinde" value="${cfg?.brinde_descricao || ''}" placeholder="Ex: Pizza broto grátis">
+    </div>
 
-    <!-- BASE DE CLIENTES -->
-    <div class="cfg-card">
-      <div class="cfg-title">👥 Base de clientes (${lista.length})</div>
-      ${lista.length === 0
-        ? `<div style="font-size:0.82rem;color:var(--txt3);text-align:center;padding:1rem;">Nenhum cliente ainda.<br>Aparecem após o primeiro pedido.</div>`
-        : `<div style="margin-bottom:0.75rem;">
-            <label class="cfg-lbl">Mensagem para envio em massa</label>
-            <textarea id="transmissaoMsg" style="width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.82rem;height:70px;resize:none;" placeholder="Ex: 🍕 Promoção! 20% de desconto hoje. Use o cupom PROMO20"></textarea>
-            <button class="cfg-save" style="margin-top:0.5rem;width:100%;" onclick="enviarTransmissao()">📣 Enviar para todos (${lista.length})</button>
+    <button class="cfg-save" onclick="salvarFidelidade()">Salvar configuração</button>
+  </div>
+
+  <!-- ── CRIAR CUPOM ── -->
+  <div class="cfg-card">
+    <div class="cfg-title" style="margin-bottom:0.75rem;">🎟️ Criar cupom</div>
+
+    <!-- Linha 1: código + tipo + valor juntos -->
+    <div style="display:grid;grid-template-columns:2fr 1fr 1.2fr;gap:0.5rem;margin-bottom:0.5rem;">
+      <div>
+        <label class="cfg-lbl">Código</label>
+        <input class="cfg-inp" id="cupomCodigo" placeholder="PROMO10"
+          style="text-transform:uppercase;margin-bottom:0;font-weight:700;letter-spacing:1px;"
+          oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div>
+        <label class="cfg-lbl">Tipo</label>
+        <select class="ep-sel" id="cupomTipo" style="margin-bottom:0;">
+          <option value="pct">%</option>
+          <option value="fixo">R$</option>
+        </select>
+      </div>
+      <div>
+        <label class="cfg-lbl">Valor</label>
+        <input class="cfg-inp" id="cupomValor" type="number" step="0.01" placeholder="10"
+          style="margin-bottom:0;">
+      </div>
+    </div>
+
+    <!-- Linha 2: mínimo + limite (campos opcionais em destaque menor) -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.75rem;">
+      <div>
+        <label class="cfg-lbl">Mínimo do pedido <span style="color:var(--txt3);font-weight:400;">(opcional)</span></label>
+        <input class="cfg-inp" id="cupomMinimo" type="number" step="0.01" placeholder="R$ 0,00" style="margin-bottom:0;">
+      </div>
+      <div>
+        <label class="cfg-lbl">Limite de usos <span style="color:var(--txt3);font-weight:400;">(opcional)</span></label>
+        <input class="cfg-inp" id="cupomLimite" type="number" placeholder="Ilimitado" style="margin-bottom:0;">
+      </div>
+    </div>
+
+    <button class="cfg-save" onclick="criarCupom()" style="width:100%;">+ Criar cupom</button>
+  </div>
+
+  <!-- ── CUPONS ATIVOS ── -->
+  ${listaCupons.length ? `
+  <div class="cfg-card">
+    <div class="cfg-title">Cupons ativos (${listaCupons.filter(c=>c.ativo).length})</div>
+    ${listaCupons.map(c => `
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 0;border-bottom:1px solid #F9FAFB;">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:0.4rem;">
+            <span style="font-size:0.88rem;font-weight:800;color:var(--txt);letter-spacing:0.5px;">${c.codigo}</span>
+            <span style="font-size:0.72rem;background:#FFF7ED;color:var(--or);border-radius:5px;padding:0.1rem 0.4rem;font-weight:700;">
+              ${c.tipo === 'pct' ? c.valor + '%' : 'R$' + Number(c.valor).toFixed(2).replace('.', ',')}
+            </span>
           </div>
-          <div style="max-height:300px;overflow-y:auto;">
-            ${lista.map(c => `
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:0.65rem 0;border-bottom:1px solid #F9FAFB;">
-                <div style="flex:1;min-width:0;">
-                  <div style="font-size:0.83rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.nome}</div>
-                  <div style="font-size:0.7rem;color:var(--txt3);">${c.telefone} · ${c.total_pedidos || 0} pedidos · ${fmt(c.total_gasto || 0)}</div>
-                </div>
-                <div style="display:flex;align-items:center;gap:0.4rem;flex-shrink:0;">
-                  <div style="background:#FFF7ED;border-radius:8px;padding:0.2rem 0.6rem;font-size:0.72rem;font-weight:700;color:#C2410C;">⭐ ${c.total_pontos || 0}</div>
-                  <a href="https://wa.me/55${c.telefone}?text=${encodeURIComponent('Olá ' + c.nome + '! 👋')}" target="_blank" style="background:#DCFCE7;border-radius:8px;padding:0.2rem 0.6rem;font-size:0.72rem;font-weight:700;color:#15803D;text-decoration:none;">WhatsApp</a>
-                </div>
-              </div>`).join('')}
-          </div>`}
-    </div>`
+          <div style="font-size:0.7rem;color:var(--txt3);margin-top:0.1rem;">
+            ${c.usos_atual || 0}${c.limite_usos ? '/'+c.limite_usos : ''} usos
+            ${c.validade ? ' · até ' + new Date(c.validade).toLocaleDateString('pt-BR') : ''}
+            ${c.minimo_pedido > 0 ? ' · mín R$'+Number(c.minimo_pedido).toFixed(2).replace('.',',') : ''}
+          </div>
+        </div>
+        <button class="toggle ${c.ativo ? 'on' : ''}" onclick="toggleCupom('${c.id}',${!c.ativo})"></button>
+        <button class="ce-del" onclick="deletarCupom('${c.id}')">🗑️</button>
+      </div>`).join('')}
+  </div>` : ''}
+
+  <!-- ── CLIENTES ── -->
+  <div class="cfg-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${lista.length ? '0.75rem' : '0'};">
+      <div class="cfg-title" style="margin:0;">👥 Clientes (${lista.length})</div>
+    </div>
+    ${lista.length === 0
+      ? `<div style="font-size:0.82rem;color:var(--txt3);text-align:center;padding:1rem 0;">
+           Nenhum cliente ainda. Aparecem após o primeiro pedido.
+         </div>`
+      : `<textarea id="transmissaoMsg"
+           style="width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;
+                  font-family:'Poppins',sans-serif;font-size:0.82rem;height:64px;resize:none;
+                  margin-bottom:0.5rem;outline:none;"
+           placeholder="Mensagem em massa via WhatsApp para todos os clientes..."></textarea>
+         <button class="cfg-save" style="width:100%;margin-bottom:0.85rem;" onclick="enviarTransmissao()">
+           📣 Enviar para todos (${lista.length})
+         </button>
+         <div style="max-height:280px;overflow-y:auto;">
+           ${lista.map(c => `
+             <div style="display:flex;align-items:center;gap:0.5rem;padding:0.55rem 0;border-bottom:1px solid #F9FAFB;">
+               <div style="flex:1;min-width:0;">
+                 <div style="font-size:0.83rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.nome}</div>
+                 <div style="font-size:0.7rem;color:var(--txt3);">${c.telefone} · ${c.total_pedidos||0} pedidos · ${fmt(c.total_gasto||0)}</div>
+               </div>
+               <span style="background:#FFF7ED;border-radius:6px;padding:0.15rem 0.5rem;font-size:0.72rem;font-weight:700;color:#C2410C;flex-shrink:0;">⭐ ${c.total_pontos||0}</span>
+               <a href="https://wa.me/55${c.telefone}?text=${encodeURIComponent('Olá '+c.nome+'! 👋')}"
+                  target="_blank"
+                  style="background:#DCFCE7;border-radius:6px;padding:0.15rem 0.5rem;font-size:0.72rem;font-weight:700;color:#15803D;text-decoration:none;flex-shrink:0;">WA</a>
+             </div>`).join('')}
+         </div>`}
+  </div>`
 }
 
 export function mostrarCamposPontuacao() {
@@ -145,14 +201,14 @@ export async function salvarFidelidade() {
   const tipo      = document.getElementById('fidTipo').value
   const recompensa = document.getElementById('fidRecompensa').value
   let recompensaValor = 0
-  if (recompensa === 'desconto_pct')  recompensaValor = parseFloat(document.getElementById('fidPct').value)  || 10
-  if (recompensa === 'desconto_fixo') recompensaValor = parseFloat(document.getElementById('fidFixo').value) || 0
+  if (recompensa === 'desconto_pct')  recompensaValor = parseFloat(document.getElementById('fidPct')?.value)  || 10
+  if (recompensa === 'desconto_fixo') recompensaValor = parseFloat(document.getElementById('fidFixo')?.value) || 0
   const { error } = await supabase.from('fidelidade_config').upsert({
-    loja_id: _loja.id,
-    tipo_pontuacao: tipo,
+    loja_id:         _loja.id,
+    tipo_pontuacao:  tipo,
     valor_por_ponto: parseFloat(document.getElementById('fidValorPonto')?.value) || 10,
     pontos_por_real: parseFloat(document.getElementById('fidPontosProd')?.value) || 1,
-    meta_pontos: parseInt(document.getElementById('fidMeta').value) || 100,
+    meta_pontos:     parseInt(document.getElementById('fidMeta').value) || 100,
     tipo_recompensa: recompensa,
     recompensa_valor: recompensaValor,
     brinde_descricao: document.getElementById('fidBrinde')?.value || null,
@@ -166,31 +222,37 @@ export async function salvarFidelidade() {
 export async function criarCupom() {
   const codigo = document.getElementById('cupomCodigo').value.trim().toUpperCase()
   const valor  = parseFloat(document.getElementById('cupomValor').value)
-  if (!codigo) { toast('⚠️ Digite o código'); return }
+  if (!codigo)          { toast('⚠️ Digite o código do cupom'); return }
   if (!valor || valor <= 0) { toast('⚠️ Digite o valor do desconto'); return }
   const { error } = await supabase.from('cupons').insert({
-    loja_id: _loja.id, codigo,
-    tipo: document.getElementById('cupomTipo').value,
+    loja_id:       _loja.id,
+    codigo,
+    tipo:          document.getElementById('cupomTipo').value,
     valor,
     minimo_pedido: parseFloat(document.getElementById('cupomMinimo').value) || 0,
-    validade: document.getElementById('cupomValidade').value || null,
-    limite_usos: parseInt(document.getElementById('cupomLimite').value) || null,
-    descricao: document.getElementById('cupomDesc').value || null,
-    ativo: true
+    limite_usos:   parseInt(document.getElementById('cupomLimite').value) || null,
+    ativo:         true
   })
-  if (error) { toast(error.code === '23505' ? '❌ Código já existe' : '❌ Erro ao criar cupom'); return }
-  toast('✅ Cupom criado!'); renderFidelidade()
+  if (error) { toast(error.code === '23505' ? '❌ Código já existe' : '❌ Erro ao criar'); return }
+  document.getElementById('cupomCodigo').value = ''
+  document.getElementById('cupomValor').value  = ''
+  document.getElementById('cupomMinimo').value = ''
+  document.getElementById('cupomLimite').value = ''
+  toast('✅ Cupom criado!')
+  renderFidelidade()
 }
 
 export async function toggleCupom(id, novoValor) {
   await supabase.from('cupons').update({ ativo: novoValor }).eq('id', id)
-  toast(novoValor ? '✅ Cupom ativado' : '⚫ Cupom desativado'); renderFidelidade()
+  toast(novoValor ? '✅ Ativado' : '⚫ Desativado')
+  renderFidelidade()
 }
 
 export async function deletarCupom(id) {
   if (!confirm('Excluir este cupom?')) return
   await supabase.from('cupons').delete().eq('id', id)
-  toast('🗑️ Cupom excluído'); renderFidelidade()
+  toast('🗑️ Cupom excluído')
+  renderFidelidade()
 }
 
 export async function enviarTransmissao() {
@@ -199,14 +261,15 @@ export async function enviarTransmissao() {
   const { data: clientes } = await supabase.from('clientes').select('nome,telefone').eq('loja_id', _loja.id)
   if (!clientes?.length) { toast('⚠️ Nenhum cliente na base'); return }
   await supabase.from('transmissoes').insert({ loja_id: _loja.id, mensagem: msg, total_envios: clientes.length })
+  if (!confirm(`Serão abertos ${clientes.length} chats no WhatsApp.\n\nContinuar?`)) return
   let i = 0
   function abrirProximo() {
-    if (i >= clientes.length) return
-    const c = clientes[i]
-    window.open(`https://wa.me/55${c.telefone.replace(/\D/g, '')}?text=${encodeURIComponent('Olá ' + c.nome + '! 👋\n\n' + msg)}`, '_blank')
+    if (i >= clientes.length) { toast(`✅ ${clientes.length} mensagens enviadas!`); return }
+    const cl = clientes[i]
+    window.open(`https://wa.me/55${cl.telefone.replace(/\D/g,'')}?text=${encodeURIComponent('Olá '+cl.nome+'! 👋\n\n'+msg)}`, '_blank')
     i++
     if (i < clientes.length) { toast(`📣 ${i}/${clientes.length}...`); setTimeout(abrirProximo, 1200) }
     else toast(`✅ ${clientes.length} mensagens enviadas!`)
   }
-  if (confirm(`Serão abertos ${clientes.length} chats no WhatsApp.\n\nContinuar?`)) abrirProximo()
+  abrirProximo()
 }
