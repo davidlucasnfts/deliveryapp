@@ -187,6 +187,65 @@
     .new-cat-inp{flex:1;border:1.5px solid #E7E5E4;border-radius:8px;padding:0.48rem 0.65rem;font-size:0.82rem;font-family:'Poppins',sans-serif;outline:none;}
     .new-cat-inp:focus{border-color:var(--or);}
     .ep-sel{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.83rem;margin-bottom:0.75rem;background:#fff;color:var(--txt);outline:none;}
+
+    /* ── STATS / RESUMO DO DIA ── */
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:0.75rem;}
+    .stat{background:#fff;border-radius:10px;padding:0.65rem 0.75rem;border:1px solid #F0EDEB;text-align:center;}
+    .stat-val{font-size:1rem;font-weight:800;color:var(--txt);}
+    .stat-lbl{font-size:0.65rem;color:var(--txt3);margin-top:0.1rem;font-weight:500;}
+    .sec-title{font-size:0.75rem;font-weight:800;color:var(--txt2);text-transform:uppercase;letter-spacing:0.8px;margin:0.85rem 0 0.5rem;}
+
+    /* ── CARD PEDIDO ── */
+    .order-card{background:#fff;border-radius:12px;border:1px solid #F0EDEB;padding:0.85rem;margin-bottom:0.6rem;cursor:pointer;transition:box-shadow 0.15s;}
+    .order-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+    .order-card.novo{border-left:4px solid var(--or);}
+    .order-card.prep{border-left:4px solid #3B82F6;}
+    .order-card.saiu{border-left:4px solid var(--grn);}
+    .order-card.entregue{border-left:4px solid #D1D5DB;opacity:0.75;}
+    .oc-top{display:flex;gap:0.5rem;margin-bottom:0.5rem;}
+    .oc-meta{flex:1;min-width:0;}
+    .oc-num{font-size:0.7rem;font-weight:700;color:var(--txt3);letter-spacing:0.5px;}
+    .oc-name{font-size:0.88rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .oc-addr{font-size:0.72rem;color:var(--txt2);margin-top:0.15rem;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+    .oc-right{display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;flex-shrink:0;}
+    .oc-time{font-size:0.68rem;color:var(--txt3);font-weight:500;}
+    .oc-time.urgente{color:var(--red);font-weight:700;}
+    .status-pill{font-size:0.65rem;font-weight:700;border-radius:99px;padding:0.2rem 0.55rem;white-space:nowrap;}
+    .s-novo{background:#FEF3C7;color:#92400E;}
+    .s-prep{background:#DBEAFE;color:#1E40AF;}
+    .s-saiu{background:#DCFCE7;color:#166534;}
+    .s-entregue{background:#F3F4F6;color:#6B7280;}
+    .oc-items{font-size:0.78rem;color:var(--txt2);margin-bottom:0.4rem;line-height:1.4;}
+    .oc-obs{font-size:0.72rem;color:var(--or);background:#FFF7ED;border-radius:6px;padding:0.25rem 0.5rem;margin-bottom:0.4rem;}
+    .oc-footer{display:flex;align-items:center;justify-content:space-between;}
+    .oc-total{font-size:0.92rem;font-weight:800;color:var(--txt);}
+    .oc-actions{display:flex;gap:0.35rem;}
+    .oc-btn{border:none;border-radius:8px;padding:0.35rem 0.65rem;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .btn-wpp{background:#DCFCE7;color:#166534;}
+    .btn-wpp:hover{background:#BBF7D0;}
+    .btn-avancar{background:var(--or);color:#fff;}
+    .btn-avancar:hover{background:#EA6C0A;}
+
+    /* ── MODAL DETALHES PEDIDO ── */
+    .mdet-section{font-size:0.7rem;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:0.8px;margin:0.85rem 0 0.4rem;padding-bottom:0.3rem;border-bottom:1px solid #F3F4F6;}
+    .mdet-section:first-child{margin-top:0;}
+    .mdet-row{display:flex;justify-content:space-between;align-items:flex-start;font-size:0.82rem;padding:0.35rem 0;border-bottom:1px solid #FAFAFA;gap:0.5rem;}
+    .mdet-row:last-child{border:none;}
+    .mdet-lbl{color:var(--txt2);flex-shrink:0;}
+    .mdet-val{font-weight:600;color:var(--txt);text-align:right;}
+    .mdet-item{display:flex;justify-content:space-between;align-items:center;font-size:0.82rem;padding:0.35rem 0;border-bottom:1px solid #FAFAFA;}
+    .mdet-item:last-child{border:none;}
+    .mdet-total{display:flex;justify-content:space-between;font-size:0.95rem;font-weight:800;padding:0.65rem 0 0;color:var(--txt);border-top:1.5px solid #F0EDEB;margin-top:0.25rem;}
+    .modal-avancar{width:100%;background:var(--or);color:#fff;border:none;border-radius:11px;padding:0.8rem;font-size:0.9rem;font-weight:800;cursor:pointer;font-family:'Poppins',sans-serif;margin-top:1rem;}
+    .modal-avancar:hover{background:#EA6C0A;}
+
+    /* ── CONFIG / FIDELIDADE extras ── */
+    .field-wrap{position:relative;margin-bottom:0.65rem;}
+    .field-icon{position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);font-size:0.9rem;pointer-events:none;}
+    .field-msg{font-size:0.7rem;color:var(--txt3);margin-top:-0.4rem;margin-bottom:0.5rem;}
+    .link-box{background:var(--bg3);border-radius:9px;padding:0.55rem 0.75rem;font-size:0.75rem;color:var(--txt2);word-break:break-all;margin-bottom:0.65rem;border:1px solid #E7E5E4;}
+    .copy-link{background:var(--or);color:#fff;border:none;border-radius:8px;padding:0.4rem 0.85rem;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .ce-del{background:#FEE2E2;color:var(--red);border:none;border-radius:7px;padding:0.2rem 0.5rem;font-size:0.68rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
   </style>
 </head>
 <body>
