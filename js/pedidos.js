@@ -138,44 +138,61 @@ export async function criarPedido(lojaId, cliente, itens, cupomId = null, descon
     total,
     status:           'novo'
   }
-  // Tenta incluir forma_pagamento (só funciona se update_pagamento.sql foi rodado)
-  try {
-    dadosPedido.forma_pagamento  = formaPagamento
-    dadosPedido.status_pagamento = formaPagamento === 'dinheiro' ? 'na_entrega' : 'pendente'
-  } catch(e) {}
+  // Inclui forma_pagamento (rode update_pagamento.sql se ainda não rodou)
+  dadosPedido.forma_pagamento  = formaPagamento
+  dadosPedido.status_pagamento = formaPagamento === 'dinheiro' ? 'na_entrega' : 'pendente'
 
   const { data: pedido, error } = await supabase.from('pedidos')
     .insert(dadosPedido).select().single()
 
-  if (error) throw error
-
-  const { data: itensCriados } = await supabase.from('itens_pedido').insert(itens.map(i => ({
-    pedido_id: pedido.id, produto_id: i.produto_id,
-    nome_produto: i.nome || 'Produto',
-    preco_unitario: i.preco, quantidade: i.quantidade, subtotal: i.subtotal
-  }))).select()
-
-  // Salva adicionais escolhidos
-  const adicionaisParaSalvar = []
-  if (itensCriados) {
-    itensCriados.forEach((itemCriado, idx) => {
-      const itemOriginal = itens[idx]
-      if (itemOriginal?.adicionais?.length) {
-        itemOriginal.adicionais.forEach(a => {
-          adicionaisParaSalvar.push({
-            item_pedido_id:  itemCriado.id,
-            adicional_id:    a.adicional_id,
-            grupo_id:        a.grupo_id,
-            nome_adicional:  a.nome_adicional,
-            nome_grupo:      a.nome_grupo,
-            preco:           a.preco
-          })
-        })
-      }
-    })
+  if (error) {
+    console.error('Erro ao criar pedido:', error)
+    throw new Error(error.message || 'Erro ao salvar pedido no banco')
   }
-  if (adicionaisParaSalvar.length) {
-    await supabase.from('itens_pedido_adicionais').insert(adicionaisParaSalvar)
+
+  // Insere itens do pedido
+  const itensBanco = itens.map(i => ({
+    pedido_id:      pedido.id,
+    produto_id:     i.produto_id,
+    nome_produto:   i.nome || 'Produto',
+    preco_unitario: i.preco,
+    quantidade:     i.quantidade,
+    subtotal:       i.subtotal
+  }))
+
+  const { data: itensCriados, error: erroItens } = await supabase
+    .from('itens_pedido').insert(itensBanco).select()
+
+  if (erroItens) {
+    console.error('Erro ao salvar itens:', erroItens)
+    // Não lança erro — pedido já foi criado
+  }
+
+  // Salva adicionais (só se tabela existir — update_fase1.sql rodado)
+  try {
+    const adicionaisParaSalvar = []
+    if (itensCriados) {
+      itensCriados.forEach((itemCriado, idx) => {
+        const itemOriginal = itens[idx]
+        if (itemOriginal?.adicionais?.length) {
+          itemOriginal.adicionais.forEach(a => {
+            adicionaisParaSalvar.push({
+              item_pedido_id: itemCriado.id,
+              adicional_id:   a.adicional_id,
+              grupo_id:       a.grupo_id,
+              nome_adicional: a.nome_adicional,
+              nome_grupo:     a.nome_grupo,
+              preco:          a.preco
+            })
+          })
+        }
+      })
+    }
+    if (adicionaisParaSalvar.length) {
+      await supabase.from('itens_pedido_adicionais').insert(adicionaisParaSalvar)
+    }
+  } catch(e) {
+    console.warn('Adicionais não salvos (rode update_fase1.sql):', e.message)
   }
 
   // Incrementa uso do cupom
