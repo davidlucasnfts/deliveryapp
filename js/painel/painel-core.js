@@ -5,7 +5,17 @@ import { escutarPedidos } from '../pedidos.js'
 import { getTodosProdutos, getTodasCategorias } from '../cardapio.js'
 import { atualizarData, toast }  from './utils.js'
 import { renderPedidos, setPedidos, getPedidos, abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp, notificarCliente } from './painel-pedidos.js'
-import { renderCardapio, setDados as setDadosCardapio, toggleCat, toggleNovaCatForm, toggleCatAtiva, adicionarCat, moverCat, toggleProd, confirmarDelProd, abrirNovoEp, abrirNovoEpNaCat, openEp, closeEp, deletarProduto, handleImgUpload, saveEp, openEc, salvarCategoria, deletarCategoria, delProdDaCat, addNovoGrupo, addItemGrupo, removerGrupo, removerItemGrupo } from './painel-cardapio.js'
+import { renderCardapio, setDados as setDadosCardapio,
+  toggleCat, toggleCatAtiva, moverCat, toggleProd, confirmarDelProd,
+  abrirNovoEp, abrirNovoEpNaCat, openEp, closeEp, deletarProduto,
+  handleImgUpload, saveEp, openEc, closeEc, salvarCategoria, deletarCategoria,
+  abrirModalCat, fecharModalCat, selecionarTipoCat,
+  abrirModalProd, fecharModalProd,
+  abrirModalAdd, fecharModalAdd, salvarAdicionais,
+  initBtnNovoGrupo,
+  addNovoGrupo, addItemGrupo, removerGrupo, removerItemGrupo,
+  delProdDaCat, toggleNovaCatForm
+} from './painel-cardapio.js'
 import { renderFidelidade, setLoja as setLojaFid, mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade, salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao } from './painel-fidelidade.js'
 import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa, carregarTaxas } from './painel-config.js'
 
@@ -21,12 +31,14 @@ exp({
   abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp, notificarCliente,
   fecharDetalhes: () => document.getElementById('modalDetalhes').classList.remove('open'),
   // cardápio
-  toggleCat, toggleNovaCatForm, toggleCatAtiva, adicionarCat, moverCat,
+  toggleCat, toggleNovaCatForm, toggleCatAtiva, moverCat,
   toggleProd, confirmarDelProd, abrirNovoEp, abrirNovoEpNaCat,
   openEp, closeEp, deletarProduto, handleImgUpload, saveEp,
-  openEc, salvarCategoria, deletarCategoria, delProdDaCat,
+  openEc, closeEc, salvarCategoria, deletarCategoria, delProdDaCat,
+  abrirModalCat, fecharModalCat, selecionarTipoCat,
+  abrirModalProd, fecharModalProd,
+  abrirModalAdd, fecharModalAdd, salvarAdicionais,
   addNovoGrupo, addItemGrupo, removerGrupo, removerItemGrupo,
-  closeEc: () => document.getElementById('ecOverlay').classList.remove('open'),
   // fidelidade
   mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade,
   salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao,

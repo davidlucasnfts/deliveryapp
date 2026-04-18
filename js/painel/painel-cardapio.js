@@ -1,460 +1,346 @@
-// js/painel/painel-cardapio.js
-
 import { supabase } from '../supabase.js'
 import { fmt, toast, comprimirImagem, atualizarPosImagem, iniciarDragImagem, imgOffsetX, imgOffsetY, setImgOffset } from './utils.js'
 
 let _loja = null, _produtos = [], _categorias = []
+let _editCatId = null
+let _editProdId = null, _uploadedUrl = null
+let _addProdId = null
+
 export function setDados(loja, produtos, categorias) {
   _loja = loja; _produtos = produtos; _categorias = categorias
 }
 
-let editingProdId = null, uploadedImgUrl = null
-let catAberta = {}, catSelecionada = null, holdTimer = null
-
-// ===== RENDER CARDÁPIO =====
+// ════════════════════════════════════════════
+// RENDER PRINCIPAL DO CARDÁPIO
+// ════════════════════════════════════════════
 export function renderCardapio() {
-  let h = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem;">
-    <span style="font-size:0.88rem;font-weight:800;color:var(--txt);">📂 Categorias</span>
-    <button class="btn-add-cat" onclick="toggleNovaCatForm()">+ Nova categoria</button>
-  </div>
-  <div class="new-cat-form" id="newCatForm">
-    <div style="font-size:0.8rem;font-weight:700;color:var(--txt);margin-bottom:0.6rem;">Nova categoria</div>
-    <div class="new-cat-row">
-      <input class="new-cat-inp" id="novaCatInput" placeholder="Nome da categoria...">
-      <select class="ep-sel" id="novaCatTipo" style="width:auto;min-width:90px;margin-bottom:0;padding:0.48rem 0.5rem;font-size:0.75rem;">
-        <option value="normal">Normal</option>
-        <option value="combo">🔥 Combo</option>
-      </select>
-    </div>
-    <div style="display:flex;gap:0.4rem;">
-      <button class="add-cat-btn" onclick="adicionarCat()" style="flex:1;">✓ Adicionar</button>
-      <button onclick="toggleNovaCatForm()" style="background:var(--bg3);color:var(--txt2);border:none;border-radius:9px;padding:0.45rem 0.8rem;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;">✕</button>
-    </div>
+  let h = `
+  <div class="sec-hd">
+    <span class="sec-title">Cardápio</span>
+    <button class="btn-or" onclick="abrirModalCat(null)">+ Nova categoria</button>
   </div>`
 
   if (!_categorias.length) {
-    h += `<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-txt">Nenhuma categoria ainda.<br>Crie sua primeira acima!</div></div>`
+    h += `<div class="empty">
+      <div class="empty-icon">📂</div>
+      <div class="empty-txt">Nenhuma categoria ainda.<br>Crie a primeira acima!</div>
+    </div>`
+    document.getElementById('mainBody').innerHTML = h
+    return
   }
 
   _categorias.forEach((cat, idx) => {
-    const itens    = _produtos.filter(p => p.categoria_id === cat.id)
-    const aberta   = catAberta[cat.id] !== false
-    const isCombo  = cat.tipo === 'combo'
-    const primeiro = idx === 0
-    const ultimo   = idx === _categorias.length - 1
+    const itens = _produtos.filter(p => p.categoria_id === cat.id)
+    const primeiro = idx === 0, ultimo = idx === _categorias.length - 1
 
-    h += `<div class="cat-bloco" id="catbloco_${cat.id}">
+    h += `
+    <div class="cat-bloco" id="catbloco_${cat.id}">
       <div class="cat-header" onclick="toggleCat('${cat.id}')">
-        <span class="cat-header-icon">${isCombo ? '🔥' : '📁'}</span>
+        <span class="cat-header-icon">${cat.tipo === 'combo' ? '🔥' : '📁'}</span>
         <div class="cat-header-info">
-          <div class="cat-header-nome">${cat.nome}${isCombo ? `<span class="cat-tag-combo">COMBO</span>` : ''}</div>
+          <div class="cat-header-nome">
+            ${cat.nome}
+            ${cat.tipo === 'combo' ? '<span class="cat-tag-combo">COMBO</span>' : ''}
+          </div>
           <div class="cat-header-count">${itens.length} produto${itens.length !== 1 ? 's' : ''}</div>
         </div>
         <div class="cat-header-actions" onclick="event.stopPropagation()">
           <div class="cat-ordem-btns" id="ordem_${cat.id}">
-            <button class="cat-ordem-btn" onclick="moverCat('${cat.id}',-1)" ${primeiro ? 'disabled style="opacity:0.35"' : ''}>↑</button>
-            <button class="cat-ordem-btn" onclick="moverCat('${cat.id}',1)"  ${ultimo  ? 'disabled style="opacity:0.35"' : ''}>↓</button>
+            <button class="cat-ordem-btn" onclick="moverCat('${cat.id}',-1)" ${primeiro ? 'disabled style="opacity:0.3"' : ''}>↑</button>
+            <button class="cat-ordem-btn" onclick="moverCat('${cat.id}',1)" ${ultimo ? 'disabled style="opacity:0.3"' : ''}>↓</button>
           </div>
           <button class="toggle ${cat.ativa ? 'on' : ''}" onclick="toggleCatAtiva('${cat.id}')"></button>
-          <button class="ce-edit" onclick="openEc('${cat.id}')">Editar</button>
+          <button class="ce-edit" onclick="abrirModalCat('${cat.id}')">Editar</button>
         </div>
-        <span class="cat-chevron ${aberta ? 'open' : ''}">▾</span>
+        <span class="cat-chevron open" id="chev_${cat.id}">▾</span>
       </div>
-      <div class="cat-body ${aberta ? 'open' : ''}">
-        ${itens.length === 0 ? `<div style="padding:0.75rem 0.85rem;font-size:0.78rem;color:var(--txt3);">Nenhum produto ainda</div>` : ''}
-        ${itens.map(p => `
-          <div class="cat-prod-item">
-            <div class="cat-prod-thumb">${p.foto_url ? `<img src="${p.foto_url}" alt="" loading="lazy">` : '🍽️'}</div>
-            <div class="cat-prod-info">
-              <div class="cat-prod-nome">${p.nome}</div>
-              <div class="cat-prod-preco">${fmt(p.preco)}</div>
-            </div>
-            <div class="cat-prod-actions">
-              <button class="toggle ${p.disponivel ? 'on' : ''}" onclick="toggleProd('${p.id}')"></button>
-              <button class="ce-edit" onclick="openEp('${p.id}')">Editar</button>
-              <button class="ce-del" onclick="confirmarDelProd('${p.id}')">🗑️</button>
-            </div>
-          </div>`).join('')}
+      <div class="cat-body open" id="catbody_${cat.id}">
+        ${itens.length === 0
+          ? `<div style="padding:0.65rem 0.85rem;font-size:0.75rem;color:var(--txt3);">Nenhum produto ainda</div>`
+          : itens.map(p => prodCard(p)).join('')}
         <div class="cat-body-footer">
-          <button class="btn-add-prod" onclick="abrirNovoEpNaCat('${cat.id}')">＋ Novo produto</button>
+          <button class="btn-add-prod" onclick="abrirModalProd(null,'${cat.id}')">+ Novo produto</button>
         </div>
       </div>
     </div>`
   })
 
   document.getElementById('mainBody').innerHTML = h
-  setTimeout(initSeguraParaOrdenar, 80)
+  initSeguraParaOrdenar()
 }
 
-// ===== CATEGORIAS =====
-export function toggleCat(id) { catAberta[id] = catAberta[id] === false ? true : false; renderCardapio() }
-export function toggleNovaCatForm() {
-  const f = document.getElementById('newCatForm')
-  if (f) { f.classList.toggle('open'); if (f.classList.contains('open')) document.getElementById('novaCatInput')?.focus() }
+function prodCard(p) {
+  const numGrupos = p._numGrupos || 0
+  return `
+  <div class="cat-prod-item" id="proditem_${p.id}">
+    <div class="cat-prod-thumb">
+      ${p.foto_url
+        ? `<img src="${p.foto_url}" alt="${p.nome}" style="width:44px;height:44px;object-fit:cover;border-radius:9px;">`
+        : '🍽️'}
+    </div>
+    <div class="cat-prod-info">
+      <div class="cat-prod-nome">${p.nome}</div>
+      <div class="cat-prod-preco">${fmt(p.preco)}</div>
+      ${numGrupos > 0
+        ? `<div class="cat-prod-add-badge">+${numGrupos} grupo${numGrupos > 1 ? 's' : ''} de adicionais</div>`
+        : `<div class="cat-prod-add-badge" style="background:#F9FAFB;color:var(--txt3);">sem adicionais</div>`}
+    </div>
+    <div class="cat-prod-actions">
+      <button class="prod-btn add" title="Configurar adicionais" onclick="abrirModalAdd('${p.id}','${p.nome}')">+</button>
+      <button class="prod-btn edit" onclick="abrirModalProd('${p.id}',null)">✏️</button>
+      <button class="prod-btn del" onclick="confirmarDelProd('${p.id}')">🗑</button>
+    </div>
+  </div>`
 }
+
+// ════════════════════════════════════════════
+// TOGGLE CATEGORIA (abrir/fechar)
+// ════════════════════════════════════════════
+export function toggleCat(id) {
+  const body = document.getElementById('catbody_' + id)
+  const chev = document.getElementById('chev_' + id)
+  if (!body) return
+  body.classList.toggle('open')
+  chev.classList.toggle('open')
+}
+
+// ════════════════════════════════════════════
+// TOGGLE ATIVO
+// ════════════════════════════════════════════
 export async function toggleCatAtiva(id) {
-  const cat = _categorias.find(x => x.id === id); cat.ativa = !cat.ativa
-  await supabase.from('categorias').update({ ativa: cat.ativa }).eq('id', id)
-  renderCardapio(); toast(cat.ativa ? '✅ Categoria ativada' : '⚫ Categoria desativada')
-}
-export async function adicionarCat() {
-  const nome = document.getElementById('novaCatInput')?.value.trim()
-  const tipo = document.getElementById('novaCatTipo')?.value || 'normal'
-  if (!nome) { toast('⚠️ Digite o nome'); return }
-  if (_categorias.find(c => c.nome.toLowerCase() === nome.toLowerCase())) { toast('⚠️ Categoria já existe'); return }
-  const { data, error } = await supabase.from('categorias').insert({
-    loja_id: _loja.id, nome, tipo, ordem: _categorias.length + 1, ativa: true
-  }).select().single()
-  if (error) { toast('❌ Erro ao adicionar'); return }
-  _categorias.push(data); catAberta[data.id] = true
-  renderCardapio(); toast(tipo === 'combo' ? '🔥 Combo criado!' : '✅ Categoria adicionada!')
-}
-export function openEc(id) {
   const cat = _categorias.find(x => x.id === id)
-  document.getElementById('ecNome').value = cat.nome
-  const prods = _produtos.filter(p => p.categoria_id === id)
-  document.getElementById('ecProdutos').innerHTML = prods.length
-    ? prods.map(p => `<div class="ec-prod-item"><div><div class="ec-prod-name">${p.nome}</div><div class="ec-prod-price">${fmt(p.preco)}</div></div><button class="ec-prod-del" onclick="delProdDaCat('${p.id}','${p.nome}')">🗑️</button></div>`).join('')
-    : `<div style="font-size:0.8rem;color:var(--txt3);text-align:center;padding:0.75rem;">Nenhum produto</div>`
-  document.getElementById('ecOverlay').classList.add('open')
-  document.getElementById('ecOverlay').dataset.catId = id
-}
-export async function salvarCategoria() {
-  const id = document.getElementById('ecOverlay').dataset.catId
-  const nome = document.getElementById('ecNome').value.trim()
-  if (!nome) { toast('⚠️ Nome é obrigatório'); return }
-  await supabase.from('categorias').update({ nome }).eq('id', id)
-  const c = _categorias.find(x => x.id === id); if (c) c.nome = nome
-  document.getElementById('ecOverlay').classList.remove('open')
-  renderCardapio(); toast('✅ Categoria atualizada!')
-}
-export async function deletarCategoria() {
-  const id = document.getElementById('ecOverlay').dataset.catId
-  const prods = _produtos.filter(p => p.categoria_id === id)
-  if (prods.length > 0) {
-    if (!confirm(`Esta categoria tem ${prods.length} produto(s).\nAo excluir, todos os produtos serão excluídos também.\nDeseja continuar?`)) return
-    for (const p of prods) await deletarProdutoById(p.id)
-  } else { if (!confirm('Excluir esta categoria?')) return }
-  await supabase.from('categorias').delete().eq('id', id)
-  _categorias.splice(_categorias.findIndex(c => c.id === id), 1)
-  document.getElementById('ecOverlay').classList.remove('open')
-  renderCardapio(); toast('🗑️ Categoria excluída!')
-}
-export async function delProdDaCat(id, nome) {
-  if (!confirm(`Excluir "${nome}"?`)) return
-  await deletarProdutoById(id)
-  openEc(document.getElementById('ecOverlay').dataset.catId)
+  cat.ativa = !cat.ativa
+  await supabase.from('categorias').update({ ativa: cat.ativa }).eq('id', id)
+  renderCardapio()
+  toast(cat.ativa ? '✅ Categoria ativada' : '⚫ Categoria desativada')
 }
 
-// ===== REORDENAÇÃO =====
+export async function toggleProd(id) {
+  const p = _produtos.find(x => x.id === id)
+  p.disponivel = !p.disponivel
+  await supabase.from('produtos').update({ disponivel: p.disponivel }).eq('id', id)
+  renderCardapio()
+  toast(p.disponivel ? '✅ Produto ativado' : '⚫ Produto desativado')
+}
+
+// ════════════════════════════════════════════
+// REORDENAÇÃO DE CATEGORIAS
+// ════════════════════════════════════════════
+let _catSel = null, _holdTimer = null
+
 function initSeguraParaOrdenar() {
-  catSelecionada = null
+  _catSel = null
   document.querySelectorAll('.cat-bloco').forEach(bloco => {
     const header = bloco.querySelector('.cat-header')
     if (!header) return
     let downTime = 0
     header.addEventListener('mousedown', () => { downTime = Date.now() })
-    header.addEventListener('mouseup', () => { if (Date.now() - downTime > 400) selecionarCat(bloco.id.replace('catbloco_', '')) })
+    header.addEventListener('mouseup', () => {
+      if (Date.now() - downTime > 400) selecionarCat(bloco.id.replace('catbloco_', ''))
+    })
     header.addEventListener('touchstart', () => {
       const id = bloco.id.replace('catbloco_', '')
-      holdTimer = setTimeout(() => { selecionarCat(id); if (navigator.vibrate) navigator.vibrate(50) }, 400)
+      _holdTimer = setTimeout(() => {
+        selecionarCat(id)
+        if (navigator.vibrate) navigator.vibrate(40)
+      }, 400)
     }, { passive: true })
-    header.addEventListener('touchend',  () => clearTimeout(holdTimer))
-    header.addEventListener('touchmove', () => clearTimeout(holdTimer), { passive: true })
+    header.addEventListener('touchend', () => clearTimeout(_holdTimer))
+    header.addEventListener('touchmove', () => clearTimeout(_holdTimer), { passive: true })
   })
 }
+
 function selecionarCat(id) {
-  if (catSelecionada) { const ant = document.getElementById('catbloco_' + catSelecionada); if (ant) ant.classList.remove('selecionada') }
-  if (catSelecionada === id) { catSelecionada = null; return }
-  catSelecionada = id
+  if (_catSel) document.getElementById('catbloco_' + _catSel)?.classList.remove('selecionada')
+  if (_catSel === id) { _catSel = null; return }
+  _catSel = id
   const bloco = document.getElementById('catbloco_' + id)
-  if (bloco) { bloco.classList.add('selecionada'); bloco.scrollIntoView({ behavior: 'smooth', block: 'nearest' }) }
+  bloco?.classList.add('selecionada')
+  bloco?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
 }
-export async function moverCat(id, direcao) {
+
+export async function moverCat(id, dir) {
   const idx = _categorias.findIndex(x => x.id === id)
-  const novoIdx = idx + direcao
+  const novoIdx = idx + dir
   if (novoIdx < 0 || novoIdx >= _categorias.length) return
-  const [item] = _categorias.splice(idx, 1); _categorias.splice(novoIdx, 0, item)
-  await Promise.all(_categorias.map((cat, i) => supabase.from('categorias').update({ ordem: i + 1 }).eq('id', cat.id)))
-  catSelecionada = id; renderCardapio()
-  setTimeout(() => { const bloco = document.getElementById('catbloco_' + id); if (bloco) { bloco.classList.add('selecionada'); bloco.scrollIntoView({ behavior: 'smooth', block: 'nearest' }) } }, 60)
-  toast(direcao === -1 ? '↑ Movida para cima' : '↓ Movida para baixo')
+  const [item] = _categorias.splice(idx, 1)
+  _categorias.splice(novoIdx, 0, item)
+  await Promise.all(_categorias.map((c, i) =>
+    supabase.from('categorias').update({ ordem: i + 1 }).eq('id', c.id)
+  ))
+  _catSel = id; renderCardapio()
+  setTimeout(() => {
+    const b = document.getElementById('catbloco_' + id)
+    b?.classList.add('selecionada')
+    b?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, 60)
+  toast(dir === -1 ? '↑ Movida para cima' : '↓ Movida para baixo')
 }
 
-// ===== PRODUTOS =====
-export async function toggleProd(id) {
-  const p = _produtos.find(x => x.id === id); p.disponivel = !p.disponivel
-  await supabase.from('produtos').update({ disponivel: p.disponivel }).eq('id', id)
-  renderCardapio(); toast(p.disponivel ? '✅ Produto ativado' : '⚫ Produto desativado')
-}
-export function confirmarDelProd(id) {
-  const p = _produtos.find(x => x.id === id)
-  if (confirm(`Excluir "${p.nome}"?\n\nEsta ação não pode ser desfeita.`)) deletarProdutoById(id)
-}
-async function deletarProdutoById(id) {
-  const p = _produtos.find(x => x.id === id)
-  if (p?.foto_url) { const path = p.foto_url.split('/produtos/')[1]; if (path) await supabase.storage.from('produtos').remove([path]) }
-  // Deletar grupos de adicionais associados
-  await supabase.from('grupos_adicionais').delete().eq('produto_id', id)
-  await supabase.from('produtos').delete().eq('id', id)
-  _produtos.splice(_produtos.findIndex(x => x.id === id), 1)
-  renderCardapio(); toast('🗑️ Produto excluído')
-}
-export function abrirNovoEpNaCat(catId) { abrirNovoEp(catId) }
-export function abrirNovoEp(catIdPre = null) {
-  if (!_categorias.length) { toast('⚠️ Crie uma categoria antes de adicionar produtos!'); const f = document.getElementById('newCatForm'); if (f) { f.classList.add('open'); document.getElementById('novaCatInput')?.focus() }; return }
-  editingProdId = null; uploadedImgUrl = null; setImgOffset(50, 50)
-  document.getElementById('epTitulo').textContent = 'Novo produto'
-  document.getElementById('epNome').value = ''
-  document.getElementById('epDesc').value = ''
-  document.getElementById('epPreco').value = ''
-  document.getElementById('epCat').innerHTML = _categorias.map(c => `<option value="${c.id}" ${catIdPre && c.id === catIdPre ? 'selected' : ''}>${c.tipo === 'combo' ? '🔥 ' : ''}${c.nome}</option>`).join('')
-  resetModalImagem()
-  document.getElementById('epDelBtn').style.display = 'none'
-  document.getElementById('epOverlay').classList.add('open')
-  // Limpa grupos de adicionais
-  renderGruposAdicionaisPainel([])
-}
-export async function openEp(id) {
-  editingProdId = id; uploadedImgUrl = null
-  const p = _produtos.find(x => x.id === id)
-  setImgOffset(p.img_offset_x || 50, p.img_offset_y || 50)
-  document.getElementById('epTitulo').textContent = 'Editar produto'
-  document.getElementById('epNome').value  = p.nome
-  document.getElementById('epDesc').value  = p.descricao || ''
-  document.getElementById('epPreco').value = p.preco
-  document.getElementById('epCat').innerHTML = _categorias.map(c => `<option value="${c.id}" ${c.id === p.categoria_id ? 'selected' : ''}>${c.tipo === 'combo' ? '🔥 ' : ''}${c.nome}</option>`).join('')
-  resetModalImagem()
-  if (p.foto_url) {
-    document.getElementById('epImgArea').style.display    = 'none'
-    document.getElementById('epImgPosWrap').style.display = 'block'
-    document.getElementById('epTrocarBtn').style.display  = 'block'
-    document.getElementById('epImgPos').src = p.foto_url
-    atualizarPosImagem(); iniciarDragImagem()
-  }
-  document.getElementById('epDelBtn').style.display = 'block'
-  document.getElementById('epOverlay').classList.add('open')
-  // Carrega grupos de adicionais
-  const { data: grupos } = await supabase.from('grupos_adicionais').select('*,adicionais(*)').eq('produto_id', id).eq('ativo', true).order('ordem')
-  renderGruposAdicionaisPainel(grupos || [])
-}
+// ════════════════════════════════════════════
+// MODAL CATEGORIA — simples: nome + tipo
+// ════════════════════════════════════════════
+export function abrirModalCat(id) {
+  _editCatId = id || null
+  const cat = id ? _categorias.find(x => x.id === id) : null
 
-// ===== ADICIONAIS NO PAINEL — lê/escreve direto no DOM =====
+  document.getElementById('catModalTitulo').textContent = cat ? 'Editar categoria' : 'Nova categoria'
+  document.getElementById('catNome').value = cat?.nome || ''
+  document.getElementById('catDelBtn').style.display = cat ? 'block' : 'none'
 
-function renderGruposAdicionaisPainel(gruposBanco) {
-  const container = document.getElementById('epAdicionais')
-  if (!container) return
-  container.innerHTML = ''
-  // Header
-  const header = document.createElement('div')
-  header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin:0.75rem 0 0.5rem;'
-  header.innerHTML = `<span style="font-size:0.78rem;font-weight:700;color:var(--txt);">Adicionais / Complementos</span>
-    <button id="btnNovoGrupo" style="background:var(--or);color:#fff;border:none;border-radius:8px;padding:0.3rem 0.85rem;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;">+ Novo grupo</button>`
-  container.appendChild(header)
-  document.getElementById('btnNovoGrupo').addEventListener('click', addNovoGrupo)
-
-  const lista = document.createElement('div')
-  lista.id = 'adicionaisLista'
-  container.appendChild(lista)
-
-  // Renderiza grupos vindos do banco
-  if (gruposBanco && gruposBanco.length) {
-    gruposBanco.forEach(g => {
-      adicionarGrupoDOM(g.nome, g.obrigatorio, g.max_escolha || 1,
-        (g.adicionais || []).map(i => ({ nome: i.nome, preco: i.preco })))
-    })
-  } else {
-    const vazio = document.createElement('div')
-    vazio.id = 'addVazio'
-    vazio.style.cssText = 'font-size:0.75rem;color:var(--txt3);text-align:center;padding:0.65rem;background:#FAFAFA;border-radius:10px;border:1.5px dashed #E7E5E4;'
-    vazio.textContent = 'Nenhum adicional. Ex: Tamanho, Borda, Complementos do açaí...'
-    lista.appendChild(vazio)
-  }
-}
-
-function adicionarGrupoDOM(nome='', obrigatorio=false, max=1, itens=[]) {
-  const lista = document.getElementById('adicionaisLista')
-  if (!lista) return
-  // Remove placeholder vazio
-  const vazio = document.getElementById('addVazio')
-  if (vazio) vazio.remove()
-
-  const grupo = document.createElement('div')
-  grupo.className = 'add-pg'
-
-  // Header do grupo
-  const hd = document.createElement('div')
-  hd.className = 'add-pg-hd'
-  hd.innerHTML = `
-    <input class="add-pg-nome" placeholder="Nome do grupo (ex: Borda, Tamanho...)" value="${nome}">
-    <select class="add-pg-sel">
-      <option value="0" ${!obrigatorio?'selected':''}>Opcional</option>
-      <option value="1" ${obrigatorio?'selected':''}>Obrigatório</option>
-    </select>
-    <div style="display:flex;align-items:center;gap:0.25rem;font-size:0.7rem;color:var(--txt3);">
-      Máx<input type="number" class="add-pg-max" min="1" max="20" value="${max}"
-        style="width:36px;border:1.5px solid #E7E5E4;border-radius:6px;padding:0.2rem;font-size:0.75rem;text-align:center;">
-    </div>
-    <button class="add-pg-del">🗑</button>`
-  grupo.appendChild(hd)
-
-  // Botão deletar grupo
-  hd.querySelector('.add-pg-del').addEventListener('click', () => {
-    grupo.remove()
-    if (!lista.querySelector('.add-pg')) {
-      const vz = document.createElement('div')
-      vz.id = 'addVazio'
-      vz.style.cssText = 'font-size:0.75rem;color:var(--txt3);text-align:center;padding:0.65rem;background:#FAFAFA;border-radius:10px;border:1.5px dashed #E7E5E4;'
-      vz.textContent = 'Nenhum adicional. Ex: Tamanho, Borda, Complementos do açaí...'
-      lista.appendChild(vz)
-    }
+  // Tipo selecionado
+  document.querySelectorAll('#catTipoWrap .tipo-opt').forEach(opt => {
+    opt.classList.toggle('on', opt.dataset.val === (cat?.tipo || 'normal'))
   })
 
-  // Corpo — itens
-  const body = document.createElement('div')
-  body.className = 'add-pg-body'
-  grupo.appendChild(body)
+  document.getElementById('modalCat').classList.add('open')
+  setTimeout(() => document.getElementById('catNome').focus(), 100)
+}
 
-  function adicionarItemDOM(nomeItem='', precoItem=0) {
-    const item = document.createElement('div')
-    item.className = 'add-it'
-    item.innerHTML = `
-      <input class="add-it-nome" placeholder="Ex: Borda Catupiry, Sem cebola..." value="${nomeItem}">
-      <input class="add-it-preco" type="number" step="0.01" min="0" placeholder="0,00" value="${precoItem||''}">
-      <button class="add-it-del">×</button>`
-    item.querySelector('.add-it-del').addEventListener('click', () => item.remove())
-    body.appendChild(item)
-    item.querySelector('.add-it-nome').focus()
+export function fecharModalCat() {
+  document.getElementById('modalCat').classList.remove('open')
+}
+
+export function selecionarTipoCat(el) {
+  document.querySelectorAll('#catTipoWrap .tipo-opt').forEach(x => x.classList.remove('on'))
+  el.classList.add('on')
+}
+
+export async function salvarCategoria() {
+  const nome = document.getElementById('catNome').value.trim()
+  if (!nome) { toast('⚠️ Digite o nome da categoria'); return }
+  const tipo = document.querySelector('#catTipoWrap .tipo-opt.on')?.dataset.val || 'normal'
+
+  if (_editCatId) {
+    await supabase.from('categorias').update({ nome, tipo }).eq('id', _editCatId)
+    const c = _categorias.find(x => x.id === _editCatId)
+    if (c) { c.nome = nome; c.tipo = tipo }
+    toast('✅ Categoria atualizada!')
+  } else {
+    if (_categorias.find(c => c.nome.toLowerCase() === nome.toLowerCase())) {
+      toast('⚠️ Categoria já existe'); return
+    }
+    const { data } = await supabase.from('categorias')
+      .insert({ loja_id: _loja.id, nome, tipo, ordem: _categorias.length + 1, ativa: true })
+      .select().single()
+    if (data) _categorias.push(data)
+    toast('✅ Categoria criada!')
   }
-
-  // Adiciona itens existentes
-  itens.forEach(i => adicionarItemDOM(i.nome, i.preco))
-
-  // Botão adicionar opção
-  const btnAdd = document.createElement('button')
-  btnAdd.className = 'add-pg-add'
-  btnAdd.textContent = '+ Adicionar opção'
-  btnAdd.addEventListener('click', () => adicionarItemDOM())
-  grupo.appendChild(btnAdd)
-
-  lista.appendChild(grupo)
+  fecharModalCat()
+  renderCardapio()
 }
 
-export function addNovoGrupo() {
-  adicionarGrupoDOM()
-  // Foca no input do novo grupo
-  const inputs = document.querySelectorAll('.add-pg-nome')
-  if (inputs.length) inputs[inputs.length-1].focus()
+export async function deletarCategoria() {
+  if (!_editCatId) return
+  const prods = _produtos.filter(p => p.categoria_id === _editCatId)
+  const msg = prods.length
+    ? `Esta categoria tem ${prods.length} produto(s). Todos serão excluídos. Confirmar?`
+    : 'Excluir esta categoria?'
+  if (!confirm(msg)) return
+  for (const p of prods) await _deletarProdId(p.id)
+  await supabase.from('categorias').delete().eq('id', _editCatId)
+  _categorias.splice(_categorias.findIndex(c => c.id === _editCatId), 1)
+  fecharModalCat()
+  renderCardapio()
+  toast('🗑️ Categoria excluída')
 }
 
-export function addItemGrupo() {}
+// ════════════════════════════════════════════
+// MODAL PRODUTO — info básica + foto
+// ════════════════════════════════════════════
+export function abrirModalProd(prodId, catIdPre) {
+  _editProdId = prodId || null
+  _uploadedUrl = null
+  const p = prodId ? _produtos.find(x => x.id === prodId) : null
 
-window._removerItem = function(gi, ii) {
-  _grupos[gi].itens.splice(ii, 1)
-  _renderGrupos()
-}
+  document.getElementById('prodModalTitulo').textContent = p ? 'Editar produto' : 'Novo produto'
+  document.getElementById('epNome').value    = p?.nome      || ''
+  document.getElementById('epPreco').value   = p?.preco     || ''
+  document.getElementById('epDesc').value    = p?.descricao || ''
+  document.getElementById('epDelBtn').style.display = p ? 'block' : 'none'
 
-export function removerGrupo() {}
-export function removerItemGrupo() {}
+  // Categorias no select
+  const catPad = catIdPre || p?.categoria_id || ''
+  document.getElementById('epCat').innerHTML = _categorias.map(c =>
+    `<option value="${c.id}" ${c.id === catPad ? 'selected' : ''}>${c.tipo === 'combo' ? '🔥 ' : ''}${c.nome}</option>`
+  ).join('')
 
-
-// coletarGruposDoFormulario removida — usa _grupos em memória
-
-// Lê grupos diretamente do DOM e salva no banco
-async function salvarGruposAdicionais(produtoId) {
-  await supabase.from('grupos_adicionais').delete().eq('produto_id', produtoId)
-
-  const grupoEls = document.querySelectorAll('#adicionaisLista .add-pg')
-  let ordem = 0
-  for (const grupoEl of grupoEls) {
-    const nome       = grupoEl.querySelector('.add-pg-nome')?.value.trim()
-    const obrig      = grupoEl.querySelector('.add-pg-sel')?.value === '1'
-    const max        = parseInt(grupoEl.querySelector('.add-pg-max')?.value) || 1
-    if (!nome) continue
-
-    const { data: grupoSalvo } = await supabase.from('grupos_adicionais').insert({
-      produto_id:  produtoId,
-      loja_id:     _loja.id,
-      nome,
-      obrigatorio: obrig,
-      min_escolha: obrig ? 1 : 0,
-      max_escolha: max,
-      ordem:       ordem++,
-      ativo:       true
-    }).select().single()
-
-    if (!grupoSalvo) continue
-
-    const itemEls = grupoEl.querySelectorAll('.add-it')
-    const itens = []
-    itemEls.forEach((itemEl, j) => {
-      const nomeItem  = itemEl.querySelector('.add-it-nome')?.value.trim()
-      const precoItem = parseFloat(itemEl.querySelector('.add-it-preco')?.value) || 0
-      if (nomeItem) itens.push({ grupo_id: grupoSalvo.id, loja_id: _loja.id, nome: nomeItem, preco: precoItem, ordem: j, ativo: true })
-    })
-    if (itens.length) await supabase.from('adicionais').insert(itens)
-  }
-}
-
-function resetModalImagem() {
+  // Reset foto
   document.getElementById('epImgArea').style.display    = 'block'
   document.getElementById('epImgPosWrap').style.display = 'none'
   document.getElementById('epUploadBtn').style.display  = 'none'
   document.getElementById('epTrocarBtn').style.display  = 'none'
   document.getElementById('epProgress').style.display   = 'none'
   document.getElementById('epProgressTxt').style.display = 'none'
+
+  if (p?.foto_url) {
+    setImgOffset(p.img_offset_x || 50, p.img_offset_y || 50)
+    document.getElementById('epImgArea').style.display    = 'none'
+    document.getElementById('epImgPosWrap').style.display = 'block'
+    document.getElementById('epTrocarBtn').style.display  = 'block'
+    document.getElementById('epImgPos').src = p.foto_url
+    atualizarPosImagem(); iniciarDragImagem()
+  } else {
+    setImgOffset(50, 50)
+  }
+
+  document.getElementById('modalProd').classList.add('open')
+  setTimeout(() => document.getElementById('epNome').focus(), 100)
 }
-export function closeEp() { document.getElementById('epOverlay').classList.remove('open') }
-export async function deletarProduto() {
-  if (!editingProdId) return
-  if (confirm('Excluir este produto?\n\nEsta ação não pode ser desfeita.')) { closeEp(); await deletarProdutoById(editingProdId) }
+
+export function fecharModalProd() {
+  document.getElementById('modalProd').classList.remove('open')
 }
 
 export async function handleImgUpload(input) {
-  if (!input.files || !input.files[0]) return
+  if (!input.files?.[0]) return
   const file = input.files[0]
-  if (file.size > 20 * 1024 * 1024) { toast('❌ Arquivo muito grande — máximo 20MB'); return }
-  const area = document.getElementById('epImgArea')
-  const imgPosWrap = document.getElementById('epImgPosWrap')
-  const imgEl      = document.getElementById('epImgPos')
-  const uploadBtn  = document.getElementById('epUploadBtn')
-  const trocarBtn  = document.getElementById('epTrocarBtn')
+  if (file.size > 20 * 1024 * 1024) { toast('❌ Máximo 20MB'); return }
+  const imgEl = document.getElementById('epImgPos')
   const reader = new FileReader()
   reader.onload = e => {
-    area.style.display = 'none'; imgPosWrap.style.display = 'block'
-    uploadBtn.style.display = 'block'; trocarBtn.style.display = 'none'
-    imgEl.src = e.target.result; setImgOffset(50, 50); atualizarPosImagem(); iniciarDragImagem()
+    document.getElementById('epImgArea').style.display    = 'none'
+    document.getElementById('epImgPosWrap').style.display = 'block'
+    document.getElementById('epUploadBtn').style.display  = 'block'
+    imgEl.src = e.target.result
+    setImgOffset(50, 50); atualizarPosImagem(); iniciarDragImagem()
   }
   reader.readAsDataURL(file)
-  uploadBtn.onclick = async () => {
-    uploadBtn.style.display = 'none'
-    const progress = document.getElementById('epProgress')
-    const progressBar = document.getElementById('epProgressBar')
-    const progressTxt = document.getElementById('epProgressTxt')
-    progress.style.display = 'block'; progressTxt.style.display = 'block'
-    progressTxt.textContent = 'Processando 1080×1080...'; progressBar.style.width = '20%'
+
+  document.getElementById('epUploadBtn').onclick = async () => {
+    document.getElementById('epUploadBtn').style.display = 'none'
+    const bar = document.getElementById('epProgressBar')
+    document.getElementById('epProgress').style.display    = 'block'
+    document.getElementById('epProgressTxt').style.display = 'block'
+    document.getElementById('epProgressTxt').textContent   = 'Comprimindo...'
+    bar.style.width = '20%'
     try {
       const blob = await comprimirImagem(file, 1080)
-      progressBar.style.width = '55%'; progressTxt.textContent = 'Enviando...'
-      const path = `${_loja.id}/${editingProdId || 'novo_' + Date.now()}_${Date.now()}.jpg`
+      bar.style.width = '55%'
+      document.getElementById('epProgressTxt').textContent = 'Enviando...'
+      const path = `${_loja.id}/${_editProdId || 'novo_' + Date.now()}_${Date.now()}.jpg`
       const { error } = await supabase.storage.from('produtos').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
       if (error) throw new Error(error.message)
-      progressBar.style.width = '90%'
       const { data: urlData } = supabase.storage.from('produtos').getPublicUrl(path)
-      uploadedImgUrl = urlData.publicUrl
-      imgEl.src = uploadedImgUrl; atualizarPosImagem()
-      progressBar.style.width = '100%'; progressTxt.textContent = '✅ Foto enviada!'
-      trocarBtn.style.display = 'block'
-      setTimeout(() => { progress.style.display = 'none'; progressTxt.style.display = 'none' }, 2000)
-      if (editingProdId) {
-        await supabase.from('produtos').update({ foto_url: uploadedImgUrl, img_offset_x: imgOffsetX, img_offset_y: imgOffsetY }).eq('id', editingProdId)
-        const p = _produtos.find(x => x.id === editingProdId)
-        if (p) { p.foto_url = uploadedImgUrl; p.img_offset_x = imgOffsetX; p.img_offset_y = imgOffsetY }
+      _uploadedUrl = urlData.publicUrl
+      imgEl.src = _uploadedUrl
+      bar.style.width = '100%'
+      document.getElementById('epProgressTxt').textContent = '✅ Foto pronta!'
+      document.getElementById('epTrocarBtn').style.display = 'block'
+      setTimeout(() => {
+        document.getElementById('epProgress').style.display    = 'none'
+        document.getElementById('epProgressTxt').style.display = 'none'
+      }, 2000)
+      if (_editProdId) {
+        await supabase.from('produtos').update({ foto_url: _uploadedUrl, img_offset_x: imgOffsetX, img_offset_y: imgOffsetY }).eq('id', _editProdId)
+        const p = _produtos.find(x => x.id === _editProdId)
+        if (p) { p.foto_url = _uploadedUrl; p.img_offset_x = imgOffsetX; p.img_offset_y = imgOffsetY }
       }
-      toast('✅ Foto adicionada!')
     } catch (err) {
-      progress.style.display = 'none'; progressTxt.style.display = 'none'
-      uploadBtn.style.display = 'block'; toast('❌ Erro ao enviar — ' + err.message)
+      document.getElementById('epProgress').style.display    = 'none'
+      document.getElementById('epProgressTxt').style.display = 'none'
+      document.getElementById('epUploadBtn').style.display   = 'block'
+      toast('❌ Erro: ' + err.message)
     }
   }
 }
@@ -464,23 +350,222 @@ export async function saveEp() {
   const preco        = parseFloat(document.getElementById('epPreco').value)
   const categoria_id = document.getElementById('epCat').value
   const descricao    = document.getElementById('epDesc').value.trim()
-  if (!nome)               { toast('⚠️ Nome é obrigatório'); return }
-  if (!preco || preco <= 0){ toast('⚠️ Preço inválido'); return }
-  if (!categoria_id)       { toast('⚠️ Selecione uma categoria'); return }
-  const dados = { nome, descricao, preco, categoria_id, disponivel: true, img_offset_x: imgOffsetX, img_offset_y: imgOffsetY }
-  if (uploadedImgUrl) dados.foto_url = uploadedImgUrl
-  if (!editingProdId) {
-    const { data: novo, error } = await supabase.from('produtos').insert({ ...dados, loja_id: _loja.id }).select('*,categorias(nome)').single()
+  if (!nome)          { toast('⚠️ Nome é obrigatório'); return }
+  if (!preco || preco <= 0) { toast('⚠️ Preço inválido'); return }
+  if (!categoria_id)  { toast('⚠️ Selecione uma categoria'); return }
+
+  const dados = { nome, descricao, preco, categoria_id, img_offset_x: imgOffsetX, img_offset_y: imgOffsetY }
+  if (_uploadedUrl) dados.foto_url = _uploadedUrl
+
+  if (!_editProdId) {
+    const { data, error } = await supabase.from('produtos')
+      .insert({ ...dados, loja_id: _loja.id, disponivel: true })
+      .select('*,categorias(nome)').single()
     if (error) { toast('❌ Erro ao criar produto'); return }
-    _produtos.push(novo)
-    await salvarGruposAdicionais(novo.id)
-    closeEp(); renderCardapio(); toast('✅ Produto criado!')
+    _produtos.push(data)
+    toast('✅ Produto criado!')
   } else {
-    await supabase.from('produtos').update(dados).eq('id', editingProdId)
-    const p = _produtos.find(x => x.id === editingProdId); Object.assign(p, dados)
+    await supabase.from('produtos').update(dados).eq('id', _editProdId)
+    const p = _produtos.find(x => x.id === _editProdId)
+    Object.assign(p, dados)
     const cat = _categorias.find(c => c.id === categoria_id)
     if (p && cat) p.categorias = { nome: cat.nome }
-    await salvarGruposAdicionais(editingProdId)
-    closeEp(); renderCardapio(); toast('✅ Produto salvo!')
+    toast('✅ Produto salvo!')
   }
+  fecharModalProd()
+  renderCardapio()
+}
+
+export async function deletarProduto() {
+  if (!_editProdId) return
+  if (!confirm('Excluir este produto?')) return
+  fecharModalProd()
+  await _deletarProdId(_editProdId)
+  renderCardapio()
+}
+
+export async function confirmarDelProd(id) {
+  const p = _produtos.find(x => x.id === id)
+  if (!confirm(`Excluir "${p?.nome}"?`)) return
+  await _deletarProdId(id)
+  renderCardapio()
+  toast('🗑️ Produto excluído')
+}
+
+async function _deletarProdId(id) {
+  const p = _produtos.find(x => x.id === id)
+  if (p?.foto_url) {
+    const path = p.foto_url.split('/produtos/')[1]
+    if (path) await supabase.storage.from('produtos').remove([path])
+  }
+  await supabase.from('grupos_adicionais').delete().eq('produto_id', id)
+  await supabase.from('produtos').delete().eq('id', id)
+  _produtos.splice(_produtos.findIndex(x => x.id === id), 1)
+}
+
+// Exporta abrirNovoEp para compatibilidade
+export function abrirNovoEp(catId) { abrirModalProd(null, catId) }
+export function openEp(id) { abrirModalProd(id, null) }
+export function closeEp() { fecharModalProd() }
+export function abrirNovoEpNaCat(catId) { abrirModalProd(null, catId) }
+
+// Stubs de compatibilidade
+export function toggleNovaCatForm() {}
+export function openEc(id) { abrirModalCat(id) }
+export function closeEc() { fecharModalCat() }
+export function delProdDaCat() {}
+export function addNovoGrupo() {}
+export function addItemGrupo() {}
+export function removerGrupo() {}
+export function removerItemGrupo() {}
+
+// ════════════════════════════════════════════
+// MODAL ADICIONAIS — dedicado, separado, limpo
+// ════════════════════════════════════════════
+export async function abrirModalAdd(prodId, prodNome) {
+  _addProdId = prodId
+
+  document.getElementById('addModalTitulo').textContent = `Adicionais — ${prodNome}`
+
+  // Carrega grupos existentes
+  const { data: grupos } = await supabase
+    .from('grupos_adicionais')
+    .select('*, adicionais(*)')
+    .eq('produto_id', prodId)
+    .eq('ativo', true)
+    .order('ordem')
+
+  // Reconstrói a lista
+  const lista = document.getElementById('adicionaisLista')
+  lista.innerHTML = ''
+
+  if (grupos?.length) {
+    grupos.forEach(g => adicionarGrupoDOM(g.nome, g.obrigatorio, g.max_escolha || 1,
+      (g.adicionais || []).map(i => ({ nome: i.nome, preco: i.preco }))
+    ))
+  } else {
+    lista.innerHTML = `<div class="add-vazio" id="addVazio">
+      Nenhum adicional ainda.<br>
+      Ex: <strong>Borda</strong> (Catupiry, Cheddar), <strong>Ponto da carne</strong> (Mal, Ao ponto, Bem passado)
+    </div>`
+  }
+
+  document.getElementById('modalAdd').classList.add('open')
+}
+
+export function fecharModalAdd() {
+  document.getElementById('modalAdd').classList.remove('open')
+}
+
+function adicionarGrupoDOM(nome = '', obrigatorio = false, max = 1, itens = []) {
+  const lista = document.getElementById('adicionaisLista')
+  document.getElementById('addVazio')?.remove()
+
+  const grupo = document.createElement('div')
+  grupo.className = 'add-pg'
+
+  // Header do grupo
+  const hd = document.createElement('div')
+  hd.className = 'add-pg-hd'
+  hd.innerHTML = `
+    <input class="add-pg-nome" placeholder="Nome do grupo (ex: Borda, Tamanho, Ponto da carne...)" value="${nome}">
+    <select class="add-pg-sel">
+      <option value="0" ${!obrigatorio ? 'selected' : ''}>Opcional</option>
+      <option value="1" ${obrigatorio ? 'selected' : ''}>Obrigatório</option>
+    </select>
+    <div class="add-pg-max-wrap">Máx <input type="number" class="add-pg-max" min="1" max="20" value="${max}"></div>
+    <button class="add-pg-del">🗑</button>`
+
+  hd.querySelector('.add-pg-del').addEventListener('click', () => {
+    grupo.remove()
+    if (!lista.querySelector('.add-pg')) {
+      lista.innerHTML = `<div class="add-vazio" id="addVazio">Nenhum adicional ainda.</div>`
+    }
+  })
+  grupo.appendChild(hd)
+
+  // Corpo com opções
+  const body = document.createElement('div')
+  body.className = 'add-pg-body'
+
+  function novaOpcaoDOM(nomeItem = '', precoItem = '') {
+    const row = document.createElement('div')
+    row.className = 'add-it'
+    row.innerHTML = `
+      <input class="add-it-nome" placeholder="Ex: Borda Catupiry, Sem cebola...">
+      <input class="add-it-preco" type="number" step="0.01" min="0" placeholder="0,00">
+      <button class="add-it-del">×</button>`
+    row.querySelector('.add-it-nome').value  = nomeItem
+    row.querySelector('.add-it-preco').value = precoItem || ''
+    row.querySelector('.add-it-del').addEventListener('click', () => row.remove())
+    body.insertBefore(row, btnAddOpcao)
+    row.querySelector('.add-it-nome').focus()
+  }
+
+  const btnAddOpcao = document.createElement('button')
+  btnAddOpcao.className = 'add-nova-op'
+  btnAddOpcao.textContent = '+ Adicionar opção'
+  btnAddOpcao.addEventListener('click', () => novaOpcaoDOM())
+  body.appendChild(btnAddOpcao)
+
+  itens.forEach(i => novaOpcaoDOM(i.nome, i.preco))
+  grupo.appendChild(body)
+  lista.appendChild(grupo)
+}
+
+export async function salvarAdicionais() {
+  if (!_addProdId) return
+
+  // 1. Deleta grupos antigos
+  await supabase.from('grupos_adicionais').delete().eq('produto_id', _addProdId)
+
+  const grupos = document.querySelectorAll('#adicionaisLista .add-pg')
+  let totalGrupos = 0
+
+  for (let i = 0; i < grupos.length; i++) {
+    const g = grupos[i]
+    const nome    = g.querySelector('.add-pg-nome')?.value.trim()
+    const obrig   = g.querySelector('.add-pg-sel')?.value === '1'
+    const max     = parseInt(g.querySelector('.add-pg-max')?.value) || 1
+    if (!nome) continue
+
+    const { data: grupoSalvo } = await supabase.from('grupos_adicionais').insert({
+      produto_id:  _addProdId,
+      loja_id:     _loja.id,
+      nome, obrigatorio: obrig,
+      min_escolha: obrig ? 1 : 0,
+      max_escolha: max,
+      ordem: i, ativo: true
+    }).select().single()
+
+    if (!grupoSalvo) continue
+    totalGrupos++
+
+    const itens = [...g.querySelectorAll('.add-it')]
+      .map((row, j) => ({
+        nome:  row.querySelector('.add-it-nome')?.value.trim(),
+        preco: parseFloat(row.querySelector('.add-it-preco')?.value) || 0,
+        ordem: j
+      }))
+      .filter(it => it.nome)
+
+    if (itens.length) {
+      await supabase.from('adicionais').insert(
+        itens.map(it => ({ grupo_id: grupoSalvo.id, loja_id: _loja.id, ...it, ativo: true }))
+      )
+    }
+  }
+
+  // Atualiza badge no card do produto
+  const p = _produtos.find(x => x.id === _addProdId)
+  if (p) p._numGrupos = totalGrupos
+
+  fecharModalAdd()
+  renderCardapio()
+  toast(totalGrupos > 0 ? `✅ ${totalGrupos} grupo(s) salvo(s)!` : '✅ Adicionais removidos')
+}
+
+// Registra botão + Novo grupo no modal de adicionais
+export function initBtnNovoGrupo() {
+  document.getElementById('btnNovoGrupo')?.addEventListener('click', () => adicionarGrupoDOM())
 }

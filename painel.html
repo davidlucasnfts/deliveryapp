@@ -2,365 +2,350 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel do Estabelecimento</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DeliveryApp — Painel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
+    :root{--or:#F97316;--bg:#FAFAF9;--bg2:#fff;--bg3:#F5F4F2;--txt:#1C1917;--txt2:#78716C;--txt3:#A8A29E;--grn:#16A34A;--red:#DC2626;--rad:12px;}
     *{box-sizing:border-box;margin:0;padding:0;}
-    :root{--or:#F97316;--bg:#fff;--bg2:#FFF7ED;--bg3:#FEF3C7;--txt:#1C1917;--txt2:#78716C;--txt3:#A8A29E;--green:#22C55E;--red:#EF4444;--blue:#3B82F6;}
-    body{font-family:'Poppins',sans-serif;background:#F9FAFB;min-height:100vh;}
-    .fullpage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#F9FAFB;flex-direction:column;gap:0.5rem;}
-    .fullpage-icon{font-size:2.5rem;}.fullpage-txt{font-size:0.85rem;color:var(--txt2);}
+    body{background:var(--bg);font-family:'Poppins',sans-serif;color:var(--txt);min-height:100vh;}
 
-    .header{background:#1C1917;padding:0.75rem 1.1rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;}
-    .h-left{display:flex;flex-direction:column;}
-    .h-logo{font-size:0.9rem;font-weight:800;color:var(--or);}
-    .h-store{font-size:0.7rem;color:rgba(255,255,255,0.55);}
-    .h-date{font-size:0.68rem;color:rgba(255,255,255,0.4);margin-top:0.1rem;}
-    .h-right{display:flex;align-items:center;gap:0.5rem;}
-    .h-status{display:flex;align-items:center;gap:0.35rem;background:rgba(255,255,255,0.08);border-radius:20px;padding:0.28rem 0.65rem;cursor:pointer;border:none;font-family:'Poppins',sans-serif;font-size:0.72rem;font-weight:600;}
-    .h-status.aberta{color:#4ADE80;}.h-status.fechada{color:#F87171;}
-    .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-    .dot.green{background:#4ADE80;}.dot.red{background:#F87171;}
-    .h-logout{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.28rem 0.6rem;font-size:0.7rem;color:rgba(255,255,255,0.6);cursor:pointer;font-family:'Poppins',sans-serif;}
-    .h-link{background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);border-radius:8px;padding:0.28rem 0.6rem;font-size:0.7rem;color:var(--or);text-decoration:none;}
+    /* ── HEADER ── */
+    .hd{background:var(--txt);color:#fff;padding:0.65rem 1rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;}
+    .hd-logo{color:var(--or);font-size:0.95rem;font-weight:800;letter-spacing:0.3px;}
+    .hd-info{display:flex;flex-direction:column;align-items:flex-end;gap:0.1rem;}
+    .hd-loja{color:#fff;font-size:0.8rem;font-weight:600;}
+    .hd-data{color:rgba(255,255,255,0.45);font-size:0.68rem;}
+    .hd-status{display:flex;align-items:center;gap:0.5rem;}
+    .status-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;}
+    .status-txt{font-size:0.72rem;font-weight:700;color:#4ade80;}
+    .hd-btns{display:flex;gap:0.5rem;align-items:center;}
+    .hd-cardapio-btn{background:var(--or);color:#fff;border:none;border-radius:8px;padding:0.35rem 0.75rem;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .hd-sair{background:rgba(255,255,255,0.1);color:#fff;border:none;border-radius:8px;padding:0.35rem 0.65rem;font-size:0.72rem;cursor:pointer;font-family:'Poppins',sans-serif;}
 
-    .tabs{display:flex;background:#fff;border-bottom:1px solid #F3F4F6;position:sticky;top:56px;z-index:20;}
-    .tab{flex:1;padding:0.7rem;text-align:center;font-size:0.75rem;font-weight:600;color:var(--txt2);cursor:pointer;border-bottom:2.5px solid transparent;border:none;background:none;font-family:'Poppins',sans-serif;}
-    .tab.active{color:var(--or);border-bottom-color:var(--or);}
-    .tab-badge{background:var(--red);color:#fff;border-radius:10px;padding:0.08rem 0.4rem;font-size:0.62rem;font-weight:700;margin-left:0.25rem;display:none;}
-    .tab-badge.show{display:inline;}
+    /* ── TABS ── */
+    .tabs{display:flex;background:#fff;border-bottom:2px solid #F3F4F6;padding:0 0.75rem;overflow-x:auto;position:sticky;top:44px;z-index:29;}
+    .tabs::-webkit-scrollbar{display:none;}
+    .tab{padding:0.7rem 0.85rem;font-size:0.8rem;font-weight:600;color:var(--txt3);border-bottom:2.5px solid transparent;margin-bottom:-2px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+    .tab.on{color:var(--or);border-color:var(--or);}
 
-    .body{padding:1rem;max-width:800px;margin:0 auto;}
+    /* ── BODY ── */
+    .body{padding:0.85rem;max-width:600px;margin:0 auto;}
 
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin-bottom:1rem;}
-    .stat{background:#fff;border-radius:12px;padding:0.8rem;border:1px solid #F3F4F6;}
-    .stat-val{font-size:1.3rem;font-weight:800;color:var(--or);}
-    .stat-lbl{font-size:0.68rem;color:var(--txt2);margin-top:0.1rem;}
+    /* ── CARDÁPIO ── */
+    .sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;}
+    .sec-title{font-size:0.92rem;font-weight:800;color:var(--txt);}
+    .btn-or{background:var(--or);color:#fff;border:none;border-radius:9px;padding:0.45rem 1rem;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:0.3rem;}
+    .btn-or:active{background:#EA6C0A;}
 
-    .notif{position:fixed;top:70px;right:1rem;background:#1C1917;color:#fff;border-radius:12px;padding:0.7rem 1rem;font-size:0.8rem;font-weight:600;z-index:100;transform:translateX(120%);transition:transform 0.3s;max-width:260px;border-left:3px solid var(--or);}
-    .notif.show{transform:translateX(0);}
-
-    .sec-title{font-size:0.72rem;font-weight:700;color:var(--txt2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:0.6rem;display:flex;align-items:center;gap:0.5rem;}
-    .sec-title::after{content:'';flex:1;height:1px;background:#F3F4F6;}
-    .empty{text-align:center;padding:3rem 1rem;color:var(--txt3);}
-    .empty-icon{font-size:2.5rem;margin-bottom:0.5rem;}
-    .empty-txt{font-size:0.83rem;}
-
-    /* PEDIDOS */
-    .order-card{background:#fff;border-radius:14px;border:1px solid #F3F4F6;padding:0.9rem;margin-bottom:0.7rem;box-shadow:0 1px 4px rgba(0,0,0,0.05);cursor:pointer;transition:box-shadow 0.15s;}
-    .order-card:hover{box-shadow:0 2px 10px rgba(0,0,0,0.08);}
-    .order-card.novo{border-left:3px solid var(--or);}
-    .order-card.prep{border-left:3px solid #FACC15;}
-    .order-card.saiu{border-left:3px solid var(--blue);}
-    .order-card.entregue{border-left:3px solid #D1D5DB;opacity:0.8;}
-    .oc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.5rem;gap:0.5rem;}
-    .oc-meta{flex:1;}
-    .oc-num{font-size:0.67rem;font-weight:600;color:var(--txt3);}
-    .oc-name{font-size:0.92rem;font-weight:700;color:var(--txt);}
-    .oc-addr{font-size:0.73rem;color:var(--txt2);margin-top:0.1rem;}
-    .oc-right{display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;flex-shrink:0;}
-    .status-pill{border-radius:20px;padding:0.22rem 0.65rem;font-size:0.68rem;font-weight:700;white-space:nowrap;}
-    .s-novo{background:#FFF7ED;color:#C2410C;}
-    .s-prep{background:#FEF9C3;color:#854D0E;}
-    .s-saiu{background:#DBEAFE;color:#1D4ED8;}
-    .s-entregue{background:#F3F4F6;color:#6B7280;}
-    .oc-time{font-size:0.65rem;color:var(--txt3);font-weight:500;}
-    .oc-time.urgente{color:var(--red);font-weight:700;}
-    .oc-items{font-size:0.76rem;color:var(--txt2);line-height:1.6;margin-bottom:0.55rem;background:#F9FAFB;border-radius:8px;padding:0.45rem 0.7rem;}
-    .oc-obs{font-size:0.72rem;color:var(--or);font-style:italic;margin-bottom:0.55rem;background:#FFF7ED;border-radius:8px;padding:0.35rem 0.65rem;}
-    .oc-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
-    .oc-total{font-size:1rem;font-weight:800;color:var(--or);}
-    .oc-actions{display:flex;gap:0.4rem;flex-wrap:wrap;}
-    .oc-btn{border:none;border-radius:8px;padding:0.35rem 0.7rem;font-size:0.73rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
-    .btn-avancar{background:var(--or);color:#fff;}
-    .btn-wpp{background:#DCFCE7;color:#15803D;}
-
-    /* CARDÁPIO + CATEGORIAS */
-    .cardapio-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem;flex-wrap:wrap;gap:0.5rem;}
-    .cardapio-titulo{font-size:0.88rem;font-weight:700;color:var(--txt);}
-    .btn-add-cat{background:var(--bg3);border:none;border-radius:9px;padding:0.4rem 0.85rem;font-size:0.78rem;font-weight:700;color:#C2410C;cursor:pointer;font-family:'Poppins',sans-serif;}
-
-    .ce-item{display:flex;align-items:center;gap:0.65rem;background:#fff;border-radius:12px;border:1px solid #F3F4F6;padding:0.65rem;margin-bottom:0.5rem;}
-    .ce-thumb{width:52px;height:52px;border-radius:9px;background:linear-gradient(135deg,#FEF3C7,#FED7AA);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;overflow:hidden;}
-    .ce-thumb img{width:100%;height:100%;object-fit:cover;border-radius:9px;}
-    .ce-info{flex:1;min-width:0;}
-    .ce-name{font-size:0.83rem;font-weight:700;color:var(--txt);}
-    .ce-cat{font-size:0.7rem;color:var(--txt3);}
-    .ce-price{font-size:0.83rem;font-weight:700;color:var(--or);margin-top:0.1rem;}
-    .ce-actions{display:flex;align-items:center;gap:0.35rem;flex-shrink:0;}
-    .toggle{width:38px;height:22px;background:#E7E5E4;border-radius:20px;position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;border:none;}
-    .toggle.on{background:var(--green);}
-    .toggle::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left 0.2s;}
-    .toggle.on::after{left:19px;}
-    .ce-edit{background:var(--bg3);border:none;border-radius:7px;padding:0.25rem 0.5rem;font-size:0.7rem;font-weight:600;color:#92400E;cursor:pointer;font-family:'Poppins',sans-serif;}
-    .ce-del{background:#FEE2E2;border:none;border-radius:7px;padding:0.25rem 0.5rem;font-size:0.7rem;font-weight:600;color:#B91C1C;cursor:pointer;font-family:'Poppins',sans-serif;}
-
-    /* CATEGORIAS — novo layout accordion */
-    .cat-bloco{background:#fff;border-radius:16px;border:1px solid #F3F4F6;margin-bottom:0.65rem;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
-    .cat-header{display:flex;align-items:center;padding:0.85rem;cursor:pointer;gap:0.6rem;user-select:none;}
-    .cat-header-icon{font-size:1rem;flex-shrink:0;}
+    /* ── CATEGORIA BLOCO ── */
+    .cat-bloco{background:#fff;border-radius:var(--rad);border:1px solid #F0EDEB;margin-bottom:0.6rem;overflow:hidden;transition:box-shadow 0.15s;}
+    .cat-bloco.selecionada{box-shadow:0 0 0 2px var(--or);}
+    .cat-header{display:flex;align-items:center;gap:0.6rem;padding:0.75rem 0.85rem;cursor:pointer;user-select:none;}
+    .cat-header:hover{background:#FAFAFA;}
+    .cat-header-icon{font-size:1.1rem;flex-shrink:0;}
     .cat-header-info{flex:1;min-width:0;}
-    .cat-header-nome{font-size:0.88rem;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:0.4rem;}
-    .cat-tag-combo{background:#FEF3C7;color:#92400E;font-size:0.6rem;font-weight:700;padding:0.1rem 0.45rem;border-radius:99px;letter-spacing:0.5px;text-transform:uppercase;}
-    .cat-header-count{font-size:0.7rem;color:var(--txt3);margin-top:0.05rem;}
-    .cat-header-actions{display:flex;align-items:center;gap:0.3rem;flex-shrink:0;}
-    .cat-chevron{font-size:1rem;color:var(--txt3);transition:transform 0.2s;flex-shrink:0;}
+    .cat-header-nome{font-size:0.85rem;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:0.4rem;}
+    .cat-tag-combo{background:#FEF3C7;color:#92400E;font-size:0.6rem;font-weight:700;padding:0.15rem 0.45rem;border-radius:99px;}
+    .cat-header-count{font-size:0.72rem;color:var(--txt3);margin-top:0.1rem;}
+    .cat-header-actions{display:flex;align-items:center;gap:0.45rem;flex-shrink:0;}
+    .toggle{width:36px;height:19px;border-radius:99px;background:#D1D5DB;position:relative;cursor:pointer;border:none;flex-shrink:0;transition:background 0.2s;}
+    .toggle.on{background:var(--grn);}
+    .toggle::after{content:'';position:absolute;width:15px;height:15px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left 0.2s;}
+    .toggle.on::after{left:19px;}
+    .ce-edit{background:var(--bg3);color:var(--txt2);border:none;border-radius:7px;padding:0.25rem 0.6rem;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .cat-chevron{color:var(--txt3);font-size:0.85rem;transition:transform 0.2s;margin-left:0.2rem;}
     .cat-chevron.open{transform:rotate(180deg);}
-    .cat-body{display:none;border-top:1px solid #F9FAFB;}
-    .cat-body.open{display:block;}
-    .cat-prod-item{display:flex;align-items:center;gap:0.6rem;padding:0.65rem 0.85rem;border-bottom:1px solid #F9FAFB;}
-    .cat-prod-item:last-child{border:none;}
-    .cat-prod-thumb{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#FEF3C7,#FED7AA);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;overflow:hidden;}
-    .cat-prod-thumb img{width:100%;height:100%;object-fit:cover;border-radius:10px;}
-    .cat-prod-info{flex:1;min-width:0;}
-    .cat-prod-nome{font-size:0.82rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .cat-prod-preco{font-size:0.75rem;font-weight:700;color:var(--or);}
-    .cat-prod-actions{display:flex;align-items:center;gap:0.3rem;flex-shrink:0;}
-    .cat-body-footer{padding:0.6rem 0.85rem;display:flex;gap:0.4rem;background:#FAFAFA;}
-    .btn-add-prod{background:var(--or);color:#fff;border:none;border-radius:9px;padding:0.38rem 0.85rem;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:0.3rem;}
-    .add-cat-row{display:flex;gap:0.5rem;margin-top:0.75rem;}
-    .add-cat-input{flex:1;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.45rem 0.7rem;font-family:'Poppins',sans-serif;font-size:0.82rem;}
-    .add-cat-input:focus{outline:none;border-color:var(--or);}
-    .add-cat-btn{background:var(--or);color:#fff;border:none;border-radius:9px;padding:0.45rem 0.9rem;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
-    .new-cat-form{background:#fff;border-radius:16px;border:1.5px dashed #FED7AA;padding:0.85rem;margin-bottom:0.65rem;display:none;}
-    .new-cat-form.open{display:block;}
-    .new-cat-row{display:flex;gap:0.4rem;margin-bottom:0.5rem;}
-    .new-cat-inp{flex:1;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.48rem 0.7rem;font-family:'Poppins',sans-serif;font-size:0.83rem;}
-    .new-cat-inp:focus{outline:none;border-color:var(--or);}
-    /* IMG POSITION */
-    .img-pos-wrap{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:12px;background:#F9FAFB;cursor:grab;margin-bottom:0.75rem;touch-action:none;border:2px dashed #FED7AA;}
-    .img-pos-wrap:active{cursor:grabbing;}
-    .img-pos-img{position:absolute;width:150%;height:150%;object-fit:cover;pointer-events:none;}
-    .img-pos-hint{position:absolute;bottom:0.5rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.6);color:#fff;font-size:0.68rem;font-weight:600;padding:0.3rem 0.75rem;border-radius:99px;white-space:nowrap;pointer-events:none;}
-
-    /* REORDENAÇÃO CATEGORIAS */
-    .cat-bloco{transition:box-shadow 0.15s,transform 0.15s;}
-    .cat-bloco.selecionada{box-shadow:0 0 0 2.5px var(--or);transform:scale(1.01);}
     .cat-ordem-btns{display:none;align-items:center;gap:0.25rem;}
     .cat-bloco.selecionada .cat-ordem-btns{display:flex;}
-    .cat-ordem-btn{width:28px;height:28px;border-radius:7px;border:none;background:var(--or);color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Poppins',sans-serif;}
-    .cat-ordem-btn:active{background:#EA6C0A;}
+    .cat-ordem-btn{width:26px;height:26px;border-radius:6px;border:none;background:var(--or);color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
 
-    /* MODAIS */
-    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;align-items:flex-end;justify-content:center;}
-    .modal-bg.open{display:flex;}
-    .modal{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
-    .modal-header{padding:1rem 1.1rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #F3F4F6;position:sticky;top:0;background:#fff;z-index:1;}
-    .modal-title{font-size:0.95rem;font-weight:700;color:var(--txt);}
-    .modal-close{background:none;border:none;font-size:1.2rem;color:var(--txt2);cursor:pointer;}
-    .modal-body{padding:1rem 1.1rem 1.5rem;}
+    /* ── PRODUTOS NA CATEGORIA ── */
+    .cat-body{display:none;border-top:1px solid #F5F4F2;}
+    .cat-body.open{display:block;}
+    .cat-prod-item{display:flex;align-items:center;gap:0.65rem;padding:0.6rem 0.85rem;border-bottom:1px solid #F9FAFB;}
+    .cat-prod-item:last-child{border:none;}
+    .cat-prod-thumb{width:44px;height:44px;border-radius:9px;object-fit:cover;background:#FEF3C7;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;overflow:hidden;}
+    .cat-prod-thumb img{width:100%;height:100%;object-fit:cover;border-radius:9px;}
+    .cat-prod-info{flex:1;min-width:0;}
+    .cat-prod-nome{font-size:0.82rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .cat-prod-preco{font-size:0.78rem;color:var(--or);font-weight:700;margin-top:0.1rem;}
+    .cat-prod-add-badge{font-size:0.62rem;background:#FFF7ED;color:var(--or);border-radius:5px;padding:0.1rem 0.4rem;margin-top:0.15rem;display:inline-block;}
+    .cat-prod-actions{display:flex;align-items:center;gap:0.35rem;flex-shrink:0;}
+    .prod-btn{width:30px;height:30px;border:none;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.8rem;}
+    .prod-btn.add{background:#FFF7ED;color:var(--or);font-size:1rem;font-weight:700;}
+    .prod-btn.add:hover{background:#FFEDD5;}
+    .prod-btn.edit{background:var(--bg3);color:var(--txt2);}
+    .prod-btn.del{background:#FEF2F2;color:var(--red);}
+    .cat-body-footer{padding:0.6rem 0.85rem;background:#FAFAFA;border-top:1px solid #F5F4F2;}
+    .btn-add-prod{background:var(--or);color:#fff;border:none;border-radius:8px;padding:0.4rem 0.9rem;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
 
-    /* DETALHES PEDIDO */
-    .mdet-row{display:flex;justify-content:space-between;font-size:0.82rem;padding:0.4rem 0;border-bottom:1px solid #F9FAFB;}
-    .mdet-row:last-child{border:none;}
-    .mdet-lbl{color:var(--txt2);}.mdet-val{font-weight:600;color:var(--txt);}
-    .mdet-item{display:flex;justify-content:space-between;font-size:0.82rem;padding:0.45rem 0;border-bottom:1px solid #F9FAFB;}
-    .mdet-item:last-child{border:none;}
-    .mdet-total{display:flex;justify-content:space-between;font-size:1rem;font-weight:800;padding:0.75rem 0 0;color:var(--txt);}
-    .mdet-section{font-size:0.72rem;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;margin:1rem 0 0.5rem;}
-    .modal-avancar{width:100%;background:var(--or);color:#fff;border:none;border-radius:12px;padding:0.75rem;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-top:1rem;}
+    /* ── VAZIO ── */
+    .empty{text-align:center;padding:2.5rem 1rem;color:var(--txt3);}
+    .empty-icon{font-size:2.5rem;margin-bottom:0.5rem;}
+    .empty-txt{font-size:0.82rem;line-height:1.6;}
 
-    /* EDIT PRODUTO */
-    .ep-overlay{display:none;position:fixed;inset:0;background:rgba(28,25,23,0.6);z-index:70;align-items:flex-end;justify-content:center;}
-    /* ADICIONAIS PAINEL */
-    .add-pg{border:1.5px solid #E7E5E4;border-radius:12px;margin-bottom:0.75rem;overflow:hidden;}
-    .add-pg-hd{display:flex;align-items:center;gap:0.5rem;padding:0.65rem 0.85rem;background:#FAFAFA;border-bottom:1px solid #F3F4F6;}
-    .add-pg-nome{flex:1;border:none;outline:none;font-size:0.88rem;font-weight:700;color:var(--txt);background:transparent;font-family:'Poppins',sans-serif;}
-    .add-pg-nome::placeholder{color:var(--txt3);font-weight:400;}
-    .add-pg-sel{border:1.5px solid #E7E5E4;border-radius:8px;padding:0.28rem 0.4rem;font-size:0.72rem;font-family:'Poppins',sans-serif;}
-    .add-pg-del{background:#FEE2E2;border:none;border-radius:8px;padding:0.28rem 0.55rem;cursor:pointer;font-size:0.8rem;color:#B91C1C;}
-    .add-pg-body{padding:0.5rem 0.85rem;}
-    .add-it{display:flex;align-items:center;gap:0.4rem;padding:0.35rem 0;border-bottom:1px solid #F9FAFB;}
-    .add-it:last-child{border:none;}
-    .add-it-nome{flex:2;border:1.5px solid #E7E5E4;border-radius:8px;padding:0.32rem 0.55rem;font-size:0.82rem;font-family:'Poppins',sans-serif;outline:none;}
-    .add-it-nome:focus{border-color:var(--or);}
-    .add-it-preco{width:80px;flex-shrink:0;border:1.5px solid #E7E5E4;border-radius:8px;padding:0.32rem 0.55rem;font-size:0.82rem;font-family:'Poppins',sans-serif;outline:none;}
-    .add-it-preco:focus{border-color:var(--or);}
-    .add-it-del{background:none;border:none;cursor:pointer;color:#D1D5DB;font-size:1.1rem;flex-shrink:0;}
-    .add-it-del:hover{color:#B91C1C;}
-    .add-pg-add{width:100%;background:none;border:1.5px dashed #D1D5DB;border-radius:8px;padding:0.38rem;font-size:0.78rem;color:var(--txt3);cursor:pointer;font-family:'Poppins',sans-serif;margin-top:0.35rem;}
-    .add-pg-add:hover{border-color:var(--or);color:var(--or);}
-    .add-pg-foot{display:flex;gap:0.5rem;padding:0.4rem 0.85rem 0.6rem;font-size:0.7rem;color:var(--txt3);}
+    /* ── TOAST / NOTIF ── */
+    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--txt);color:#fff;padding:0.6rem 1.2rem;border-radius:99px;font-size:0.82rem;font-weight:600;z-index:999;opacity:0;transition:opacity 0.2s;pointer-events:none;white-space:nowrap;}
+    .toast.show{opacity:1;}
+    .notif{position:fixed;top:1rem;right:1rem;background:var(--or);color:#fff;padding:0.5rem 1rem;border-radius:10px;font-size:0.8rem;font-weight:700;z-index:999;display:none;cursor:pointer;}
 
-    .ep-overlay.open{display:flex;}
-    .ep-box{background:#fff;border-radius:20px 20px 0 0;padding:1.25rem;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;}
-    .ep-hd{font-size:0.95rem;font-weight:700;color:var(--txt);margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;}
-    .ep-close{background:none;border:none;font-size:1.2rem;color:var(--txt2);cursor:pointer;}
-    .ep-lbl{font-size:0.73rem;font-weight:600;color:var(--txt2);margin-bottom:0.25rem;display:block;}
-    .ep-inp{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.83rem;margin-bottom:0.75rem;color:var(--txt);}
-    .ep-inp:focus{outline:none;border-color:var(--or);}
-    .ep-ta{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.83rem;height:65px;resize:none;margin-bottom:0.75rem;color:var(--txt);}
-    .ep-ta:focus{outline:none;border-color:var(--or);}
-    .ep-sel{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.83rem;margin-bottom:0.75rem;background:#fff;color:var(--txt);}
+    /* ══════════════════════════════════════════
+       MODAL BASE — slide up da base da tela
+    ══════════════════════════════════════════ */
+    .moverlay{display:none;position:fixed;inset:0;background:rgba(28,25,23,0.55);z-index:70;align-items:flex-end;justify-content:center;}
+    .moverlay.open{display:flex;}
+    .mbox{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:500px;max-height:93vh;overflow-y:auto;padding:0 1.25rem 2rem;}
+    .mbox-handle{width:38px;height:4px;background:#E7E5E4;border-radius:99px;margin:0.75rem auto 1rem;}
+    .mbox-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid #F5F4F2;}
+    .mbox-title{font-size:1rem;font-weight:800;color:var(--txt);}
+    .mbox-close{background:var(--bg3);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;color:var(--txt2);}
+    .mbox-lbl{font-size:0.72rem;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.3rem;display:block;}
+    .mbox-inp{width:100%;border:1.5px solid #E7E5E4;border-radius:10px;padding:0.6rem 0.8rem;font-size:0.88rem;font-family:'Poppins',sans-serif;color:var(--txt);outline:none;margin-bottom:0.85rem;}
+    .mbox-inp:focus{border-color:var(--or);}
+    .mbox-ta{width:100%;border:1.5px solid #E7E5E4;border-radius:10px;padding:0.6rem 0.8rem;font-size:0.85rem;font-family:'Poppins',sans-serif;color:var(--txt);outline:none;height:68px;resize:none;margin-bottom:0.85rem;}
+    .mbox-ta:focus{border-color:var(--or);}
+    .mbox-sel{width:100%;border:1.5px solid #E7E5E4;border-radius:10px;padding:0.6rem 0.8rem;font-size:0.85rem;font-family:'Poppins',sans-serif;color:var(--txt);outline:none;background:#fff;margin-bottom:0.85rem;}
+    .mbox-row{display:flex;gap:0.65rem;}
+    .mbox-row .mbox-inp{margin-bottom:0;}
+    .mbox-row .mbox-sel{margin-bottom:0;}
+    .mbox-tipo{display:flex;gap:0.5rem;margin-bottom:0.85rem;}
+    .tipo-opt{flex:1;border:1.5px solid #E7E5E4;border-radius:10px;padding:0.6rem 0.5rem;text-align:center;font-size:0.8rem;font-weight:700;cursor:pointer;color:var(--txt3);}
+    .tipo-opt.on{border-color:var(--or);color:var(--or);background:#FFF7ED;}
+    .btn-salvar{width:100%;background:var(--or);color:#fff;border:none;border-radius:11px;padding:0.85rem;font-size:0.92rem;font-weight:800;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:0.5rem;}
+    .btn-salvar:hover{background:#EA6C0A;}
+    .btn-cancelar{width:100%;background:var(--bg3);color:var(--txt2);border:none;border-radius:11px;padding:0.75rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .btn-excluir{width:100%;background:#FEF2F2;color:var(--red);border:none;border-radius:11px;padding:0.7rem;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-top:0.5rem;}
 
-    /* UPLOAD IMAGEM */
-    .ep-img-area{border:2px dashed #FED7AA;border-radius:12px;padding:1.25rem;text-align:center;cursor:pointer;background:#FFF7ED;margin-bottom:0.75rem;position:relative;transition:background 0.15s;}
-    .ep-img-area:hover{background:#FEF3C7;}
-    .ep-img-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-    .ep-img-icon{font-size:1.8rem;margin-bottom:0.35rem;}
-    .ep-img-txt{font-size:0.8rem;font-weight:600;color:#C2410C;}
-    .ep-img-sub{font-size:0.7rem;color:var(--txt3);margin-top:0.2rem;}
-    .ep-img-preview{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;margin-bottom:0.75rem;display:none;max-height:200px;}
+    /* ── FOTO UPLOAD ── */
+    .foto-area{border:2px dashed #FED7AA;border-radius:12px;padding:1.1rem;text-align:center;cursor:pointer;background:#FFF7ED;margin-bottom:0.85rem;position:relative;}
+    .foto-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .foto-area:hover{background:#FFEDD5;}
+    .foto-icon{font-size:1.6rem;margin-bottom:0.3rem;}
+    .foto-txt{font-size:0.8rem;font-weight:600;color:#C2410C;}
+    .foto-sub{font-size:0.68rem;color:var(--txt3);margin-top:0.15rem;}
+    .img-info{background:#EFF6FF;border-radius:8px;padding:0.45rem 0.7rem;font-size:0.7rem;color:#1D4ED8;margin-bottom:0.75rem;}
+    .img-pos-wrap{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:12px;background:#F9FAFB;cursor:grab;margin-bottom:0.75rem;touch-action:none;border:2px dashed #FED7AA;}
+    .img-pos-img{position:absolute;width:150%;height:150%;object-fit:cover;pointer-events:none;}
+    .img-pos-hint{position:absolute;bottom:0.5rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.6);color:#fff;font-size:0.65rem;font-weight:600;padding:0.25rem 0.65rem;border-radius:99px;white-space:nowrap;}
     .ep-progress{background:#F3F4F6;border-radius:20px;height:6px;margin-bottom:0.75rem;display:none;overflow:hidden;}
     .ep-progress-bar{height:100%;background:var(--or);border-radius:20px;width:0%;transition:width 0.3s;}
     .ep-progress-txt{font-size:0.72rem;color:var(--or);text-align:center;margin-bottom:0.5rem;display:none;}
-    .ep-img-info{background:#EFF6FF;border-radius:8px;padding:0.5rem 0.75rem;font-size:0.72rem;color:#1D4ED8;margin-bottom:0.75rem;}
-    .ep-save{width:100%;background:var(--or);color:#fff;border:none;border-radius:10px;padding:0.72rem;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
-    .ep-del-prod{width:100%;background:#FEE2E2;color:#B91C1C;border:none;border-radius:10px;padding:0.6rem;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-top:0.5rem;}
+    .btn-upload{width:100%;background:var(--or);color:#fff;border:none;border-radius:10px;padding:0.62rem;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:0.65rem;display:none;}
+    .btn-trocar{width:100%;background:var(--bg3);color:#92400E;border:none;border-radius:10px;padding:0.52rem;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:0.65rem;display:none;}
 
-    /* EDIT CATEGORIA */
-    .ec-overlay{display:none;position:fixed;inset:0;background:rgba(28,25,23,0.6);z-index:70;align-items:flex-end;justify-content:center;}
-    .ec-overlay.open{display:flex;}
-    .ec-box{background:#fff;border-radius:20px 20px 0 0;padding:1.25rem;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;}
-    .ec-hd{font-size:0.95rem;font-weight:700;color:var(--txt);margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;}
-    .ec-close{background:none;border:none;font-size:1.2rem;color:var(--txt2);cursor:pointer;}
-    .ec-lbl{font-size:0.73rem;font-weight:600;color:var(--txt2);margin-bottom:0.25rem;display:block;}
-    .ec-inp{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.83rem;margin-bottom:0.75rem;color:var(--txt);}
-    .ec-inp:focus{outline:none;border-color:var(--or);}
-    .ec-save{background:var(--or);color:#fff;border:none;border-radius:9px;padding:0.5rem 1.1rem;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
-    .ec-del-cat{background:#FEE2E2;color:#B91C1C;border:none;border-radius:9px;padding:0.5rem 1.1rem;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
-    .ec-prod-item{display:flex;align-items:center;justify-content:space-between;padding:0.55rem 0;border-bottom:1px solid #F9FAFB;}
-    .ec-prod-item:last-child{border:none;}
-    .ec-prod-name{font-size:0.83rem;color:var(--txt);font-weight:500;}
-    .ec-prod-price{font-size:0.78rem;color:var(--or);font-weight:600;}
-    .ec-prod-del{background:#FEE2E2;border:none;border-radius:7px;padding:0.2rem 0.5rem;font-size:0.68rem;font-weight:700;color:#B91C1C;cursor:pointer;font-family:'Poppins',sans-serif;}
+    /* ── MODAL ADICIONAIS ── */
+    .add-info{background:#FFF7ED;border-radius:9px;padding:0.5rem 0.75rem;font-size:0.75rem;color:#92400E;margin-bottom:0.85rem;display:flex;align-items:center;gap:0.4rem;}
+    .add-sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.65rem;}
+    .add-sec-lbl{font-size:0.78rem;font-weight:700;color:var(--txt);}
+    .btn-novo-grupo{background:var(--or);color:#fff;border:none;border-radius:8px;padding:0.35rem 0.85rem;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .add-vazio{border:2px dashed #E7E5E4;border-radius:10px;padding:1rem;text-align:center;color:var(--txt3);font-size:0.78rem;line-height:1.5;margin-bottom:0.65rem;}
+    .add-pg{border:1.5px solid #E7E5E4;border-radius:12px;margin-bottom:0.75rem;overflow:hidden;background:#fff;}
+    .add-pg-hd{display:flex;align-items:center;gap:0.5rem;padding:0.6rem 0.85rem;background:#FAFAFA;border-bottom:1px solid #F3F4F6;}
+    .add-pg-nome{flex:1;border:none;outline:none;font-size:0.85rem;font-weight:700;color:var(--txt);background:transparent;font-family:'Poppins',sans-serif;}
+    .add-pg-nome::placeholder{color:var(--txt3);font-weight:400;}
+    .add-pg-sel{border:1.5px solid #E7E5E4;border-radius:7px;padding:0.25rem 0.4rem;font-size:0.72rem;font-family:'Poppins',sans-serif;outline:none;}
+    .add-pg-max-wrap{display:flex;align-items:center;gap:0.25rem;font-size:0.7rem;color:var(--txt3);}
+    .add-pg-max{width:34px;border:1px solid #E7E5E4;border-radius:5px;padding:0.15rem 0.2rem;font-size:0.75rem;text-align:center;outline:none;}
+    .add-pg-del{background:#FEE2E2;border:none;border-radius:7px;padding:0.25rem 0.5rem;cursor:pointer;font-size:0.78rem;color:var(--red);}
+    .add-pg-body{padding:0.4rem 0.85rem 0.6rem;}
+    .add-it{display:flex;align-items:center;gap:0.4rem;padding:0.35rem 0;border-bottom:1px solid #F9FAFB;}
+    .add-it:last-of-type{border:none;}
+    .add-it-nome{flex:2;border:1.5px solid #E7E5E4;border-radius:8px;padding:0.3rem 0.55rem;font-size:0.82rem;font-family:'Poppins',sans-serif;outline:none;}
+    .add-it-nome:focus{border-color:var(--or);}
+    .add-it-preco{width:76px;flex-shrink:0;border:1.5px solid #E7E5E4;border-radius:8px;padding:0.3rem 0.5rem;font-size:0.82rem;font-family:'Poppins',sans-serif;outline:none;}
+    .add-it-preco:focus{border-color:var(--or);}
+    .add-it-del{background:none;border:none;cursor:pointer;color:#D1D5DB;font-size:1.1rem;flex-shrink:0;line-height:1;}
+    .add-it-del:hover{color:var(--red);}
+    .add-nova-op{width:100%;background:none;border:1.5px dashed #D1D5DB;border-radius:8px;padding:0.38rem;font-size:0.78rem;color:var(--txt3);cursor:pointer;font-family:'Poppins',sans-serif;margin-top:0.35rem;}
+    .add-nova-op:hover{border-color:var(--or);color:var(--or);}
 
-    /* CONFIG */
+    /* ── EDITAR CATEGORIA (mini modal) ── */
+    .ec-prod-list{margin-top:0.5rem;}
+    .ec-prod-row{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #F9FAFB;}
+    .ec-prod-row:last-child{border:none;}
+    .ec-prod-nm{font-size:0.83rem;color:var(--txt);font-weight:500;}
+    .ec-prod-pr{font-size:0.75rem;color:var(--or);font-weight:600;}
+    .ec-prod-del{background:#FEE2E2;border:none;border-radius:6px;padding:0.18rem 0.45rem;font-size:0.68rem;font-weight:700;color:var(--red);cursor:pointer;font-family:'Poppins',sans-serif;}
+
+    /* ── PEDIDOS / FIDELIDADE / CONFIG ── */
     .cfg-card{background:#fff;border-radius:12px;padding:1rem;margin-bottom:0.75rem;border:1px solid #F3F4F6;}
-    .cfg-title{font-size:0.82rem;font-weight:700;color:var(--txt);margin-bottom:0.75rem;}
-    .cfg-lbl{font-size:0.73rem;font-weight:600;color:var(--txt2);margin-bottom:0.25rem;display:block;}
-    .cfg-inp{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.83rem;margin-bottom:0.65rem;color:var(--txt);}
-    .cfg-inp:focus{outline:none;border-color:var(--or);}
-    .cfg-save{background:var(--or);color:#fff;border:none;border-radius:9px;padding:0.48rem 1.1rem;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
-    .link-box{background:#F9FAFB;border:1px solid #F3F4F6;border-radius:9px;padding:0.55rem 0.8rem;font-size:0.73rem;color:var(--blue);word-break:break-all;font-family:'Courier New',monospace;margin-bottom:0.65rem;}
-    .copy-link{background:var(--bg3);border:none;border-radius:8px;padding:0.38rem 0.85rem;font-size:0.76rem;font-weight:600;color:#92400E;cursor:pointer;font-family:'Poppins',sans-serif;}
-    .cfg-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.65rem;}
-
-    /* CAMPO CELULAR */
-    .field-wrap{margin-bottom:0.65rem;position:relative;}
-    .field-wrap .cfg-inp{margin-bottom:0;}
-    .field-icon{position:absolute;right:0.7rem;top:50%;transform:translateY(-50%);font-size:0.85rem;pointer-events:none;}
-    .field-msg{font-size:0.7rem;margin-top:0.2rem;color:var(--red);display:none;}
-    .field-msg.show{display:block;}
-
-    /* TOAST */
-    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1C1917;color:#fff;border-radius:12px;padding:0.72rem 1.2rem;font-size:0.8rem;font-weight:600;z-index:200;transition:transform 0.3s;white-space:nowrap;}
-    .toast.show{transform:translateX(-50%) translateY(0);}
-    </style>
+    .cfg-title{font-size:0.85rem;font-weight:700;color:var(--txt);margin-bottom:0.5rem;}
+    .cfg-inp{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.83rem;margin-bottom:0.65rem;color:var(--txt);outline:none;}
+    .cfg-inp:focus{border-color:var(--or);}
+    .cfg-save{background:var(--or);color:#fff;border:none;border-radius:9px;padding:0.5rem 1.25rem;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .cfg-row{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #F9FAFB;}
+    .cfg-row:last-child{border:none;}
+    .cfg-lbl{font-size:0.82rem;color:var(--txt);}
+    .add-cat-btn{background:var(--or);color:#fff;border:none;border-radius:8px;padding:0.4rem 0.85rem;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;}
+    .new-cat-form{background:var(--bg3);border-radius:10px;padding:0.75rem;margin-bottom:0.75rem;display:none;}
+    .new-cat-form.open{display:block;}
+    .new-cat-row{display:flex;gap:0.4rem;margin-bottom:0.5rem;}
+    .new-cat-inp{flex:1;border:1.5px solid #E7E5E4;border-radius:8px;padding:0.48rem 0.65rem;font-size:0.82rem;font-family:'Poppins',sans-serif;outline:none;}
+    .new-cat-inp:focus{border-color:var(--or);}
+    .ep-sel{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.5rem 0.75rem;font-family:'Poppins',sans-serif;font-size:0.83rem;margin-bottom:0.75rem;background:#fff;color:var(--txt);outline:none;}
+  </style>
 </head>
 <body>
 
-  <div class="fullpage" id="loading">
-    <div class="fullpage-icon">🍕</div>
-    <div class="fullpage-txt">Carregando painel...</div>
+  <div class="hd">
+    <span class="hd-logo">DeliveryApp</span>
+    <div class="hd-info">
+      <span class="hd-loja" id="hdLoja">Carregando...</span>
+      <span class="hd-data" id="hdData"></span>
+    </div>
+    <div class="hd-status">
+      <div class="status-dot" id="statusDot"></div>
+      <span class="status-txt" id="statusTxt">Aberta</span>
+    </div>
+    <div class="hd-btns">
+      <button class="hd-cardapio-btn" onclick="trocarTab('cardapio',document.querySelector('.tab'))">Cardápio</button>
+      <button class="hd-sair" id="btnSair">Sair</button>
+    </div>
   </div>
 
-  <div id="appRoot" style="display:none;">
-    <div class="header">
-      <div class="h-left">
-        <div class="h-logo">DeliveryApp</div>
-        <div class="h-store" id="hStoreName">—</div>
-        <div class="h-date" id="hDate">—</div>
-      </div>
-      <div class="h-right">
-        <button class="h-status aberta" id="btnStatus" onclick="toggleLoja()">
-          <span class="dot green" id="dotStatus"></span>
-          <span id="statusTxt">Aberta</span>
-        </button>
-        <a class="h-link" id="linkCardapio" href="#" target="_blank">Cardápio</a>
-        <button class="h-logout" onclick="sair()">Sair</button>
-      </div>
-    </div>
-
-    <div class="tabs">
-      <button class="tab active" onclick="trocarTab('pedidos',this)">
-        Pedidos <span class="tab-badge" id="badgeNovos">0</span>
-      </button>
-      <button class="tab" onclick="trocarTab('cardapio',this)">Cardápio</button>
-      <button class="tab" onclick="trocarTab('fidelidade',this)">⭐ Fidelidade</button>
-      <button class="tab" onclick="trocarTab('config',this)">Config</button>
-    </div>
-
-    <div class="body" id="mainBody"></div>
+  <div class="tabs" id="tabsEl">
+    <div class="tab on" onclick="trocarTab('pedidos',this)">🛎️ Pedidos</div>
+    <div class="tab" onclick="trocarTab('cardapio',this)">🍕 Cardápio</div>
+    <div class="tab" onclick="trocarTab('fidelidade',this)">⭐ Fidelidade</div>
+    <div class="tab" onclick="trocarTab('config',this)">⚙️ Config</div>
   </div>
+
+  <div class="body" id="mainBody"></div>
 
   <div class="notif" id="notif">🛎️ Novo pedido!</div>
   <div class="toast" id="toast"></div>
 
-  <!-- MODAL DETALHES PEDIDO -->
-  <div class="modal-bg" id="modalDetalhes">
-    <div class="modal">
-      <div class="modal-header">
-        <span class="modal-title" id="mdTitle">Detalhes</span>
-        <button class="modal-close" onclick="fecharDetalhes()">×</button>
+  <!-- ══════════════════════════════════════════
+       MODAL PEDIDO DETALHES
+  ══════════════════════════════════════════ -->
+  <div class="moverlay" id="modalDetalhes">
+    <div class="mbox">
+      <div class="mbox-handle"></div>
+      <div class="mbox-hd">
+        <span class="mbox-title" id="mdTitle">Detalhes do pedido</span>
+        <button class="mbox-close" onclick="fecharDetalhes()">×</button>
       </div>
-      <div class="modal-body" id="mdBody"></div>
+      <div id="mdBody"></div>
     </div>
   </div>
 
-  <!-- MODAL EDITAR PRODUTO -->
-  <div class="ep-overlay" id="epOverlay">
-    <div class="ep-box">
-      <div class="ep-hd">
-        <span id="epTitulo">Editar produto</span>
-        <button class="ep-close" onclick="closeEp()">×</button>
+  <!-- ══════════════════════════════════════════
+       MODAL NOVA / EDITAR CATEGORIA
+       Fluxo: só nome + tipo — rápido e limpo
+  ══════════════════════════════════════════ -->
+  <div class="moverlay" id="modalCat">
+    <div class="mbox">
+      <div class="mbox-handle"></div>
+      <div class="mbox-hd">
+        <span class="mbox-title" id="catModalTitulo">Nova categoria</span>
+        <button class="mbox-close" onclick="fecharModalCat()">×</button>
       </div>
-      <label class="ep-lbl">Nome do produto</label>
-      <input class="ep-inp" id="epNome" placeholder="Ex: Pizza Calabresa">
-      <label class="ep-lbl">Descrição</label>
-      <textarea class="ep-ta" id="epDesc" placeholder="Ingredientes, tamanho..."></textarea>
-      <label class="ep-lbl">Preço (R$)</label>
-      <input class="ep-inp" id="epPreco" type="number" step="0.01" placeholder="0,00">
-      <label class="ep-lbl">Categoria</label>
-      <select class="ep-sel" id="epCat"></select>
-      <label class="ep-lbl">Foto do produto</label>
-      <div class="ep-img-info">📐 Alta qualidade 1080×1080px · JPG/PNG · até 20MB</div>
-      <div class="ep-img-area" id="epImgArea">
+
+      <label class="mbox-lbl">Nome da categoria</label>
+      <input class="mbox-inp" id="catNome" placeholder="Ex: Pizzas, Hambúrgueres, Açaí...">
+
+      <label class="mbox-lbl">Tipo</label>
+      <div class="mbox-tipo" id="catTipoWrap">
+        <div class="tipo-opt on" data-val="normal" onclick="selecionarTipoCat(this)">📁 Normal</div>
+        <div class="tipo-opt" data-val="combo" onclick="selecionarTipoCat(this)">🔥 Combo promocional</div>
+      </div>
+
+      <button class="btn-salvar" onclick="salvarCategoria()">Salvar categoria</button>
+      <button class="btn-cancelar" onclick="fecharModalCat()">Cancelar</button>
+      <button class="btn-excluir" id="catDelBtn" onclick="deletarCategoria()" style="display:none;">🗑️ Excluir esta categoria</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       MODAL PRODUTO
+       Fluxo: info básica + foto — SEM adicionais
+  ══════════════════════════════════════════ -->
+  <div class="moverlay" id="modalProd">
+    <div class="mbox">
+      <div class="mbox-handle"></div>
+      <div class="mbox-hd">
+        <span class="mbox-title" id="prodModalTitulo">Novo produto</span>
+        <button class="mbox-close" onclick="fecharModalProd()">×</button>
+      </div>
+
+      <label class="mbox-lbl">Nome do produto</label>
+      <input class="mbox-inp" id="epNome" placeholder="Ex: Pizza Calabresa, X-Burguer...">
+
+      <div class="mbox-row" style="margin-bottom:0.85rem;">
+        <div style="flex:1;">
+          <label class="mbox-lbl">Preço (R$)</label>
+          <input class="mbox-inp" id="epPreco" type="number" step="0.01" placeholder="0,00">
+        </div>
+        <div style="flex:1;">
+          <label class="mbox-lbl">Categoria</label>
+          <select class="mbox-sel" id="epCat"></select>
+        </div>
+      </div>
+
+      <label class="mbox-lbl">Descrição <span style="color:var(--txt3);font-weight:400;">(opcional)</span></label>
+      <textarea class="mbox-ta" id="epDesc" placeholder="Ingredientes, tamanho, observações..."></textarea>
+
+      <label class="mbox-lbl">Foto do produto</label>
+      <div class="img-info">📐 Melhor qualidade: 1080×1080px · JPG/PNG · até 20MB</div>
+
+      <div class="foto-area" id="epImgArea">
         <input type="file" accept="image/jpeg,image/png,image/webp" id="epFileInput" onchange="handleImgUpload(this)">
-        <div class="ep-img-icon">📷</div>
-        <div class="ep-img-txt">Toque para adicionar foto</div>
-        <div class="ep-img-sub">Após o upload, arraste para centralizar</div>
+        <div class="foto-icon">📷</div>
+        <div class="foto-txt">Toque para adicionar foto</div>
+        <div class="foto-sub">Após o upload, arraste para centralizar</div>
       </div>
+
       <div id="epImgPosWrap" class="img-pos-wrap" style="display:none;">
         <img id="epImgPos" class="img-pos-img" alt="">
-        <div class="img-pos-hint">👆 Arraste para centralizar</div>
+        <div class="img-pos-hint">👆 Arraste para centralizar a foto</div>
       </div>
-      <button id="epUploadBtn" style="display:none;width:100%;background:var(--or);color:#fff;border:none;border-radius:10px;padding:0.65rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:0.75rem;">
-        ✓ Confirmar posição e enviar
-      </button>
-      <button id="epTrocarBtn" style="display:none;width:100%;background:var(--bg3);color:#92400E;border:none;border-radius:10px;padding:0.55rem;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:0.75rem;" onclick="document.getElementById('epFileInput').click()">
-        🔄 Trocar foto
-      </button>
+      <button class="btn-upload" id="epUploadBtn">✓ Confirmar posição e enviar foto</button>
+      <button class="btn-trocar" id="epTrocarBtn" onclick="document.getElementById('epFileInput').click()">🔄 Trocar foto</button>
+
       <div class="ep-progress" id="epProgress"><div class="ep-progress-bar" id="epProgressBar"></div></div>
       <div class="ep-progress-txt" id="epProgressTxt"></div>
-      <!-- ADICIONAIS -->
-      <div id="epAdicionais" style="margin-bottom:0.75rem;"></div>
 
-      <button class="ep-save" onclick="saveEp()">Salvar produto</button>
-      <button class="ep-del-prod" id="epDelBtn" onclick="deletarProduto()" style="display:none;">🗑️ Excluir este produto</button>
+      <button class="btn-salvar" onclick="saveEp()">Salvar produto</button>
+      <button class="btn-cancelar" onclick="fecharModalProd()">Cancelar</button>
+      <button class="btn-excluir" id="epDelBtn" onclick="deletarProduto()" style="display:none;">🗑️ Excluir este produto</button>
     </div>
   </div>
 
-  <!-- MODAL EDITAR CATEGORIA -->
-  <div class="ec-overlay" id="ecOverlay">
-    <div class="ec-box">
-      <div class="ec-hd">
-        <span>Editar categoria</span>
-        <button class="ec-close" onclick="closeEc()">×</button>
+  <!-- ══════════════════════════════════════════
+       MODAL ADICIONAIS — separado e dedicado
+       Abre pelo botão "+" no card do produto
+  ══════════════════════════════════════════ -->
+  <div class="moverlay" id="modalAdd">
+    <div class="mbox">
+      <div class="mbox-handle"></div>
+      <div class="mbox-hd">
+        <span class="mbox-title" id="addModalTitulo">Adicionais</span>
+        <button class="mbox-close" onclick="fecharModalAdd()">×</button>
       </div>
-      <label class="ec-lbl">Nome da categoria</label>
-      <input class="ec-inp" id="ecNome" placeholder="Ex: Lanches">
-      <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
-        <button class="ec-save" onclick="salvarCategoria()">Salvar nome</button>
-        <button class="ec-del-cat" onclick="deletarCategoria()">Excluir categoria</button>
+
+      <div class="add-info">
+        💡 Crie grupos de opções que o cliente vai escolher ao pedir este produto.
       </div>
-      <div class="mdet-section">Produtos nesta categoria</div>
-      <div id="ecProdutos"></div>
+
+      <div class="add-sec-hd">
+        <span class="add-sec-lbl">Grupos de adicionais</span>
+        <button class="btn-novo-grupo" id="btnNovoGrupo">+ Novo grupo</button>
+      </div>
+
+      <div id="adicionaisLista">
+        <div class="add-vazio" id="addVazio">
+          Nenhum adicional ainda.<br>
+          Ex: <strong>Borda</strong> (Catupiry, Cheddar), <strong>Tamanho</strong> (P, M, G), <strong>Ponto da carne</strong> (Mal, Ao ponto, Bem passado)
+        </div>
+      </div>
+
+      <button class="btn-salvar" onclick="salvarAdicionais()">Salvar adicionais</button>
+      <button class="btn-cancelar" onclick="fecharModalAdd()">Cancelar</button>
     </div>
   </div>
 
-  <!-- Único script — carrega o módulo principal -->
   <script type="module" src="js/painel/painel-core.js"></script>
 
 </body>
