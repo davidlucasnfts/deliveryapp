@@ -219,6 +219,6 @@ export async function salvarConfig() {
   }
   await supabase.from('lojas').update(updates).eq('id', _loja.id)
   Object.assign(_loja, updates)
-  document.getElementById('hStoreName').textContent = _loja.nome
+  const hdLj = document.getElementById('hdLoja'); if (hdLj) hdLj.textContent = _loja.nome
   toast('✅ Configurações salvas!')
 }

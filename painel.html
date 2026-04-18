@@ -29,6 +29,8 @@
     .tabs::-webkit-scrollbar{display:none;}
     .tab{padding:0.7rem 0.85rem;font-size:0.8rem;font-weight:600;color:var(--txt3);border-bottom:2.5px solid transparent;margin-bottom:-2px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
     .tab.on{color:var(--or);border-color:var(--or);}
+    .tab-badge{display:none;background:var(--or);color:#fff;font-size:0.6rem;font-weight:700;border-radius:99px;padding:0.1rem 0.4rem;margin-left:0.2rem;vertical-align:middle;}
+    .tab-badge.show{display:inline-block;}
 
     /* ── BODY ── */
     .body{padding:0.85rem;max-width:600px;margin:0 auto;}
@@ -206,7 +208,7 @@
   </div>
 
   <div class="tabs" id="tabsEl">
-    <div class="tab on" onclick="trocarTab('pedidos',this)">🛎️ Pedidos</div>
+    <div class="tab on" onclick="trocarTab('pedidos',this)">🛎️ Pedidos <span id="badgeNovos" class="tab-badge"></span></div>
     <div class="tab" onclick="trocarTab('cardapio',this)">🍕 Cardápio</div>
     <div class="tab" onclick="trocarTab('fidelidade',this)">⭐ Fidelidade</div>
     <div class="tab" onclick="trocarTab('config',this)">⚙️ Config</div>
