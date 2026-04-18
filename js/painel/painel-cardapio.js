@@ -239,106 +239,115 @@ export async function openEp(id) {
   renderGruposAdicionaisPainel(grupos || [])
 }
 
-// ===== ADICIONAIS NO PAINEL — interface simples =====
-
-// Estrutura em memória: [{id, nome, obrigatorio, max, itens:[{id,nome,preco}]}]
-let _grupos = []
+// ===== ADICIONAIS NO PAINEL — lê/escreve direto no DOM =====
 
 function renderGruposAdicionaisPainel(gruposBanco) {
-  // Converte do banco para estrutura em memória
-  _grupos = (gruposBanco || []).map(g => ({
-    id:          g.id,
-    nome:        g.nome || '',
-    obrigatorio: g.obrigatorio || false,
-    max:         g.max_escolha || 1,
-    itens:       (g.adicionais || []).map(i => ({
-      id:    i.id,
-      nome:  i.nome || '',
-      preco: i.preco || 0
-    }))
-  }))
-  _renderGrupos()
-}
-
-function _renderGrupos() {
   const container = document.getElementById('epAdicionais')
   if (!container) return
+  container.innerHTML = ''
+  // Header
+  const header = document.createElement('div')
+  header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin:0.75rem 0 0.5rem;'
+  header.innerHTML = `<span style="font-size:0.78rem;font-weight:700;color:var(--txt);">Adicionais / Complementos</span>
+    <button id="btnNovoGrupo" style="background:var(--or);color:#fff;border:none;border-radius:8px;padding:0.3rem 0.85rem;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;">+ Novo grupo</button>`
+  container.appendChild(header)
+  document.getElementById('btnNovoGrupo').addEventListener('click', addNovoGrupo)
 
-  let h = `<div style="display:flex;align-items:center;justify-content:space-between;margin:0.75rem 0 0.5rem;">
-    <span class="ep-lbl" style="margin:0;font-size:0.78rem;">Adicionais / Complementos</span>
-    <button onclick="addNovoGrupo()" style="background:var(--or);color:#fff;border:none;border-radius:8px;padding:0.3rem 0.85rem;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;">+ Novo grupo</button>
-  </div>`
+  const lista = document.createElement('div')
+  lista.id = 'adicionaisLista'
+  container.appendChild(lista)
 
-  if (!_grupos.length) {
-    h += `<div style="font-size:0.75rem;color:var(--txt3);text-align:center;padding:0.65rem;background:#FAFAFA;border-radius:10px;border:1.5px dashed #E7E5E4;">
-      Nenhum adicional. Ex: Tamanho, Borda, Complementos do açaí...
-    </div>`
+  // Renderiza grupos vindos do banco
+  if (gruposBanco && gruposBanco.length) {
+    gruposBanco.forEach(g => {
+      adicionarGrupoDOM(g.nome, g.obrigatorio, g.max_escolha || 1,
+        (g.adicionais || []).map(i => ({ nome: i.nome, preco: i.preco })))
+    })
+  } else {
+    const vazio = document.createElement('div')
+    vazio.id = 'addVazio'
+    vazio.style.cssText = 'font-size:0.75rem;color:var(--txt3);text-align:center;padding:0.65rem;background:#FAFAFA;border-radius:10px;border:1.5px dashed #E7E5E4;'
+    vazio.textContent = 'Nenhum adicional. Ex: Tamanho, Borda, Complementos do açaí...'
+    lista.appendChild(vazio)
   }
+}
 
-  _grupos.forEach((g, gi) => {
-    h += `<div class="add-pg" id="apg_${gi}">
-      <div class="add-pg-hd">
-        <input class="add-pg-nome" placeholder="Nome do grupo (ex: Borda, Tamanho, Complementos...)"
-          value="${g.nome}" oninput="_grupos[${gi}].nome=this.value">
-        <select class="add-pg-sel" onchange="_grupos[${gi}].obrigatorio=this.value==='1'">
-          <option value="0" ${!g.obrigatorio?'selected':''}>Opcional</option>
-          <option value="1" ${g.obrigatorio?'selected':''}>Obrigatório</option>
-        </select>
-        <div style="display:flex;align-items:center;gap:0.25rem;font-size:0.7rem;color:var(--txt3);">
-          Máx <input type="number" min="1" max="20" value="${g.max}"
-            oninput="_grupos[${gi}].max=parseInt(this.value)||1"
-            style="width:36px;border:1.5px solid #E7E5E4;border-radius:6px;padding:0.2rem;font-size:0.75rem;text-align:center;">
-        </div>
-        <button class="add-pg-del" onclick="_removerGrupo(${gi})">🗑</button>
-      </div>
-      <div class="add-pg-body" id="apg_itens_${gi}">
-        ${g.itens.map((item, ii) => `
-          <div class="add-it" id="apit_${gi}_${ii}">
-            <input class="add-it-nome" placeholder="Ex: Borda Catupiry" value="${item.nome}"
-              oninput="_grupos[${gi}].itens[${ii}].nome=this.value">
-            <input class="add-it-preco" placeholder="R$ 0,00" type="number" step="0.01" min="0"
-              value="${item.preco||''}"
-              oninput="_grupos[${gi}].itens[${ii}].preco=parseFloat(this.value)||0">
-            <button class="add-it-del" onclick="_removerItem(${gi},${ii})">×</button>
-          </div>`).join('')}
-        <button class="add-pg-add" onclick="_addItem(${gi})">+ Adicionar opção</button>
-      </div>
-      <div class="add-pg-foot">
-        ${g.obrigatorio
-          ? '<span style="color:#BC3000;font-weight:700;">● Obrigatório</span> — cliente deve escolher'
-          : '<span>○ Opcional</span> — cliente pode ignorar'}
-        &nbsp;·&nbsp; máximo ${g.max} escolha${g.max!==1?'s':''}
-      </div>
-    </div>`
+function adicionarGrupoDOM(nome='', obrigatorio=false, max=1, itens=[]) {
+  const lista = document.getElementById('adicionaisLista')
+  if (!lista) return
+  // Remove placeholder vazio
+  const vazio = document.getElementById('addVazio')
+  if (vazio) vazio.remove()
+
+  const grupo = document.createElement('div')
+  grupo.className = 'add-pg'
+
+  // Header do grupo
+  const hd = document.createElement('div')
+  hd.className = 'add-pg-hd'
+  hd.innerHTML = `
+    <input class="add-pg-nome" placeholder="Nome do grupo (ex: Borda, Tamanho...)" value="${nome}">
+    <select class="add-pg-sel">
+      <option value="0" ${!obrigatorio?'selected':''}>Opcional</option>
+      <option value="1" ${obrigatorio?'selected':''}>Obrigatório</option>
+    </select>
+    <div style="display:flex;align-items:center;gap:0.25rem;font-size:0.7rem;color:var(--txt3);">
+      Máx<input type="number" class="add-pg-max" min="1" max="20" value="${max}"
+        style="width:36px;border:1.5px solid #E7E5E4;border-radius:6px;padding:0.2rem;font-size:0.75rem;text-align:center;">
+    </div>
+    <button class="add-pg-del">🗑</button>`
+  grupo.appendChild(hd)
+
+  // Botão deletar grupo
+  hd.querySelector('.add-pg-del').addEventListener('click', () => {
+    grupo.remove()
+    if (!lista.querySelector('.add-pg')) {
+      const vz = document.createElement('div')
+      vz.id = 'addVazio'
+      vz.style.cssText = 'font-size:0.75rem;color:var(--txt3);text-align:center;padding:0.65rem;background:#FAFAFA;border-radius:10px;border:1.5px dashed #E7E5E4;'
+      vz.textContent = 'Nenhum adicional. Ex: Tamanho, Borda, Complementos do açaí...'
+      lista.appendChild(vz)
+    }
   })
 
-  container.innerHTML = h
+  // Corpo — itens
+  const body = document.createElement('div')
+  body.className = 'add-pg-body'
+  grupo.appendChild(body)
+
+  function adicionarItemDOM(nomeItem='', precoItem=0) {
+    const item = document.createElement('div')
+    item.className = 'add-it'
+    item.innerHTML = `
+      <input class="add-it-nome" placeholder="Ex: Borda Catupiry, Sem cebola..." value="${nomeItem}">
+      <input class="add-it-preco" type="number" step="0.01" min="0" placeholder="0,00" value="${precoItem||''}">
+      <button class="add-it-del">×</button>`
+    item.querySelector('.add-it-del').addEventListener('click', () => item.remove())
+    body.appendChild(item)
+    item.querySelector('.add-it-nome').focus()
+  }
+
+  // Adiciona itens existentes
+  itens.forEach(i => adicionarItemDOM(i.nome, i.preco))
+
+  // Botão adicionar opção
+  const btnAdd = document.createElement('button')
+  btnAdd.className = 'add-pg-add'
+  btnAdd.textContent = '+ Adicionar opção'
+  btnAdd.addEventListener('click', () => adicionarItemDOM())
+  grupo.appendChild(btnAdd)
+
+  lista.appendChild(grupo)
 }
 
 export function addNovoGrupo() {
-  _grupos.push({ id: null, nome: '', obrigatorio: false, max: 1, itens: [] })
-  _renderGrupos()
+  adicionarGrupoDOM()
   // Foca no input do novo grupo
   const inputs = document.querySelectorAll('.add-pg-nome')
   if (inputs.length) inputs[inputs.length-1].focus()
 }
 
-export function addItemGrupo() {} // compatibilidade — não usado mais
-
-window._addItem = function(gi) {
-  if (!_grupos[gi]) return
-  _grupos[gi].itens.push({ id: null, nome: '', preco: 0 })
-  _renderGrupos()
-  // Foca no novo item
-  const container = document.getElementById(`apg_itens_${gi}`)
-  const inputs = container?.querySelectorAll('.add-it-nome')
-  if (inputs?.length) inputs[inputs.length-1].focus()
-}
-
-window._removerGrupo = function(gi) {
-  _grupos.splice(gi, 1)
-  _renderGrupos()
-}
+export function addItemGrupo() {}
 
 window._removerItem = function(gi, ii) {
   _grupos[gi].itens.splice(ii, 1)
@@ -351,41 +360,39 @@ export function removerItemGrupo() {}
 
 // coletarGruposDoFormulario removida — usa _grupos em memória
 
-// Salva grupos de adicionais no banco usando _grupos em memória
+// Lê grupos diretamente do DOM e salva no banco
 async function salvarGruposAdicionais(produtoId) {
-  // Remove todos os grupos antigos e recria do zero
   await supabase.from('grupos_adicionais').delete().eq('produto_id', produtoId)
 
-  for (let i = 0; i < _grupos.length; i++) {
-    const g = _grupos[i]
-    if (!g.nome.trim()) continue // ignora grupos sem nome
+  const grupoEls = document.querySelectorAll('#adicionaisLista .add-pg')
+  let ordem = 0
+  for (const grupoEl of grupoEls) {
+    const nome       = grupoEl.querySelector('.add-pg-nome')?.value.trim()
+    const obrig      = grupoEl.querySelector('.add-pg-sel')?.value === '1'
+    const max        = parseInt(grupoEl.querySelector('.add-pg-max')?.value) || 1
+    if (!nome) continue
 
     const { data: grupoSalvo } = await supabase.from('grupos_adicionais').insert({
       produto_id:  produtoId,
       loja_id:     _loja.id,
-      nome:        g.nome.trim(),
-      obrigatorio: g.obrigatorio,
-      min_escolha: g.obrigatorio ? 1 : 0,
-      max_escolha: g.max || 1,
-      ordem:       i,
+      nome,
+      obrigatorio: obrig,
+      min_escolha: obrig ? 1 : 0,
+      max_escolha: max,
+      ordem:       ordem++,
       ativo:       true
     }).select().single()
 
-    if (grupoSalvo && g.itens.length) {
-      const itensFiltrados = g.itens.filter(it => it.nome.trim())
-      if (itensFiltrados.length) {
-        await supabase.from('adicionais').insert(
-          itensFiltrados.map((item, j) => ({
-            grupo_id: grupoSalvo.id,
-            loja_id:  _loja.id,
-            nome:     item.nome.trim(),
-            preco:    item.preco || 0,
-            ordem:    j,
-            ativo:    true
-          }))
-        )
-      }
-    }
+    if (!grupoSalvo) continue
+
+    const itemEls = grupoEl.querySelectorAll('.add-it')
+    const itens = []
+    itemEls.forEach((itemEl, j) => {
+      const nomeItem  = itemEl.querySelector('.add-it-nome')?.value.trim()
+      const precoItem = parseFloat(itemEl.querySelector('.add-it-preco')?.value) || 0
+      if (nomeItem) itens.push({ grupo_id: grupoSalvo.id, loja_id: _loja.id, nome: nomeItem, preco: precoItem, ordem: j, ativo: true })
+    })
+    if (itens.length) await supabase.from('adicionais').insert(itens)
   }
 }
 
