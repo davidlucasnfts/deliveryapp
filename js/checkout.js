@@ -164,7 +164,7 @@ export function atualizarTaxaUI(){
 }
 export async function enviarPedido(){
   if(window.APP.loja&&!window.APP.loja.aberta){
-    alert('A window.APP.loja esta fechada no momento. Aguarde a reabertura para finalizar o pedido.')
+    alert('A loja está fechada no momento. Aguarde a reabertura para finalizar o pedido.')
     return
   }
   const nome=document.getElementById('cliNome').value.trim()
@@ -220,7 +220,7 @@ export function abrirPagamento(){
   window.APP.pgtoSelecionado=null
   document.getElementById('pgtoConfirmar').disabled=true
 
-  // Monta opções baseado na configuração da window.APP.loja
+  // Monta opções baseado na configuração da loja
   const pixAtivo=window.APP.loja.pix_ativo&&window.APP.loja.chave_pix
   const cartaoAtivo=window.APP.loja.cartao_ativo
   const dinheiroAtivo=window.APP.loja.dinheiro_ativo!==false

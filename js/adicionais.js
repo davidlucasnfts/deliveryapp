@@ -177,7 +177,7 @@ export function confirmarAdicionais(){
   window.APP.addGruposAtual.forEach(g=>{
     const sel=window.APP.addSelecionados[g.id]||[]
     sel.forEach(s=>{
-      const window.APP.qty=s.qty||1
+      const qty=s.qty||1
       for(let i=0;i<window.APP.qty;i++){
         adicionaisEscolhidos.push({
           grupo_id:g.id, nome_grupo:g.nome,

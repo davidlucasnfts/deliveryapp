@@ -53,7 +53,7 @@ export function renderCarrinho(){
       </div>
       <div class="csi-controls">
         <button class="csi-btn remove" onclick="alterarQtyKey('${key}',-1)">−</button>
-        <span class="csi-window.APP.qty">${i.qty}</span>
+        <span class="csi-qty">${i.qty}</span>
         <button class="csi-btn" onclick="alterarQtyKey('${key}',1)">+</button>
       </div>
       <span class="csi-subtotal">${fmt(i.preco*i.qty)}</span>
@@ -94,14 +94,14 @@ export function renderUpsell(){
   const scroll=document.getElementById('upsellScroll')
   if(!wrap||!scroll) return
 
-  // Pega IDs dos window.APP.produtos que já estão no carrinho
+  // Pega IDs dos produtos que já estão no carrinho
   const idsNoCarrinho=new Set(window.APP.cart.map(i=>i.id))
 
-  // Seleciona window.APP.produtos que NÃO estão no carrinho
+  // Seleciona produtos que NÃO estão no carrinho
   // Prioridade: 1) bebidas/sobremesas, 2) mais baratos, 3) aleatório
   let sugestoes=window.APP.produtos.filter(p=>!idsNoCarrinho.has(p.id)&&p.disponivel!==false)
 
-  // Tenta priorizar window.APP.categorias "complementares" (bebidas, sobremesas, acompanhamentos)
+  // Tenta priorizar categorias "complementares" (bebidas, sobremesas, acompanhamentos)
   const catNomes={}
   window.APP.categorias.forEach(cat=>{catNomes[cat.id]=cat.nome.toLowerCase()})
   const complementares=['bebida','refrigerante','suco','sobremesa','acompanhamento','porção','porcao','batata','drink']
@@ -113,7 +113,7 @@ export function renderUpsell(){
   })
   const resto=sugestoes.filter(p=>!priorizados.includes(p))
 
-  // Monta lista final: até 6 window.APP.produtos, priorizados primeiro
+  // Monta lista final: até 6 produtos, priorizados primeiro
   sugestoes=[...priorizados,...resto].slice(0,6)
 
   if(!sugestoes.length||!window.APP.cart.length){
