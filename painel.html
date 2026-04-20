@@ -227,7 +227,7 @@
     /* TOAST */
     .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1C1917;color:#fff;border-radius:12px;padding:0.72rem 1.2rem;font-size:0.8rem;font-weight:600;z-index:200;transition:transform 0.3s;white-space:nowrap;}
     .toast.show{transform:translateX(-50%) translateY(0);}
-  </style>
+    </style>
 </head>
 <body>
 
@@ -295,33 +295,14 @@
       <label class="ep-lbl">Categoria</label>
       <select class="ep-sel" id="epCat"></select>
       <label class="ep-lbl">Foto do produto</label>
-      <div class="ep-img-info">📐 Alta qualidade 1080×1080px · JPG/PNG/WEBP · até 20MB</div>
-
-      <!-- ÁREA DE UPLOAD (estado inicial) -->
+      <div class="ep-img-info">📐 Formato quadrado 1:1 recomendado · Máximo 800×800px · JPG ou PNG · até 1MB</div>
       <div class="ep-img-area" id="epImgArea">
         <input type="file" accept="image/jpeg,image/png,image/webp" id="epFileInput" onchange="handleImgUpload(this)">
         <div class="ep-img-icon">📷</div>
         <div class="ep-img-txt">Toque para adicionar foto</div>
-        <div class="ep-img-sub">Após o upload, arraste para centralizar o produto</div>
+        <div class="ep-img-sub">A imagem será redimensionada automaticamente para 600×600px</div>
       </div>
-
-      <!-- POSICIONADOR (aparece após upload) -->
-      <div id="epImgPosWrap" class="img-pos-wrap" style="display:none;">
-        <img id="epImgPos" class="img-pos-img" alt="">
-        <div class="img-pos-hint">👆 Arraste para centralizar · solte e toque em Confirmar</div>
-      </div>
-
-      <!-- BOTÃO CONFIRMAR POSIÇÃO -->
-      <button id="epUploadBtn" style="display:none;width:100%;background:var(--or);color:#fff;border:none;border-radius:10px;padding:0.65rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:0.75rem;">
-        ✓ Confirmar posição e enviar foto
-      </button>
-
-      <!-- TROCAR FOTO (aparece quando já tem foto) -->
-      <button id="epTrocarBtn" style="display:none;width:100%;background:var(--bg3);color:#92400E;border:none;border-radius:10px;padding:0.55rem;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;margin-bottom:0.75rem;" onclick="document.getElementById('epFileInput').click()">
-        🔄 Trocar foto
-      </button>
-
-      <!-- BARRA DE PROGRESSO -->
+      <img class="ep-img-preview" id="epImgPreview" alt="">
       <div class="ep-progress" id="epProgress"><div class="ep-progress-bar" id="epProgressBar"></div></div>
       <div class="ep-progress-txt" id="epProgressTxt"></div>
 
@@ -378,10 +359,7 @@
     }
 
     // ===== COMPRESSÃO DE IMAGEM =====
-    let imgOffsetX=50,imgOffsetY=50
-    let imgDragging=false,imgDragStartX=0,imgDragStartY=0,imgDragOX=50,imgDragOY=50
-
-    function comprimirImagem(file, maxSize=1080){
+    function comprimirImagem(file, maxSize=600){
       return new Promise((resolve,reject)=>{
         const reader=new FileReader()
         reader.onload=e=>{
@@ -389,23 +367,20 @@
           img.onload=()=>{
             const canvas=document.createElement('canvas')
             let w=img.width,h=img.height
-            // Corta para quadrado centralizado no ponto escolhido
+            // Corta para quadrado
             const lado=Math.min(w,h)
             const canvas2=document.createElement('canvas')
             canvas2.width=lado;canvas2.height=lado
             const ctx2=canvas2.getContext('2d')
-            // Usa offset do posicionamento escolhido pelo usuário
-            const ox=((imgOffsetX/100)*(w-lado))
-            const oy=((imgOffsetY/100)*(h-lado))
-            ctx2.drawImage(img,ox,oy,lado,lado,0,0,lado,lado)
-            // Redimensiona para 1080x1080
+            ctx2.drawImage(img,(w-lado)/2,(h-lado)/2,lado,lado,0,0,lado,lado)
+            // Redimensiona para maxSize
             canvas.width=maxSize;canvas.height=maxSize
             const ctx=canvas.getContext('2d')
             ctx.drawImage(canvas2,0,0,maxSize,maxSize)
             canvas.toBlob(blob=>{
               if(!blob){reject(new Error('Erro ao comprimir'));return}
               resolve(blob)
-            },'image/jpeg',0.92) // qualidade 92% - bem melhor que 82%
+            },'image/jpeg',0.82)
           }
           img.onerror=reject
           img.src=e.target.result
@@ -413,43 +388,6 @@
         reader.onerror=reject
         reader.readAsDataURL(file)
       })
-    }
-
-    function atualizarPosImagem(){
-      const img=document.getElementById('epImgPos')
-      if(!img)return
-      img.style.left=`calc(${imgOffsetX}% - 75%)`
-      img.style.top=`calc(${imgOffsetY}% - 75%)`
-    }
-
-    function iniciarDragImagem(){
-      const wrap=document.getElementById('epImgPosWrap')
-      if(!wrap)return
-      wrap.addEventListener('mousedown',e=>{
-        imgDragging=true;imgDragStartX=e.clientX;imgDragStartY=e.clientY
-        imgDragOX=imgOffsetX;imgDragOY=imgOffsetY;e.preventDefault()
-      })
-      wrap.addEventListener('touchstart',e=>{
-        imgDragging=true
-        imgDragStartX=e.touches[0].clientX;imgDragStartY=e.touches[0].clientY
-        imgDragOX=imgOffsetX;imgDragOY=imgOffsetY;e.preventDefault()
-      },{passive:false})
-      const onMove=e=>{
-        if(!imgDragging)return
-        const cx=e.touches?e.touches[0].clientX:e.clientX
-        const cy=e.touches?e.touches[0].clientY:e.clientY
-        const rect=wrap.getBoundingClientRect()
-        const dx=(cx-imgDragStartX)/rect.width*100
-        const dy=(cy-imgDragStartY)/rect.height*100
-        imgOffsetX=Math.max(0,Math.min(100,imgDragOX-dx))
-        imgOffsetY=Math.max(0,Math.min(100,imgDragOY-dy))
-        atualizarPosImagem()
-      }
-      const onEnd=()=>imgDragging=false
-      wrap.addEventListener('mousemove',onMove)
-      wrap.addEventListener('touchmove',onMove,{passive:false})
-      wrap.addEventListener('mouseup',onEnd)
-      wrap.addEventListener('touchend',onEnd)
     }
 
     // ===== DATA =====
@@ -564,8 +502,6 @@
         h+=`<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Nenhum pedido ainda.<br>Aparecerá aqui automaticamente.</div></div>`
       }
       document.getElementById('mainBody').innerHTML=h
-      // Inicia drag & drop após render
-      setTimeout(initCatDrag,50)
     }
 
     function cardPedido(p){
@@ -636,202 +572,68 @@
     }
 
     // ===== CARDÁPIO + CATEGORIAS =====
-    // Controla categorias abertas/fechadas
-    let catAberta={}
-
     function renderCardapio(){
-      let h=''
+      // Seção de categorias
+      let h=`<div class="cat-section">
+        <div class="cat-section-title">
+          <span>📂 Categorias</span>
+          <button class="btn-add-cat" onclick="addCategoria()">+ Nova</button>
+        </div>`
+      if(categorias.length){
+        categorias.forEach(cat=>{
+          const count=produtos.filter(p=>p.categoria_id===cat.id).length
+          h+=`<div class="cat-item">
+            <div class="cat-item-left">
+              <div class="cat-item-name">${cat.nome}</div>
+              <div class="cat-item-count">${count} produto${count!==1?'s':''}</div>
+            </div>
+            <div class="cat-actions">
+              <button class="cat-btn-edit" onclick="openEc('${cat.id}')">✏️ Editar</button>
+            </div>
+          </div>`
+        })
+      } else {
+        h+=`<div style="font-size:0.82rem;color:var(--txt3);text-align:center;padding:0.75rem;">Nenhuma categoria ainda</div>`
+      }
+      h+=`<div class="add-cat-row">
+        <input class="add-cat-input" id="novaCatInput" placeholder="Nome da nova categoria...">
+        <button class="add-cat-btn" onclick="adicionarCat()">+ Adicionar</button>
+      </div></div>`
 
-      // Header com botão nova categoria
-      h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem;">
-        <span style="font-size:0.88rem;font-weight:800;color:var(--txt);">📂 Categorias</span>
-        <button class="btn-add-cat" onclick="toggleNovaCatForm()">+ Nova categoria</button>
+      // Produtos por categoria
+      h+=`<div class="cardapio-header">
+        <span class="cardapio-titulo">🍕 Produtos</span>
+        <button class="btn-add-cat" onclick="abrirNovoEp()">+ Novo produto</button>
       </div>`
 
-      // Form nova categoria (oculto por padrão)
-      h+=`<div class="new-cat-form" id="newCatForm">
-        <div style="font-size:0.8rem;font-weight:700;color:var(--txt);margin-bottom:0.6rem;">Nova categoria</div>
-        <div class="new-cat-row">
-          <input class="new-cat-inp" id="novaCatInput" placeholder="Nome da categoria...">
-          <select class="ep-sel" id="novaCatTipo" style="width:auto;min-width:90px;margin-bottom:0;padding:0.48rem 0.5rem;font-size:0.75rem;">
-            <option value="normal">Normal</option>
-            <option value="combo">🔥 Combo</option>
-          </select>
-        </div>
-        <div style="display:flex;gap:0.4rem;">
-          <button class="add-cat-btn" onclick="adicionarCat()" style="flex:1;">✓ Adicionar</button>
-          <button onclick="toggleNovaCatForm()" style="background:var(--bg3);color:var(--txt2);border:none;border-radius:9px;padding:0.45rem 0.8rem;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;">✕</button>
-        </div>
-      </div>`
+      categorias.forEach(cat=>{
+        const itens=produtos.filter(p=>p.categoria_id===cat.id)
+        h+=`<div class="sec-title">${cat.nome} (${itens.length})</div>`
+        if(!itens.length){
+          h+=`<div style="font-size:0.78rem;color:var(--txt3);margin-bottom:0.5rem;padding:0 0.25rem;">Nenhum produto nesta categoria</div>`
+        }
+        itens.forEach(p=>{
+          h+=`<div class="ce-item">
+            <div class="ce-thumb">${p.foto_url?`<img src="${p.foto_url}" alt="">`:'🍽️'}</div>
+            <div class="ce-info">
+              <div class="ce-name">${p.nome}</div>
+              <div class="ce-cat">${p.categorias?.nome||''}</div>
+              <div class="ce-price">${fmt(p.preco)}</div>
+            </div>
+            <div class="ce-actions">
+              <button class="toggle ${p.disponivel?'on':''}" onclick="toggleProd('${p.id}')"></button>
+              <button class="ce-edit" onclick="openEp('${p.id}')">Editar</button>
+              <button class="ce-del" onclick="confirmarDelProd('${p.id}')">🗑️</button>
+            </div>
+          </div>`
+        })
+      })
 
       if(!categorias.length){
-        h+=`<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-txt">Nenhuma categoria ainda.<br>Crie sua primeira acima!</div></div>`
+        h+=`<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-txt">Crie categorias acima<br>e depois adicione produtos.</div></div>`
       }
-
-      categorias.forEach((cat,idx)=>{
-        const itens=produtos.filter(p=>p.categoria_id===cat.id)
-        const aberta=catAberta[cat.id]!==false
-        const isCombo=cat.tipo==='combo'
-        const primeiro=idx===0
-        const ultimo=idx===categorias.length-1
-        h+=`<div class="cat-bloco" id="catbloco_${cat.id}">
-          <div class="cat-header" onclick="toggleCat('${cat.id}')">
-            <span class="cat-header-icon">${isCombo?'🔥':'📁'}</span>
-            <div class="cat-header-info">
-              <div class="cat-header-nome">
-                ${cat.nome}
-                ${isCombo?`<span class="cat-tag-combo">COMBO</span>`:''}
-              </div>
-              <div class="cat-header-count">${itens.length} produto${itens.length!==1?'s':''}</div>
-            </div>
-            <div class="cat-header-actions" onclick="event.stopPropagation()">
-              <div class="cat-ordem-btns" id="ordem_${cat.id}">
-                <button class="cat-ordem-btn" onclick="moverCat('${cat.id}',-1)" ${primeiro?'disabled style="opacity:0.35"':''}>↑</button>
-                <button class="cat-ordem-btn" onclick="moverCat('${cat.id}',1)" ${ultimo?'disabled style="opacity:0.35"':''}>↓</button>
-              </div>
-              <button class="toggle ${cat.ativa?'on':''}" onclick="toggleCatAtiva('${cat.id}')"></button>
-              <button class="ce-edit" onclick="openEc('${cat.id}')">Editar</button>
-            </div>
-            <span class="cat-chevron ${aberta?'open':''}">▾</span>
-          </div>
-          <div class="cat-body ${aberta?'open':''}">
-            ${itens.length===0?`<div style="padding:0.75rem 0.85rem;font-size:0.78rem;color:var(--txt3);">Nenhum produto ainda</div>`:''}
-            ${itens.map(p=>`
-              <div class="cat-prod-item">
-                <div class="cat-prod-thumb">${p.foto_url?`<img src="${p.foto_url}" alt="">`:'🍽️'}</div>
-                <div class="cat-prod-info">
-                  <div class="cat-prod-nome">${p.nome}</div>
-                  <div class="cat-prod-preco">${fmt(p.preco)}</div>
-                </div>
-                <div class="cat-prod-actions">
-                  <button class="toggle ${p.disponivel?'on':''}" onclick="toggleProd('${p.id}')"></button>
-                  <button class="ce-edit" onclick="openEp('${p.id}')">Editar</button>
-                  <button class="ce-del" onclick="confirmarDelProd('${p.id}')">🗑️</button>
-                </div>
-              </div>`).join('')}
-            <div class="cat-body-footer">
-              <button class="btn-add-prod" onclick="abrirNovoEpNaCat('${cat.id}')">＋ Novo produto</button>
-            </div>
-          </div>
-        </div>`
-      })
 
       document.getElementById('mainBody').innerHTML=h
-      setTimeout(initSeguraParaOrdenar,80)
-    }
-
-    window.toggleCat=function(id){
-      catAberta[id]=catAberta[id]===false?true:false
-      renderCardapio()
-    }
-
-    window.toggleNovaCatForm=function(){
-      const f=document.getElementById('newCatForm')
-      if(f){f.classList.toggle('open');if(f.classList.contains('open'))document.getElementById('novaCatInput')?.focus()}
-    }
-
-
-
-    // ===== REORDENAÇÃO DE CATEGORIAS =====
-    let catSelecionada=null
-    let holdTimer=null
-
-    function initSeguraParaOrdenar(){
-      // Limpa seleção anterior
-      catSelecionada=null
-      document.querySelectorAll('.cat-bloco.selecionada').forEach(el=>el.classList.remove('selecionada'))
-
-      document.querySelectorAll('.cat-bloco').forEach(bloco=>{
-        const header=bloco.querySelector('.cat-header')
-        if(!header)return
-
-        // DESKTOP: click duplo no header para selecionar
-        // MOBILE: pressionar e segurar por 400ms
-        let downTime=0
-
-        header.addEventListener('mousedown',()=>{ downTime=Date.now() })
-        header.addEventListener('mouseup',()=>{
-          if(Date.now()-downTime>400) selecionarCat(bloco.id.replace('catbloco_',''))
-        })
-
-        // Touch: pressionar e segurar
-        header.addEventListener('touchstart',e=>{
-          const id=bloco.id.replace('catbloco_','')
-          holdTimer=setTimeout(()=>{
-            selecionarCat(id)
-            // Vibra levemente para confirmar (se suportado)
-            if(navigator.vibrate)navigator.vibrate(50)
-          },400)
-        },{passive:true})
-
-        header.addEventListener('touchend',()=>{
-          clearTimeout(holdTimer)
-        })
-        header.addEventListener('touchmove',()=>{
-          clearTimeout(holdTimer)
-        },{passive:true})
-      })
-    }
-
-    function selecionarCat(id){
-      // Desseleciona anterior
-      if(catSelecionada){
-        const ant=document.getElementById('catbloco_'+catSelecionada)
-        if(ant)ant.classList.remove('selecionada')
-      }
-      if(catSelecionada===id){
-        // Clicou na mesma — desseleciona
-        catSelecionada=null
-        return
-      }
-      catSelecionada=id
-      const bloco=document.getElementById('catbloco_'+id)
-      if(bloco){
-        bloco.classList.add('selecionada')
-        bloco.scrollIntoView({behavior:'smooth',block:'nearest'})
-      }
-    }
-
-    window.moverCat=async function(id,direcao){
-      const idx=categorias.findIndex(x=>x.id===id)
-      const novoIdx=idx+direcao
-      if(novoIdx<0||novoIdx>=categorias.length)return
-      // Troca no array
-      const [item]=categorias.splice(idx,1)
-      categorias.splice(novoIdx,0,item)
-      // Salva no banco
-      await salvarOrdemCategorias()
-      // Mantém a categoria selecionada
-      catSelecionada=id
-      renderCardapio()
-      // Reaplica seleção após render
-      setTimeout(()=>{
-        const bloco=document.getElementById('catbloco_'+id)
-        if(bloco){
-          bloco.classList.add('selecionada')
-          bloco.scrollIntoView({behavior:'smooth',block:'nearest'})
-        }
-      },60)
-      toast(direcao===-1?'↑ Categoria movida para cima':'↓ Categoria movida para baixo')
-    }
-
-    async function salvarOrdemCategorias(){
-      await Promise.all(categorias.map((cat,i)=>
-        supabase.from('categorias').update({ordem:i+1}).eq('id',cat.id)
-      ))
-    }
- }
-
-    window.toggleCatAtiva=async function(id){
-      const cat=categorias.find(x=>x.id===id)
-      cat.ativa=!cat.ativa
-      await supabase.from('categorias').update({ativa:cat.ativa}).eq('id',id)
-      renderCardapio();toast(cat.ativa?'✅ Categoria ativada':'⚫ Categoria desativada')
-    }
-
-    // Abre modal de novo produto já com categoria pré-selecionada
-    window.abrirNovoEpNaCat=function(catId){
-      abrirNovoEp(catId)
     }
 
     window.toggleProd=async function(id){
@@ -860,19 +662,16 @@
     }
 
     // ===== EDIT PRODUTO =====
-    window.abrirNovoEp=function(catIdPre=null){
-      editingProdId=null;uploadedImgUrl=null;imgOffsetX=50;imgOffsetY=50
+    window.abrirNovoEp=function(){
+      editingProdId=null;uploadedImgUrl=null
       document.getElementById('epTitulo').textContent='Novo produto'
       document.getElementById('epNome').value=''
       document.getElementById('epDesc').value=''
       document.getElementById('epPreco').value=''
-      document.getElementById('epCat').innerHTML=categorias.map(c=>`<option value="${c.id}" ${catIdPre&&c.id===catIdPre?'selected':''}>${c.tipo==='combo'?'🔥 ':''} ${c.nome}</option>`).join('')
+      document.getElementById('epCat').innerHTML=categorias.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('')
       const prev=document.getElementById('epImgPreview')
-      const imgPosWrap=document.getElementById('epImgPosWrap')
       const area=document.getElementById('epImgArea')
-      prev.style.display='none'
-      if(imgPosWrap)imgPosWrap.style.display='none'
-      area.style.display='block'
+      prev.style.display='none';area.style.display='block'
       document.getElementById('epProgress').style.display='none'
       document.getElementById('epProgressTxt').style.display='none'
       document.getElementById('epDelBtn').style.display='none'
@@ -882,35 +681,15 @@
     window.openEp=function(id){
       editingProdId=id;uploadedImgUrl=null
       const p=produtos.find(x=>x.id===id)
-      imgOffsetX=p.img_offset_x||50;imgOffsetY=p.img_offset_y||50
       document.getElementById('epTitulo').textContent='Editar produto'
       document.getElementById('epNome').value=p.nome
       document.getElementById('epDesc').value=p.descricao||''
       document.getElementById('epPreco').value=p.preco
-      document.getElementById('epCat').innerHTML=categorias.map(c=>`<option value="${c.id}" ${c.id===p.categoria_id?'selected':''}>${c.tipo==='combo'?'🔥 ':''} ${c.nome}</option>`).join('')
+      document.getElementById('epCat').innerHTML=categorias.map(c=>`<option value="${c.id}" ${c.id===p.categoria_id?'selected':''}>${c.nome}</option>`).join('')
       const prev=document.getElementById('epImgPreview')
-      const imgPosWrap=document.getElementById('epImgPosWrap')
       const area=document.getElementById('epImgArea')
-      const trocarBtn2=document.getElementById('epTrocarBtn')
-      const uploadBtn2=document.getElementById('epUploadBtn')
-      if(p.foto_url){
-        area.style.display='none'
-        prev.style.display='none'
-        if(uploadBtn2)uploadBtn2.style.display='none'
-        if(trocarBtn2)trocarBtn2.style.display='block'
-        if(imgPosWrap){
-          imgPosWrap.style.display='block'
-          const imgEl=document.getElementById('epImgPos')
-          if(imgEl){imgEl.src=p.foto_url;atualizarPosImagem()}
-          iniciarDragImagem()
-        }
-      } else {
-        prev.style.display='none'
-        if(imgPosWrap)imgPosWrap.style.display='none'
-        if(uploadBtn2)uploadBtn2.style.display='none'
-        if(trocarBtn2)trocarBtn2.style.display='none'
-        area.style.display='block'
-      }
+      if(p.foto_url){prev.src=p.foto_url;prev.style.display='block';area.style.display='none'}
+      else{prev.style.display='none';area.style.display='block'}
       document.getElementById('epProgress').style.display='none'
       document.getElementById('epProgressTxt').style.display='none'
       document.getElementById('epDelBtn').style.display='block'
@@ -931,74 +710,72 @@
     window.handleImgUpload=async function(input){
       if(!input.files||!input.files[0])return
       const file=input.files[0]
-      if(file.size>20*1024*1024){toast('❌ Arquivo muito grande — máximo 20MB');return}
 
-      const area=document.getElementById('epImgArea')
-      const imgPosWrap=document.getElementById('epImgPosWrap')
-      const imgEl=document.getElementById('epImgPos')
-      const uploadBtn=document.getElementById('epUploadBtn')
-      const trocarBtn=document.getElementById('epTrocarBtn')
-
-      // Lê o arquivo e exibe posicionador
-      const reader=new FileReader()
-      reader.onload=function(e){
-        // Mostra posicionador, esconde área de upload
-        area.style.display='none'
-        uploadBtn.style.display='block'
-        trocarBtn.style.display='none'
-        imgPosWrap.style.display='block'
-        imgEl.src=e.target.result
-        imgOffsetX=50; imgOffsetY=50
-        atualizarPosImagem()
-        iniciarDragImagem()
+      // Verifica tamanho antes de comprimir (limite 10MB para arquivo original)
+      if(file.size>10*1024*1024){
+        toast('❌ Arquivo muito grande — máximo 10MB');return
       }
-      reader.readAsDataURL(file)
 
-      // Botão confirmar posição e enviar
-      uploadBtn.onclick=async function(){
-        uploadBtn.style.display='none'
-        const progress=document.getElementById('epProgress')
-        const progressBar=document.getElementById('epProgressBar')
-        const progressTxt=document.getElementById('epProgressTxt')
-        progress.style.display='block'
-        progressTxt.style.display='block'
-        progressTxt.textContent='Processando 1080×1080...'
-        progressBar.style.width='15%'
-        try{
-          const blob=await comprimirImagem(file,1080)
-          progressBar.style.width='50%'
-          progressTxt.textContent='Enviando em alta qualidade...'
-          const path=`${loja.id}/${editingProdId||('novo_'+Date.now())}_${Date.now()}.jpg`
-          const {error}=await supabase.storage.from('produtos').upload(path,blob,{upsert:true,contentType:'image/jpeg'})
-          if(error)throw new Error(error.message)
-          progressBar.style.width='85%'
-          const {data:urlData}=supabase.storage.from('produtos').getPublicUrl(path)
-          uploadedImgUrl=urlData.publicUrl
-          // Atualiza imagem no posicionador com URL final
-          imgEl.src=uploadedImgUrl
-          atualizarPosImagem()
-          progressBar.style.width='100%'
-          progressTxt.textContent='✅ Foto enviada em 1080×1080!'
-          trocarBtn.style.display='block'
-          setTimeout(()=>{progress.style.display='none';progressTxt.style.display='none'},2000)
-          // Salva direto se editando produto existente
-          if(editingProdId){
-            await supabase.from('produtos').update({
-              foto_url:uploadedImgUrl,
-              img_offset_x:imgOffsetX,
-              img_offset_y:imgOffsetY
-            }).eq('id',editingProdId)
-            const p=produtos.find(x=>x.id===editingProdId)
-            if(p){p.foto_url=uploadedImgUrl;p.img_offset_x=imgOffsetX;p.img_offset_y=imgOffsetY}
-          }
-          toast('✅ Foto adicionada — arraste para reajustar se precisar!')
-        }catch(err){
-          console.error('Upload error:',err)
+      const progress=document.getElementById('epProgress')
+      const progressBar=document.getElementById('epProgressBar')
+      const progressTxt=document.getElementById('epProgressTxt')
+      const area=document.getElementById('epImgArea')
+      const prev=document.getElementById('epImgPreview')
+
+      area.style.display='none'
+      progress.style.display='block'
+      progressTxt.style.display='block'
+      progressTxt.textContent='Comprimindo imagem...'
+      progressBar.style.width='30%'
+
+      try{
+        // Comprime para 600x600 JPEG qualidade 82%
+        const blob=await comprimirImagem(file,600)
+        progressBar.style.width='60%'
+        progressTxt.textContent='Enviando...'
+
+        const ext='jpg'
+        const path=`${loja.id}/${editingProdId||'novo'}_${Date.now()}.${ext}`
+
+        const {data,error}=await supabase.storage.from('produtos').upload(path,blob,{
+          upsert:true,
+          contentType:'image/jpeg'
+        })
+
+        if(error){
+          console.error('Upload error:',error)
+          throw new Error(error.message)
+        }
+
+        progressBar.style.width='90%'
+        const {data:urlData}=supabase.storage.from('produtos').getPublicUrl(path)
+        uploadedImgUrl=urlData.publicUrl
+
+        // Preview
+        prev.src=uploadedImgUrl
+        prev.style.display='block'
+        progressBar.style.width='100%'
+        progressTxt.textContent='✅ Imagem enviada!'
+        setTimeout(()=>{
           progress.style.display='none'
           progressTxt.style.display='none'
-          uploadBtn.style.display='block'
-          toast('❌ Erro ao enviar — '+err.message)
+        },1500)
+
+        // Salva imediatamente no produto se já tiver id
+        if(editingProdId){
+          await supabase.from('produtos').update({foto_url:uploadedImgUrl}).eq('id',editingProdId)
+          const p=produtos.find(x=>x.id===editingProdId)
+          if(p)p.foto_url=uploadedImgUrl
         }
+
+        toast('✅ Foto adicionada!')
+
+      } catch(err){
+        console.error(err)
+        progress.style.display='none'
+        progressTxt.style.display='none'
+        area.style.display='block'
+        toast('❌ Erro ao enviar — tente novamente')
       }
     }
 
@@ -1013,10 +790,6 @@
 
       const dadosProduto={nome,descricao,preco,categoria_id,disponivel:true}
       if(uploadedImgUrl)dadosProduto.foto_url=uploadedImgUrl
-
-      // Inclui offsets de posição da imagem
-      dadosProduto.img_offset_x=imgOffsetX
-      dadosProduto.img_offset_y=imgOffsetY
 
       if(!editingProdId){
         // NOVO PRODUTO
@@ -1045,18 +818,16 @@
     window.adicionarCat=async function(){
       const inp=document.getElementById('novaCatInput')
       const nome=inp?.value.trim()
-      const tipo=document.getElementById('novaCatTipo')?.value||'normal'
       if(!nome){toast('⚠️ Digite o nome da categoria');return}
       if(categorias.find(c=>c.nome.toLowerCase()===nome.toLowerCase())){
         toast('⚠️ Categoria já existe');return
       }
       const {data,error}=await supabase.from('categorias').insert({
-        loja_id:loja.id,nome,tipo,ordem:categorias.length+1,ativa:true
+        loja_id:loja.id,nome,ordem:categorias.length+1,ativa:true
       }).select().single()
       if(error){toast('❌ Erro ao adicionar');return}
       categorias.push(data)
-      catAberta[data.id]=true
-      renderCardapio();toast(tipo==='combo'?'🔥 Combo criado!':'✅ Categoria adicionada!')
+      renderCardapio();toast('✅ Categoria adicionada!')
     }
 
     // EDITAR CATEGORIA — modal com produtos listados
