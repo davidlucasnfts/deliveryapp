@@ -105,10 +105,10 @@ export function toggleAdicional(grupoId,itemId,maxEscolha,preco,nome){
       }
     } else {
       if(total>=maxEscolha){window.showToast('Máximo de '+maxEscolha+' opções neste grupo');return}
-      window.APP.addSelecionados[grupoId].push({id:itemId,preco,nome,window.APP.qty:1})
+      window.APP.addSelecionados[grupoId].push({id:itemId,preco,nome,qty:1})
     }
     // Atualiza visual do botão +
-    const qtdAtual=(window.APP.addSelecionados[grupoId].find(x=>x.id===itemId)||{window.APP.qty:0}).qty
+    const qtdAtual=(window.APP.addSelecionados[grupoId].find(x=>x.id===itemId)||{qty:0}).qty
     const ctrlWrap=document.getElementById('ctrl_wrap_'+itemId)
     if(ctrlWrap){
       if(qtdAtual>0){
@@ -132,7 +132,7 @@ export function decrementAdicional(grupoId,itemId,preco,nome){
   if(idx<0) return
   window.APP.addSelecionados[grupoId][idx].qty=(window.APP.addSelecionados[grupoId][idx].qty||1)-1
   if(window.APP.addSelecionados[grupoId][idx].qty<=0) window.APP.addSelecionados[grupoId].splice(idx,1)
-  const qtdAtual=(window.APP.addSelecionados[grupoId].find(x=>x.id===itemId)||{window.APP.qty:0}).qty
+  const qtdAtual=(window.APP.addSelecionados[grupoId].find(x=>x.id===itemId)||{qty:0}).qty
   const ctrlWrap=document.getElementById('ctrl_wrap_'+itemId)
   if(ctrlWrap){
     if(qtdAtual>0){
@@ -195,7 +195,7 @@ export function confirmarAdicionais(){
     ...addProdutoAtual,
     _cartKey:cartKey,
     preco:precoFinal,
-    window.APP.qty:window.APP.addQty,
+    qty:window.APP.addQty,
     adicionais:adicionaisEscolhidos,
     _descAdicionais:adicionaisEscolhidos.map(a=>a.nome_adicional).join(', ')
   }

@@ -398,7 +398,7 @@ export async function processarCartaoMP(formData){
         payment_method_id:  formData.paymentMethodId,
         parcelas:           formData.installments||1,
         descricao:          `Pedido ${window.APP.loja.nome}`,
-        window.APP.lojaId:             window.APP.lojaId,
+        lojaId:             window.APP.lojaId,
         pagador:{
           email:    formData.cardholderEmail||'cliente@deliveryapp.com',
           doc_tipo: formData.identificationType||'CPF',

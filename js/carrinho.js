@@ -146,7 +146,7 @@ export async function upsellAdd(id){
   // Adiciona direto ao carrinho
   const ex=window.APP.cart.find(c=>c.id===id&&!c._cartKey)
   if(ex) ex.qty++
-  else window.APP.cart.push({...p,window.APP.qty:1})
+  else window.APP.cart.push({...p,qty:1})
   window.salvarCart();window.atualizarCartBar();window.renderCarrinho()
   window.showToast(p.nome+' adicionado!')
 }
