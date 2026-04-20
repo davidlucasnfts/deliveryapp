@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cardápio Digital</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0..1&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
@@ -48,7 +49,11 @@
     .hero-desc{font-size:0.82rem;color:rgba(255,255,255,0.85);margin-bottom:0.85rem;}
     .hero-badges{display:flex;gap:0.5rem;flex-wrap:wrap;}
     .hero-badge{padding:0.3rem 0.85rem;border-radius:99px;font-size:0.7rem;font-weight:700;display:flex;align-items:center;gap:0.35rem;}
-    .badge-open{background:var(--pr);color:#fff;}
+    .badge-open{background:#16A34A;color:#fff;}
+    .badge-fechado{background:rgba(0,0,0,0.5);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.3);}
+    .banner-fechado{display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#1C1917;color:#fff;padding:1rem 1.25rem;z-index:45;align-items:center;gap:0.75rem;border-top:2px solid #F97316;}
+    .banner-fechado-txt{flex:1;font-size:0.82rem;font-weight:600;}
+    .banner-fechado-sub{font-size:0.72rem;color:rgba(255,255,255,0.55);margin-top:0.1rem;}
     .badge-glass{background:rgba(255,255,255,0.2);backdrop-filter:blur(8px);color:#fff;border:1px solid rgba(255,255,255,0.25);}
     .pulse{width:7px;height:7px;border-radius:50%;background:#fff;animation:pulse 1.5s ease-in-out infinite;}
     @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.6;transform:scale(1.3);}}
@@ -161,26 +166,31 @@
     .cupom-msg.ok{display:block;color:var(--grn);}
     .cupom-msg.err{display:block;color:var(--red);}
 
-    /* FORM */
-    .cs-form{padding:0.5rem 1.25rem 2rem;}
-    .cs-section{font-size:0.68rem;font-weight:800;color:var(--txt3);letter-spacing:2px;text-transform:uppercase;margin:1rem 0 0.65rem;display:flex;align-items:center;gap:0.5rem;}
+    /* FORM — Clean */
+    .cs-form{padding:0.75rem 1.25rem 2rem;}
+    .cs-section{font-size:0.65rem;font-weight:800;color:var(--txt3);letter-spacing:1.5px;text-transform:uppercase;margin:1.25rem 0 0.75rem;display:flex;align-items:center;gap:0.5rem;}
     .cs-section::after{content:'';flex:1;height:1px;background:rgba(56,56,53,0.08);}
-    .cs-label{font-size:0.75rem;font-weight:700;color:var(--txt2);margin-bottom:0.3rem;display:block;}
-    .cs-input{width:100%;border:1.5px solid rgba(56,56,53,0.12);border-radius:14px;padding:0.65rem 0.9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;color:var(--txt);background:var(--surf);transition:border-color 0.15s;margin-bottom:0.65rem;}
-    .cs-input:focus{outline:none;border-color:var(--pr);}
-    .cs-input:disabled{background:var(--bg3);color:var(--txt3);}
-    .cs-input.valido{border-color:var(--grn);}
-    .cs-input.invalido{border-color:var(--red);}
-    .cs-row{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;}
-    .cs-textarea{width:100%;border:1.5px solid rgba(56,56,53,0.12);border-radius:14px;padding:0.65rem 0.9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.85rem;color:var(--txt);height:70px;resize:none;margin-bottom:0.65rem;background:var(--surf);}
-    .cs-textarea:focus{outline:none;border-color:var(--pr);}
-    .cep-row{display:flex;gap:0.5rem;align-items:flex-start;margin-bottom:0.65rem;}
-    .cep-row .cs-input{margin-bottom:0;flex:1;}
-    .cep-btn{background:var(--bg3);border:1.5px solid rgba(56,56,53,0.12);border-radius:14px;padding:0.65rem 0.85rem;font-size:0.75rem;font-weight:800;color:var(--pr);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;height:46px;}
-    .cep-hint{font-size:0.7rem;color:var(--txt3);margin-bottom:0.65rem;}
-    .cep-hint.ok{color:var(--grn);}
-    .cep-hint.err{color:var(--red);}
-    .field-msg{font-size:0.7rem;color:var(--red);margin-top:-0.4rem;margin-bottom:0.5rem;display:none;}
+    .cs-group{background:var(--surf);border:1.5px solid rgba(56,56,53,0.09);border-radius:16px;overflow:hidden;margin-bottom:0.85rem;}
+    .cs-field{display:flex;align-items:center;padding:0 1rem;border-bottom:1px solid rgba(56,56,53,0.07);}
+    .cs-field:last-child{border:none;}
+    .cs-field-icon{font-size:1rem;margin-right:0.65rem;flex-shrink:0;opacity:0.5;}
+    .cs-field-wrap{flex:1;position:relative;}
+    .cs-field-lbl{font-size:0.65rem;font-weight:700;color:var(--txt3);padding-top:0.55rem;display:block;}
+    .cs-field-inp{width:100%;border:none;outline:none;padding:0.2rem 0 0.55rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;color:var(--txt);background:transparent;}
+    .cs-field-inp:disabled{color:var(--txt3);}
+    .cs-field-inp::placeholder{color:var(--txt3);font-size:0.82rem;}
+    .cs-field-row{display:grid;grid-template-columns:1fr 1fr;}
+    .cs-field-row .cs-field{border-bottom:none;}
+    .cs-field-row .cs-field:first-child{border-right:1px solid rgba(56,56,53,0.07);}
+    .cs-field-row-wrap{border-bottom:1px solid rgba(56,56,53,0.07);}
+    .cs-field-row-wrap:last-child{border:none;}
+    .cep-search-btn{background:none;border:none;cursor:pointer;padding:0.5rem;color:var(--pr);font-size:0.75rem;font-weight:700;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;}
+    .cep-hint{font-size:0.7rem;padding:0.3rem 1rem 0.4rem;display:none;}
+    .cep-hint.ok{display:block;color:var(--grn);}
+    .cep-hint.err{display:block;color:var(--red);}
+    .cs-obs{width:100%;border:none;outline:none;padding:0.75rem 1rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.85rem;color:var(--txt);background:transparent;resize:none;height:70px;}
+    .cs-obs::placeholder{color:var(--txt3);}
+    .field-msg{font-size:0.7rem;color:var(--red);padding:0 1rem 0.4rem;display:none;}
     .field-msg.show{display:block;}
     .cs-send{width:100%;background:var(--pr);color:#fff;border:none;border-radius:16px;padding:1rem;font-size:0.95rem;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-top:0.75rem;box-shadow:0 4px 16px rgba(188,48,0,0.3);transition:transform 0.15s;}
     .cs-send:disabled{background:#FCA5A5;box-shadow:none;cursor:not-allowed;}
@@ -194,6 +204,102 @@
     .cs-success-pontos-txt{font-size:0.82rem;color:rgba(255,255,255,0.7);}
     .cs-success-pontos-val{font-size:1.4rem;font-weight:900;color:var(--gold);margin-top:0.25rem;}
     .cs-novo-btn{margin-top:1.25rem;background:var(--pr);color:#fff;border:none;border-radius:99px;padding:0.75rem 2rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;cursor:pointer;font-size:0.88rem;}
+
+    /* ADICIONAIS — estilo igual concorrente */
+    .add-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:80;flex-direction:column;max-width:480px;margin:0 auto;}
+    .add-overlay.open{display:flex;}
+    .add-top-header{display:flex;align-items:center;gap:0.75rem;padding:1rem 1.25rem;border-bottom:1px solid rgba(56,56,53,0.08);background:var(--bg);position:sticky;top:0;z-index:5;}
+    .add-back-btn{background:var(--bg3);border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+    .add-top-nome{font-size:0.95rem;font-weight:800;color:var(--txt);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .add-scroll{flex:1;overflow-y:auto;}
+    .add-prod-foto{width:100%;height:200px;object-fit:cover;display:block;}
+    .add-prod-foto-ph{width:100%;height:160px;background:linear-gradient(135deg,#FEF3C7,#FED7AA);display:flex;align-items:center;justify-content:center;font-size:4rem;}
+    .add-prod-info{padding:1rem 1.25rem;border-bottom:1px solid rgba(56,56,53,0.08);}
+    .add-prod-nome{font-size:1.1rem;font-weight:900;color:var(--txt);}
+    .add-prod-preco{font-size:1rem;font-weight:700;color:var(--pr);margin-top:0.2rem;}
+    .add-prod-desc{font-size:0.82rem;color:var(--txt2);margin-top:0.35rem;line-height:1.5;}
+    .add-grupo{border-bottom:1px solid rgba(56,56,53,0.08);}
+    .add-grupo-hd{display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1.25rem;cursor:pointer;background:rgba(56,56,53,0.03);}
+    .add-grupo-info{}
+    .add-grupo-titulo{font-size:0.88rem;font-weight:800;color:var(--txt);}
+    .add-grupo-sub{font-size:0.72rem;color:var(--txt3);margin-top:0.15rem;}
+    .add-grupo-badge{font-size:0.65rem;font-weight:700;padding:0.2rem 0.55rem;border-radius:99px;}
+    .add-grupo-badge.obrig{background:var(--pr);color:#fff;}
+    .add-grupo-badge.opcao{background:var(--bg3);color:var(--txt3);}
+    .add-grupo-body{padding:0 1.25rem;}
+    .add-item{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid rgba(56,56,53,0.05);}
+    .add-item:last-child{border:none;}
+    .add-item-foto{width:48px;height:48px;border-radius:10px;object-fit:cover;background:var(--bg3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;overflow:hidden;}
+    .add-item-info{flex:1;}
+    .add-item-nome{font-size:0.88rem;font-weight:600;color:var(--txt);}
+    .add-item-max{font-size:0.7rem;color:var(--txt3);}
+    .add-item-preco{font-size:0.82rem;color:var(--pr);font-weight:700;}
+    .add-item-ctrl{flex-shrink:0;}
+    .add-ctrl-radio{width:24px;height:24px;border-radius:50%;border:2px solid rgba(56,56,53,0.25);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+    .add-ctrl-radio.sel{border-color:var(--pr);background:var(--pr);}
+    .add-ctrl-radio.sel::after{content:'';width:9px;height:9px;border-radius:50%;background:#fff;}
+    .add-ctrl-mais{width:32px;height:32px;border-radius:50%;background:rgba(188,48,0,0.1);border:none;color:var(--pr);font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;}
+    .add-ctrl-mais.ativo{background:var(--pr);color:#fff;}
+    .add-ctrl-counter{display:flex;align-items:center;gap:0.4rem;}
+    .add-ctrl-counter span{font-size:0.88rem;font-weight:700;min-width:16px;text-align:center;}
+    .add-ctrl-menos{width:28px;height:28px;border-radius:50%;background:var(--bg3);border:none;color:var(--txt2);font-size:1.1rem;cursor:pointer;}
+    .add-qty-row{padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(56,56,53,0.08);}
+    .add-footer{padding:1rem 1.25rem;background:var(--bg);border-top:1px solid rgba(56,56,53,0.08);position:sticky;bottom:0;}
+    .add-avancar{width:100%;background:var(--pr);color:#fff;border:none;border-radius:16px;padding:1rem;font-size:0.95rem;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;justify-content:space-between;}
+    .add-avancar:disabled{background:#FCA5A5;cursor:not-allowed;}
+    .add-avancar-lbl{font-size:0.78rem;opacity:0.85;}
+
+    /* TAXA DE ENTREGA */
+    .taxa-row{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;font-size:0.82rem;}
+    .taxa-lbl{color:var(--txt2);}
+    .taxa-val{font-weight:700;color:var(--txt);}
+    .taxa-val.gratis{color:var(--grn);}
+    .taxa-val.combinar{color:var(--gold);}
+
+    /* TELA DE PAGAMENTO */
+    .pgto-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:65;flex-direction:column;max-width:480px;margin:0 auto;}
+    .pgto-screen.open{display:flex;}
+    .pgto-header{background:var(--bg);padding:1.1rem 1.25rem;display:flex;align-items:center;gap:0.85rem;border-bottom:1px solid rgba(56,56,53,0.06);flex-shrink:0;}
+    .pgto-back{background:var(--bg3);border:none;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+    .pgto-title{font-size:1rem;font-weight:900;color:var(--txt);}
+    .pgto-body{flex:1;overflow-y:auto;padding:1.25rem;}
+    .pgto-total{background:var(--bg2);border-radius:16px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;}
+    .pgto-total-lbl{font-size:0.82rem;color:var(--txt2);font-weight:600;}
+    .pgto-total-val{font-size:1.4rem;font-weight:900;color:var(--pr);}
+    .pgto-section{font-size:0.68rem;font-weight:800;color:var(--txt3);letter-spacing:2px;text-transform:uppercase;margin-bottom:0.85rem;}
+    .pgto-opcao{border:1.5px solid rgba(56,56,53,0.12);border-radius:16px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;transition:all 0.15s;background:var(--surf);}
+    .pgto-opcao:active{transform:scale(0.98);}
+    .pgto-opcao.selecionado{border-color:var(--pr);background:rgba(188,48,0,0.04);}
+    .pgto-opcao-header{display:flex;align-items:center;gap:0.75rem;}
+    .pgto-opcao-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+    .pgto-opcao-info{flex:1;}
+    .pgto-opcao-nome{font-size:0.92rem;font-weight:800;color:var(--txt);}
+    .pgto-opcao-desc{font-size:0.75rem;color:var(--txt2);margin-top:0.1rem;}
+    .pgto-radio{width:20px;height:20px;border-radius:50%;border:2px solid rgba(56,56,53,0.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+    .pgto-opcao.selecionado .pgto-radio{border-color:var(--pr);background:var(--pr);}
+    .pgto-radio-inner{width:8px;height:8px;border-radius:50%;background:#fff;display:none;}
+    .pgto-opcao.selecionado .pgto-radio-inner{display:block;}
+    /* PIX */
+    .pix-area{margin-top:0.85rem;padding-top:0.85rem;border-top:1px solid rgba(56,56,53,0.08);display:none;}
+    .pgto-opcao.selecionado .pix-area{display:block;}
+    .pix-chave{background:var(--bg3);border-radius:12px;padding:0.75rem 1rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;}
+    .pix-chave-lbl{font-size:0.72rem;color:var(--txt2);margin-bottom:0.15rem;}
+    .pix-chave-val{font-size:0.88rem;font-weight:700;color:var(--txt);word-break:break-all;}
+    .pix-copy-btn{background:var(--pr);color:#fff;border:none;border-radius:9px;padding:0.4rem 0.85rem;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;flex-shrink:0;margin-left:0.75rem;}
+    .pix-instrucao{font-size:0.78rem;color:var(--txt2);line-height:1.6;background:rgba(34,197,94,0.08);border-radius:10px;padding:0.65rem 0.85rem;border-left:3px solid var(--grn);}
+    .pgto-confirmar{width:100%;background:var(--pr);color:#fff;border:none;border-radius:16px;padding:1rem;font-size:0.95rem;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-top:1.5rem;box-shadow:0 4px 16px rgba(188,48,0,0.3);transition:transform 0.15s;}
+    .pgto-confirmar:disabled{background:#FCA5A5;box-shadow:none;cursor:not-allowed;}
+    .pgto-confirmar:active{transform:scale(0.98);}
+
+    /* FORMULÁRIO CARTÃO MP */
+    .mp-form-wrap{margin-top:0.85rem;padding-top:0.85rem;border-top:1px solid rgba(56,56,53,0.08);display:none;}
+    .pgto-opcao.selecionado .mp-form-wrap{display:block;}
+    .mp-loading{text-align:center;padding:1.5rem;color:var(--txt3);font-size:0.82rem;}
+    .mp-erro{background:#FEE2E2;border-radius:10px;padding:0.75rem 1rem;font-size:0.82rem;color:#B91C1C;margin-top:0.75rem;display:none;}
+    .mp-erro.show{display:block;}
+    .mp-aprovado{background:#DCFCE7;border-radius:10px;padding:0.75rem 1rem;font-size:0.82rem;color:#15803D;margin-top:0.75rem;display:none;font-weight:700;}
+    .mp-aprovado.show{display:block;}
+    .pgto-parcelas{width:100%;border:1.5px solid rgba(56,56,53,0.12);border-radius:12px;padding:0.65rem 0.9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;color:var(--txt);background:var(--surf);margin-top:0.65rem;outline:none;}
   </style>
 </head>
 <body>
@@ -225,6 +331,20 @@
       </div>
     </div>
     <div class="cats-wrap"><div class="cats" id="catsBar"></div></div>
+
+    <!-- BUSCA -->
+    <div style="padding:0 1.25rem 0.5rem;">
+      <div style="position:relative;">
+        <span class="mi" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);font-size:18px;color:var(--txt3);pointer-events:none;">search</span>
+        <input id="searchInput" type="search"
+          placeholder="Buscar no cardápio..."
+          style="width:100%;border:1.5px solid rgba(56,56,53,0.12);border-radius:14px;padding:0.65rem 0.9rem 0.65rem 2.6rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;color:var(--txt);background:var(--surf);outline:none;"
+          oninput="buscarProdutos(this.value)">
+        <button id="searchClear" onclick="limparBusca()"
+          style="display:none;position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;font-size:1rem;color:var(--txt3);cursor:pointer;">✕</button>
+      </div>
+    </div>
+
     <div class="menu-body" id="menuBody"></div>
   </div>
 
@@ -252,6 +372,15 @@
         </div>
         <button class="im-add" id="imAddBtn" onclick="addCarrinho()">Adicionar ao pedido</button>
       </div>
+    </div>
+  </div>
+
+  <!-- BANNER LOJA FECHADA -->
+  <div class="banner-fechado" id="bannerFechado">
+    <span style="font-size:1.5rem;">🔒</span>
+    <div>
+      <div class="banner-fechado-txt">Loja fechada no momento</div>
+      <div class="banner-fechado-sub">Você pode montar seu pedido, mas não enviar enquanto fechado</div>
     </div>
   </div>
 
@@ -284,6 +413,10 @@
         <span class="cs-total-lbl">Subtotal</span>
         <span class="cs-total-val" id="csSubtotal">R$0,00</span>
       </div>
+      <div class="cs-total-row taxa-row" id="taxaEntregaRow">
+        <span class="taxa-lbl">Taxa de entrega</span>
+        <span class="taxa-val combinar">Informe o bairro</span>
+      </div>
       <div class="cs-total-row" id="csDescontoRow" style="display:none;">
         <span class="cs-total-desc">Desconto do cupom</span>
         <span class="cs-total-desc-val" id="csDesconto">−R$0,00</span>
@@ -296,26 +429,39 @@
 
     <div class="cs-form" id="csForm" style="display:none;">
 
-      <!-- CUPOM -->
-      <div class="cs-section">Cupom de desconto</div>
-      <div class="cupom-wrap">
-        <div class="cupom-row">
-          <input class="cupom-input" id="cupomInput" placeholder="CÓDIGO DO CUPOM" maxlength="20"
-            oninput="this.value=this.value.toUpperCase()">
-          <button class="cupom-btn" onclick="aplicarCupom()">Aplicar</button>
-        </div>
-        <div class="cupom-msg" id="cupomMsg"></div>
-      </div>
-
+      <!-- DADOS PESSOAIS -->
       <div class="cs-section">Seus dados</div>
-      <label class="cs-label">Nome completo *</label>
-      <input class="cs-input" id="cliNome" placeholder="Ex: João Silva" autocomplete="name">
-      <div class="field-msg" id="msgNome"></div>
+      <div class="cs-group">
+        <div class="cs-field">
+          <span class="cs-field-icon">📍</span>
+          <div class="cs-field-wrap">
+            <span class="cs-field-lbl">CEP *</span>
+            <div style="display:flex;align-items:center;">
+              <input class="cs-field-inp" id="cliCep" placeholder="00000-000" type="tel" maxlength="9"
+                oninput="mascaraCep(this)" onblur="buscarCep()" style="flex:1;">
+              <button class="cep-search-btn" onclick="buscarCep()">Buscar</button>
+            </div>
+          </div>
+        </div>
+        <div class="cep-hint" id="cepHint"></div>
 
-      <label class="cs-label">Celular / WhatsApp *</label>
-      <input class="cs-input" id="cliTel" placeholder="(99) 99999-9999" type="tel" maxlength="15"
-        autocomplete="tel" oninput="mascaraTel(this)" onblur="onTelBlur()">
-      <div class="field-msg" id="msgTel"></div>
+        <div class="cs-field">
+          <span class="cs-field-icon">👤</span>
+          <div class="cs-field-wrap">
+            <span class="cs-field-lbl">Nome completo *</span>
+            <input class="cs-field-inp" id="cliNome" placeholder="Como prefere ser chamado" autocomplete="name">
+          </div>
+        </div>
+
+        <div class="cs-field">
+          <span class="cs-field-icon">📱</span>
+          <div class="cs-field-wrap">
+            <span class="cs-field-lbl">WhatsApp *</span>
+            <input class="cs-field-inp" id="cliTel" placeholder="(99) 99999-9999" type="tel" maxlength="15"
+              autocomplete="tel" oninput="mascaraTel(this)" onblur="onTelBlur()">
+          </div>
+        </div>
+      </div>
 
       <!-- PONTOS DO CLIENTE -->
       <div class="pontos-card" id="pontosCard">
@@ -335,53 +481,160 @@
         </div>
       </div>
 
+      <!-- ENDEREÇO -->
       <div class="cs-section">Endereço de entrega</div>
-      <label class="cs-label">CEP *</label>
-      <div class="cep-row">
-        <input class="cs-input" id="cliCep" placeholder="00000-000" type="tel" maxlength="9"
-          oninput="mascaraCep(this)" onblur="validarCep()">
-        <button class="cep-btn" onclick="buscarCep()">🔍 Buscar</button>
-      </div>
-      <div class="cep-hint" id="cepHint">Digite o CEP para preencher automaticamente</div>
-
-      <label class="cs-label">Rua / Logradouro *</label>
-      <input class="cs-input" id="cliRua" placeholder="Nome da rua">
-      <div class="cs-row">
-        <div>
-          <label class="cs-label">Número *</label>
-          <input class="cs-input" id="cliNum" placeholder="123" type="tel" style="margin-bottom:0;">
+      <div class="cs-group">
+        <div class="cs-field">
+          <span class="cs-field-icon">🏠</span>
+          <div class="cs-field-wrap">
+            <span class="cs-field-lbl">Rua / Logradouro *</span>
+            <input class="cs-field-inp" id="cliRua" placeholder="Preenchido pelo CEP">
+          </div>
         </div>
-        <div>
-          <label class="cs-label">Complemento</label>
-          <input class="cs-input" id="cliComp" placeholder="Apto, casa..." style="margin-bottom:0;">
+        <div class="cs-field-row-wrap">
+          <div class="cs-field-row">
+            <div class="cs-field">
+              <div class="cs-field-wrap">
+                <span class="cs-field-lbl">Número *</span>
+                <input class="cs-field-inp" id="cliNum" placeholder="123" type="tel">
+              </div>
+            </div>
+            <div class="cs-field">
+              <div class="cs-field-wrap">
+                <span class="cs-field-lbl">Complemento</span>
+                <input class="cs-field-inp" id="cliComp" placeholder="Apto, casa...">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cs-field">
+          <span class="cs-field-icon">🏘️</span>
+          <div class="cs-field-wrap">
+            <span class="cs-field-lbl">Bairro *</span>
+            <input class="cs-field-inp" id="cliBairro" placeholder="Preenchido pelo CEP">
+          </div>
+        </div>
+        <div class="cs-field">
+          <span class="cs-field-icon">🌆</span>
+          <div class="cs-field-wrap">
+            <span class="cs-field-lbl">Cidade / Estado</span>
+            <input class="cs-field-inp" id="cliCidade" placeholder="Preenchido pelo CEP" disabled>
+          </div>
         </div>
       </div>
-      <div style="height:0.65rem;"></div>
-      <label class="cs-label">Bairro *</label>
-      <input class="cs-input" id="cliBairro" placeholder="Nome do bairro">
-      <label class="cs-label">Cidade / Estado</label>
-      <input class="cs-input" id="cliCidade" placeholder="Preenchido pelo CEP" disabled>
 
-      <div class="cs-section">Observações</div>
-      <textarea class="cs-textarea" id="cliObs"
-        placeholder="Ex: sem cebola, troco para R$50, portão azul..."></textarea>
+      <!-- OBS -->
+      <div class="cs-group">
+        <div class="cs-field" style="padding:0;">
+          <textarea class="cs-obs" id="cliObs"
+            placeholder="Observações: sem cebola, troco para R$50, portão azul..."></textarea>
+        </div>
+      </div>
+
+      <!-- CUPOM -->
+      <div class="cupom-wrap" style="margin-top:0.5rem;">
+        <div class="cupom-row">
+          <input class="cupom-input" id="cupomInput" placeholder="CUPOM DE DESCONTO" maxlength="20"
+            oninput="this.value=this.value.toUpperCase()">
+          <button class="cupom-btn" onclick="aplicarCupom()">Aplicar</button>
+        </div>
+        <div class="cupom-msg" id="cupomMsg"></div>
+      </div>
 
       <button class="cs-send" id="btnEnviar" onclick="enviarPedido()">Confirmar pedido</button>
     </div>
     </div><!-- fecha cs-body -->
   </div>
 
+  <!-- MODAL ADICIONAIS — tela cheia igual concorrente -->
+  <div class="add-overlay" id="addOverlay">
+    <div class="add-top-header">
+      <button class="add-back-btn" onclick="fecharAdicionais()">
+        <span class="mi" style="font-size:20px;color:var(--txt2);">arrow_back</span>
+      </button>
+      <span class="add-top-nome" id="addTopNome">Personalize</span>
+    </div>
+    <div class="add-scroll" id="addScroll">
+      <div id="addFotoWrap"></div>
+      <div class="add-prod-info">
+        <div class="add-prod-nome" id="addProdNome"></div>
+        <div class="add-prod-preco" id="addProdPreco"></div>
+        <div class="add-prod-desc" id="addProdDesc"></div>
+      </div>
+      <div id="addGrupos"></div>
+      <div class="add-qty-row">
+        <span style="font-size:0.88rem;font-weight:700;color:var(--txt);">Quantidade</span>
+        <div class="add-ctrl-counter">
+          <button class="add-ctrl-menos" onclick="chAddQty(-1)">−</button>
+          <span id="addQtyNum">1</span>
+          <button class="add-ctrl-mais ativo" onclick="chAddQty(1)">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="add-footer">
+      <button class="add-avancar" id="addConfirmar" onclick="confirmarAdicionais()" disabled>
+        <span class="add-avancar-lbl">Adicionar ao pedido</span>
+        <span id="addTotalVal">R$0,00</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TELA DE PAGAMENTO -->
+  <div class="pgto-screen" id="pgtoScreen">
+    <div class="pgto-header">
+      <button class="pgto-back" onclick="fecharPagamento()">
+        <span class="mi" style="font-size:20px;color:var(--txt2);">arrow_back</span>
+      </button>
+      <span class="pgto-title">Como vai pagar?</span>
+    </div>
+    <div class="pgto-body" id="pgtoBody">
+      <div class="pgto-total">
+        <span class="pgto-total-lbl">Total do pedido</span>
+        <span class="pgto-total-val" id="pgtoTotalVal">R$0,00</span>
+      </div>
+      <div class="pgto-section">Escolha a forma de pagamento</div>
+      <div id="pgtoOpcoes"></div>
+      <button class="pgto-confirmar" id="pgtoConfirmar" onclick="confirmarPagamento()" disabled>
+        Confirmar pagamento
+      </button>
+    </div>
+  </div>
+
   <script type="module">
     import { supabase } from './js/supabase.js'
     import { getLoja, getCategorias } from './js/cardapio.js'
-    import { criarPedido, validarCupom, buscarClientePorTelefone } from './js/pedidos.js'
+    import { criarPedido, validarCupom, buscarClientePorTelefone, atualizarFormaPagamento, msgWhatsAppStatus } from './js/pedidos.js'
+    import { getGruposAdicionais, getTaxaEntrega } from './js/cardapio.js'
 
     const params=new URLSearchParams(window.location.search)
     const lojaId=params.get('loja')
     let loja=null,produtos=[],categorias=[],cart=[],itemAtual=null,qty=1,catAtual='todos'
     let cupomAtivo=null,descontoAtivo=0,clienteLocal=null,fidelidadeConfig=null
+    let pedidoAtual=null,pgtoSelecionado=null
+    let mpInstance=null,mpCardId=null,mpFormReady=false
+    // Adicionais
+    let addProdutoAtual=null,addGruposAtual=[],addSelecionados={},addQty=1,addTaxaEntrega=null
 
     const fmt=v=>'R$'+Number(v).toFixed(2).replace('.',',')
+    const CART_KEY='cart_'+lojaId
+
+    // Carrega carrinho salvo
+    function carregarCartSalvo(){
+      try{
+        const salvo=localStorage.getItem(CART_KEY)
+        if(salvo)cart=JSON.parse(salvo)
+      }catch(e){cart=[]}
+    }
+
+    // Salva carrinho no localStorage
+    function salvarCart(){
+      try{ localStorage.setItem(CART_KEY,JSON.stringify(cart)) }catch(e){}
+    }
+
+    // Limpa carrinho salvo após pedido confirmado
+    function limparCartSalvo(){
+      try{ localStorage.removeItem(CART_KEY) }catch(e){}
+    }
 
     function showToast(nome){
       const t=document.getElementById('toastAdd')
@@ -405,33 +658,21 @@
       input.value=v
     }
 
-    // AUTOPREENCHIMENTO ao sair do campo celular
+    // Ao digitar celular — só busca pontos de fidelidade
     window.onTelBlur=async function(){
-      const v=document.getElementById('cliTel').value.replace(/\D/g,'')
-      const msg=document.getElementById('msgTel')
-      const inp=document.getElementById('cliTel')
-      if(v.length===11){
-        inp.classList.add('valido');inp.classList.remove('invalido');msg.className='field-msg'
-        // Busca cliente cadastrado
-        const cli=await buscarClientePorTelefone(lojaId,v)
-        if(cli){
-          clienteLocal=cli
-          // Preenche campos automaticamente
-          if(cli.nome)document.getElementById('cliNome').value=cli.nome
-          if(cli.endereco_cep)document.getElementById('cliCep').value=formatarCep(cli.endereco_cep)
-          if(cli.endereco_rua)document.getElementById('cliRua').value=cli.endereco_rua
-          if(cli.endereco_num)document.getElementById('cliNum').value=cli.endereco_num
-          if(cli.endereco_comp)document.getElementById('cliComp').value=cli.endereco_comp||''
-          if(cli.endereco_bairro)document.getElementById('cliBairro').value=cli.endereco_bairro
-          if(cli.endereco_cidade)document.getElementById('cliCidade').value=cli.endereco_cidade
-          // Mostra pontos se fidelidade ativa
-          if(fidelidadeConfig&&fidelidadeConfig.ativo){
-            mostrarPontos(cli.total_pontos||0,fidelidadeConfig.meta_pontos||100,fidelidadeConfig)
-          }
-        }
-      } else if(v.length>0){
-        inp.classList.add('invalido');inp.classList.remove('valido')
-        msg.textContent='Celular deve ter 11 dígitos — Ex: (99) 99999-9999';msg.className='field-msg show'
+      const tel=document.getElementById('cliTel').value
+      if(tel.replace(/\D/g,'').length<10)return
+      const cli=await buscarClientePorTelefone(lojaId,tel)
+      if(!cli)return
+      clienteLocal=cli
+      // Preenche nome se ainda não preenchido
+      if(cli.nome){
+        const n=document.getElementById('cliNome')
+        if(n&&!n.value)n.value=cli.nome
+      }
+      // Só mostra pontos — endereço é pelo CEP
+      if(fidelidadeConfig&&fidelidadeConfig.ativo&&fidelidadeConfig.id){
+        mostrarPontos(cli.total_pontos||0,fidelidadeConfig.meta_pontos||100,fidelidadeConfig)
       }
     }
 
@@ -464,22 +705,65 @@
       if(v.length===8)await buscarCep()
     }
     window.buscarCep=async function(){
-      const v=document.getElementById('cliCep').value.replace(/\D/g,'')
+      const cepRaw=document.getElementById('cliCep').value.replace(/\D/g,'')
       const h=document.getElementById('cepHint')
-      if(v.length!==8){if(v.length>0){h.textContent='CEP incompleto';h.className='cep-hint err';}return}
-      h.textContent='🔍 Buscando...';h.className='cep-hint'
+      if(cepRaw.length!==8){
+        if(cepRaw.length>0){h.textContent='CEP incompleto';h.className='cep-hint err';}
+        return
+      }
+      h.textContent='Buscando...';h.className='cep-hint'
       try{
-        const r=await fetch(`https://viacep.com.br/ws/${v}/json/`)
+        // 1. Busca endereço no ViaCEP
+        const r=await fetch(`https://viacep.com.br/ws/${cepRaw}/json/`)
         const d=await r.json()
-        if(d.erro){h.textContent='❌ CEP não encontrado';h.className='cep-hint err';}
-        else{
-          document.getElementById('cliRua').value=d.logradouro||''
-          document.getElementById('cliBairro').value=d.bairro||''
-          document.getElementById('cliCidade').value=`${d.localidade} — ${d.uf}`
-          h.textContent=`✅ ${d.localidade} — ${d.uf}`;h.className='cep-hint ok'
-          document.getElementById('cliNum').focus()
+        if(d.erro){h.textContent='CEP não encontrado';h.className='cep-hint err';return}
+
+        // Preenche rua, bairro e cidade sempre (vem do ViaCEP)
+        document.getElementById('cliRua').value=d.logradouro||''
+        document.getElementById('cliBairro').value=d.bairro||''
+        document.getElementById('cliCidade').value=`${d.localidade} — ${d.uf}`
+        h.textContent=`${d.localidade} — ${d.uf}`;h.className='cep-hint ok'
+
+        // 2. Busca cliente no banco que já usou esse CEP
+        // (busca pelo telefone se já preenchido, ou pelo CEP)
+        const telAtual=document.getElementById('cliTel').value.replace(/\D/g,'')
+        let cli=null
+
+        if(telAtual.length===11){
+          // Se já tem telefone, busca por ele
+          cli=await buscarClientePorTelefone(lojaId,telAtual)
         }
-      }catch(e){h.textContent='Erro ao buscar. Preencha manualmente.';h.className='cep-hint err';}
+
+        if(cli){
+          clienteLocal=cli
+          // Preenche nome se vazio
+          const nomeEl=document.getElementById('cliNome')
+          if(nomeEl&&!nomeEl.value&&cli.nome) nomeEl.value=cli.nome
+
+          // Preenche número e complemento do endereço anterior nesse CEP
+          // só se o CEP bate com o do cadastro
+          const cepCadastro=(cli.endereco_cep||'').replace(/\D/g,'')
+          if(cepCadastro===cepRaw){
+            const numEl=document.getElementById('cliNum')
+            const compEl=document.getElementById('cliComp')
+            if(numEl&&!numEl.value&&cli.endereco_num) numEl.value=cli.endereco_num
+            if(compEl&&!compEl.value&&cli.endereco_comp) compEl.value=cli.endereco_comp
+            showToast('Endereço reconhecido!')
+          }
+
+          // Pontos
+          if(fidelidadeConfig&&fidelidadeConfig.ativo&&fidelidadeConfig.id){
+            mostrarPontos(cli.total_pontos||0,fidelidadeConfig.meta_pontos||100,fidelidadeConfig)
+          }
+        }
+
+        // Foca no número para o cliente completar
+        document.getElementById('cliNum').focus()
+
+      }catch(e){
+        console.error('buscarCep:',e)
+        h.textContent='Erro ao buscar. Preencha manualmente.';h.className='cep-hint err'
+      }
     }
 
     // CUPOM
@@ -506,7 +790,8 @@
 
     function renderTotais(){
       const subtotal=cart.reduce((s,i)=>s+i.preco*i.qty,0)
-      const total=Math.max(0,subtotal-descontoAtivo)
+      const taxa=addTaxaEntrega?Number(addTaxaEntrega.taxa):0
+      const total=Math.max(0,subtotal+taxa-descontoAtivo)
       document.getElementById('csSubtotal').textContent=fmt(subtotal)
       document.getElementById('csTotalFinal').textContent=fmt(total)
       document.getElementById('cbTot').textContent=fmt(total)
@@ -516,6 +801,316 @@
         document.getElementById('csDesconto').textContent='−'+fmt(descontoAtivo)
       } else {
         dr.style.display='none'
+      }
+    }
+
+    // ============================================================
+    // BUSCA NO CARDÁPIO
+    // ============================================================
+    window.buscarProdutos=function(termo){
+      const clear=document.getElementById('searchClear')
+      if(clear)clear.style.display=termo?'block':'none'
+      if(!termo.trim()){
+        renderMenu(); return
+      }
+      const t=termo.toLowerCase().trim()
+      const encontrados=produtos.filter(p=>
+        p.nome.toLowerCase().includes(t)||
+        (p.descricao&&p.descricao.toLowerCase().includes(t))
+      )
+      let h=''
+      if(!encontrados.length){
+        h=`<div style="text-align:center;padding:3rem 1rem;">
+          <div style="font-size:2.5rem;margin-bottom:0.75rem;">🔍</div>
+          <div style="font-size:0.88rem;font-weight:700;color:var(--txt2);">Nenhum produto encontrado</div>
+          <div style="font-size:0.78rem;color:var(--txt3);margin-top:0.35rem;">Tente outro termo</div>
+        </div>`
+      } else {
+        h+=`<div class="sec-hd">${encontrados.length} resultado${encontrados.length!==1?'s':''} para "${termo}"</div>`
+        encontrados.forEach((p,idx)=>{
+          const rot=idx%2===0?'rotate(6deg)':'rotate(-6deg)'
+          h+=`<div class="item-card" onclick="abrirItem('${p.id}')" style="padding-top:1.5rem;margin-top:${idx===0?'1.5rem':'1rem'};">
+            ${p.foto_url?`<img class="item-float-img" src="${p.foto_url}" alt="${p.nome}" loading="lazy" style="transform:${rot};">`:`<div class="item-float-ph" style="transform:${rot};">🍽️</div>`}
+            <div class="item-body">
+              <div class="iname">${p.nome}</div>
+              <div class="idesc">${p.descricao||''}</div>
+              <div class="iprice">${fmt(p.preco)}</div>
+            </div>
+            <button class="iadd-float" onclick="event.stopPropagation();quickAdd('${p.id}')">
+              <span class="mi" style="font-size:20px;">add</span>
+            </button>
+          </div>`
+        })
+      }
+      document.getElementById('menuBody').innerHTML=h
+    }
+
+    window.limparBusca=function(){
+      const inp=document.getElementById('searchInput')
+      if(inp)inp.value=''
+      const clear=document.getElementById('searchClear')
+      if(clear)clear.style.display='none'
+      renderMenu()
+    }
+
+    // ============================================================
+    // ADICIONAIS — interface igual ao concorrente
+    // ============================================================
+    function abrirAdicionais(produto, grupos){
+      addProdutoAtual=produto; addGruposAtual=grupos; addSelecionados={}; addQty=1
+
+      // Foto e info do produto
+      document.getElementById('addTopNome').textContent=produto.nome
+      document.getElementById('addProdNome').textContent=produto.nome
+      document.getElementById('addProdPreco').textContent=fmt(produto.preco)
+      document.getElementById('addProdDesc').textContent=produto.descricao||''
+      document.getElementById('addFotoWrap').innerHTML=produto.foto_url
+        ?`<img class="add-prod-foto" src="${produto.foto_url}" alt="${produto.nome}" loading="lazy">`
+        :`<div class="add-prod-foto-ph">🍽️</div>`
+      document.getElementById('addQtyNum').textContent=1
+
+      // Renderiza grupos
+      let h=''
+      grupos.forEach(grupo=>{
+        const isRadio=grupo.max_escolha===1
+        const subTxt=grupo.obrigatorio
+          ?`Escolha ${grupo.max_escolha===1?'1 item':`até ${grupo.max_escolha} itens`}`
+          :`Escolha até ${grupo.max_escolha} ${grupo.max_escolha===1?'item':'itens'}`
+        h+=`<div class="add-grupo">
+          <div class="add-grupo-hd">
+            <div class="add-grupo-info">
+              <div class="add-grupo-titulo">${grupo.nome}</div>
+              <div class="add-grupo-sub">${subTxt}</div>
+            </div>
+            <span class="add-grupo-badge ${grupo.obrigatorio?'obrig':'opcao'}">${grupo.obrigatorio?'Obrigatório':'Opcional'}</span>
+          </div>
+          <div class="add-grupo-body">`
+        grupo.itens.forEach(item=>{
+          if(isRadio){
+            h+=`<div class="add-item" onclick="toggleAdicional('${grupo.id}','${item.id}',${grupo.max_escolha},${item.preco},'${item.nome.replace(/'/g,"\'")}')">
+              <div class="add-item-foto">🍽️</div>
+              <div class="add-item-info">
+                <div class="add-item-nome">${item.nome}</div>
+                <div class="add-item-max">Máx ${grupo.max_escolha}</div>
+                ${item.preco>0?`<div class="add-item-preco">+${fmt(item.preco)}</div>`:``}
+              </div>
+              <div class="add-item-ctrl">
+                <div class="add-ctrl-radio" id="ctrl_${item.id}"></div>
+              </div>
+            </div>`
+          } else {
+            h+=`<div class="add-item">
+              <div class="add-item-foto">🍽️</div>
+              <div class="add-item-info">
+                <div class="add-item-nome">${item.nome}</div>
+                <div class="add-item-max">Máx ${grupo.max_escolha}</div>
+                ${item.preco>0?`<div class="add-item-preco">+${fmt(item.preco)}</div>`:``}
+              </div>
+              <div class="add-item-ctrl" id="ctrl_wrap_${item.id}">
+                <button class="add-ctrl-mais" id="ctrl_${item.id}"
+                  onclick="toggleAdicional('${grupo.id}','${item.id}',${grupo.max_escolha},${item.preco},'${item.nome.replace(/'/g,"\'")}')">+</button>
+              </div>
+            </div>`
+          }
+        })
+        h+=`</div></div>`
+      })
+      document.getElementById('addGrupos').innerHTML=h
+      atualizarTotalAdd()
+      atualizarBotaoAdd()
+      // Scroll pro topo
+      const scroll=document.getElementById('addScroll')
+      if(scroll)scroll.scrollTop=0
+      document.getElementById('addOverlay').classList.add('open')
+    }
+
+    window.fecharAdicionais=function(){
+      document.getElementById('addOverlay').classList.remove('open')
+      addProdutoAtual=null; addGruposAtual=[]; addSelecionados={}
+    }
+
+    window.toggleAdicional=function(grupoId,itemId,maxEscolha,preco,nome){
+      if(!addSelecionados[grupoId]) addSelecionados[grupoId]=[]
+      const idx=addSelecionados[grupoId].findIndex(x=>x.id===itemId)
+
+      if(maxEscolha===1){
+        // RADIO — limpa anterior e seleciona novo
+        const anterior=addSelecionados[grupoId][0]
+        if(anterior){
+          const ctrlAnt=document.getElementById('ctrl_'+anterior.id)
+          if(ctrlAnt)ctrlAnt.classList.remove('sel')
+        }
+        if(idx>=0){
+          addSelecionados[grupoId]=[]
+          const ctrl=document.getElementById('ctrl_'+itemId)
+          if(ctrl)ctrl.classList.remove('sel')
+        } else {
+          addSelecionados[grupoId]=[{id:itemId,preco,nome}]
+          const ctrl=document.getElementById('ctrl_'+itemId)
+          if(ctrl)ctrl.classList.add('sel')
+        }
+      } else {
+        // MÚLTIPLA ESCOLHA — botão + e contador
+        const total=addSelecionados[grupoId].reduce((s,x)=>s+x.qty,0)
+        if(idx>=0){
+          addSelecionados[grupoId][idx].qty=(addSelecionados[grupoId][idx].qty||1)+1
+          if(addSelecionados[grupoId][idx].qty>maxEscolha){
+            addSelecionados[grupoId].splice(idx,1)
+          }
+        } else {
+          if(total>=maxEscolha){showToast('Máximo de '+maxEscolha+' opções neste grupo');return}
+          addSelecionados[grupoId].push({id:itemId,preco,nome,qty:1})
+        }
+        // Atualiza visual do botão +
+        const qtdAtual=(addSelecionados[grupoId].find(x=>x.id===itemId)||{qty:0}).qty
+        const ctrlWrap=document.getElementById('ctrl_wrap_'+itemId)
+        if(ctrlWrap){
+          if(qtdAtual>0){
+            ctrlWrap.innerHTML=`<div class="add-ctrl-counter">
+              <button class="add-ctrl-menos" onclick="event.stopPropagation();decrementAdicional('${grupoId}','${itemId}',${preco},'${nome}')">−</button>
+              <span>${qtdAtual}</span>
+              <button class="add-ctrl-mais ativo" onclick="event.stopPropagation();toggleAdicional('${grupoId}','${itemId}',${maxEscolha},${preco},'${nome}')">+</button>
+            </div>`
+          } else {
+            ctrlWrap.innerHTML=`<button class="add-ctrl-mais" id="ctrl_${itemId}"
+              onclick="toggleAdicional('${grupoId}','${itemId}',${maxEscolha},${preco},'${nome}')">+</button>`
+          }
+        }
+      }
+      atualizarTotalAdd()
+      atualizarBotaoAdd()
+    }
+
+    window.decrementAdicional=function(grupoId,itemId,preco,nome){
+      if(!addSelecionados[grupoId]) return
+      const idx=addSelecionados[grupoId].findIndex(x=>x.id===itemId)
+      if(idx<0) return
+      addSelecionados[grupoId][idx].qty=(addSelecionados[grupoId][idx].qty||1)-1
+      if(addSelecionados[grupoId][idx].qty<=0) addSelecionados[grupoId].splice(idx,1)
+      const qtdAtual=(addSelecionados[grupoId].find(x=>x.id===itemId)||{qty:0}).qty
+      const ctrlWrap=document.getElementById('ctrl_wrap_'+itemId)
+      if(ctrlWrap){
+        if(qtdAtual>0){
+          ctrlWrap.innerHTML=`<div class="add-ctrl-counter">
+            <button class="add-ctrl-menos" onclick="event.stopPropagation();decrementAdicional('${grupoId}','${itemId}',${preco},'${nome}')">−</button>
+            <span>${qtdAtual}</span>
+            <button class="add-ctrl-mais ativo" onclick="event.stopPropagation();toggleAdicional('${grupoId}','${itemId}',1,${preco},'${nome}')">+</button>
+          </div>`
+        } else {
+          ctrlWrap.innerHTML=`<button class="add-ctrl-mais" onclick="toggleAdicional('${grupoId}','${itemId}',1,${preco},'${nome}')">+</button>`
+        }
+      }
+      atualizarTotalAdd()
+      atualizarBotaoAdd()
+    }
+
+    function calcTotalAdd(){
+      if(!addProdutoAtual) return 0
+      let extra=0
+      Object.values(addSelecionados).forEach(sel=>sel.forEach(s=>extra+=Number(s.preco)*(s.qty||1)))
+      return (addProdutoAtual.preco+extra)*addQty
+    }
+
+    function atualizarTotalAdd(){
+      document.getElementById('addTotalVal').textContent=fmt(calcTotalAdd())
+    }
+
+    function atualizarBotaoAdd(){
+      const ok=addGruposAtual.every(g=>
+        !g.obrigatorio||((addSelecionados[g.id]||[]).length>=1)
+      )
+      const btn=document.getElementById('addConfirmar')
+      btn.disabled=!ok
+      const totalEl=document.getElementById('addTotalVal')
+      if(totalEl)totalEl.textContent=fmt(calcTotalAdd())
+    }
+
+    window.chAddQty=function(d){
+      addQty=Math.max(1,addQty+d)
+      document.getElementById('addQtyNum').textContent=addQty
+      atualizarTotalAdd(); atualizarBotaoAdd()
+    }
+
+    window.confirmarAdicionais=function(){
+      if(!addProdutoAtual)return
+      const adicionaisEscolhidos=[]
+      addGruposAtual.forEach(g=>{
+        const sel=addSelecionados[g.id]||[]
+        sel.forEach(s=>{
+          // Para múltiplos, repete o item conforme qty
+          const qty=s.qty||1
+          for(let i=0;i<qty;i++){
+            adicionaisEscolhidos.push({
+              grupo_id:g.id, nome_grupo:g.nome,
+              adicional_id:s.id, nome_adicional:s.nome, preco:s.preco
+            })
+          }
+        })
+      })
+      const extraPreco=adicionaisEscolhidos.reduce((s,a)=>s+Number(a.preco),0)
+      const precoFinal=addProdutoAtual.preco+extraPreco
+      // Item no carrinho tem ID único (produto+adicionais)
+      const cartKey=addProdutoAtual.id+'_'+adicionaisEscolhidos.map(a=>a.adicional_id).join('_')
+      const ex=cart.find(c=>c._cartKey===cartKey)
+      if(ex){
+        ex.qty+=addQty
+      } else {
+        cart.push({
+          ...addProdutoAtual,
+          _cartKey:cartKey,
+          preco:precoFinal,
+          qty:addQty,
+          adicionais:adicionaisEscolhidos,
+          _descAdicionais:adicionaisEscolhidos.map(a=>a.nome_adicional).join(', ')
+        })
+      }
+      salvarCart(); atualizarCartBar(); fecharAdicionais()
+      showToast(addProdutoAtual.nome+' adicionado!')
+    }
+
+    // ============================================================
+    // TAXA DE ENTREGA
+    // ============================================================
+    async function verificarTaxaEntrega(bairro){
+      addTaxaEntrega=null
+      if(!bairro) return
+      const taxa=await getTaxaEntrega(lojaId,bairro)
+      addTaxaEntrega=taxa
+      atualizarTaxaUI()
+    }
+
+    function atualizarTaxaUI(){
+      const taxaRow=document.getElementById('taxaEntregaRow')
+      if(!taxaRow) return
+      if(!addTaxaEntrega){
+        taxaRow.innerHTML=`<span class="taxa-lbl">Taxa de entrega</span><span class="taxa-val combinar">A combinar</span>`
+      } else if(addTaxaEntrega.taxa===0){
+        taxaRow.innerHTML=`<span class="taxa-lbl">Taxa de entrega</span><span class="taxa-val gratis">Grátis</span>`
+      } else {
+        taxaRow.innerHTML=`<span class="taxa-lbl">Taxa de entrega</span><span class="taxa-val">+${fmt(addTaxaEntrega.taxa)}</span>`
+      }
+    }
+
+    function verificarHorarioAutomatico(){
+      if(!loja||!loja.hora_abre||!loja.hora_fecha) return
+      const agora=new Date()
+      const [ha,ma]=(loja.hora_abre||'00:00').split(':').map(Number)
+      const [hf,mf]=(loja.hora_fecha||'23:59').split(':').map(Number)
+      const minAtual=agora.getHours()*60+agora.getMinutes()
+      const minAbre=ha*60+ma
+      const minFecha=hf*60+mf
+      let deveEstarAberta
+      if(minAbre<minFecha){
+        deveEstarAberta=minAtual>=minAbre&&minAtual<minFecha
+      } else {
+        // passa da meia-noite
+        deveEstarAberta=minAtual>=minAbre||minAtual<minFecha
+      }
+      if(loja.aberta!==deveEstarAberta){
+        loja.aberta=deveEstarAberta
+        renderHero()
+        const banner=document.getElementById('bannerFechado')
+        if(banner) banner.style.display=deveEstarAberta?'none':'flex'
       }
     }
 
@@ -537,7 +1132,13 @@
           document.getElementById('loading').innerHTML='<div class="inativa"><div class="inativa-icon">🔒</div><div class="inativa-txt">Loja indisponível</div><div class="inativa-sub">Este estabelecimento está temporariamente fora do ar.</div></div>'
           return
         }
+        // Verifica horário automático
+        verificarHorarioAutomatico()
+        carregarCartSalvo()
         renderHero();renderCats();renderMenu()
+        atualizarCartBar()
+        // Reverifica a cada minuto
+        setInterval(verificarHorarioAutomatico, 60000)
         document.getElementById('loading').style.display='none'
         document.getElementById('app').style.display='block'
         document.title=loja.nome+' — Cardápio'
@@ -555,15 +1156,34 @@
         document.getElementById('heroBanner').outerHTML=`<img class="hero-img" src="${loja.banner_url}" alt="${loja.nome}">`
       }
       document.getElementById('storeMeta').innerHTML=`
-        <span class="hero-badge badge-open"><span class="pulse"></span>${loja.aberta?'ABERTO':'FECHADO'}</span>
+        <span class="hero-badge ${loja.aberta?'badge-open':'badge-fechado'}">
+          <span class="${loja.aberta?'pulse':''}"></span>
+          ${loja.aberta?'ABERTO':'FECHADO'}
+        </span>
         ${loja.tempo_entrega?`<span class="hero-badge badge-glass"><span class="mi" style="font-size:13px;">schedule</span>${loja.tempo_entrega}</span>`:''}
         ${loja.cidade?`<span class="hero-badge badge-glass"><span class="mi" style="font-size:13px;">location_on</span>${loja.cidade}</span>`:''}`
+      // Banner de fechado
+      const bannerFechado=document.getElementById('bannerFechado')
+      if(bannerFechado)bannerFechado.style.display=loja.aberta?'none':'flex'
     }
 
     function renderCats(){
       let h=`<button class="cat-btn active" onclick="filtrar('todos',this)">Todos</button>`
       categorias.forEach(c=>{h+=`<button class="cat-btn" onclick="filtrar('${c.id}',this)">${c.nome}</button>`})
       document.getElementById('catsBar').innerHTML=h
+    }
+
+    function getCatEmoji(nomeCat){
+      const n=(nomeCat||'').toLowerCase()
+      if(n.includes('pizza')||n.includes('lanch')||n.includes('hambur')) return '🍕'
+      if(n.includes('bebid')||n.includes('drink')||n.includes('suco'))   return '🥤'
+      if(n.includes('sobrem')||n.includes('doce')||n.includes('açaí'))   return '🍦'
+      if(n.includes('porção')||n.includes('porcao')||n.includes('frit')) return '🍟'
+      if(n.includes('combo')||n.includes('promo'))                        return '🔥'
+      if(n.includes('massa')||n.includes('macar')||n.includes('esnob'))  return '🍝'
+      if(n.includes('frango')||n.includes('carne')||n.includes('churr')) return '🍗'
+      if(n.includes('salad')||n.includes('vegano')||n.includes('saud'))  return '🥗'
+      return '🍽️'
     }
 
     function renderMenu(){
@@ -598,8 +1218,17 @@
       el.classList.add('active');renderMenu()
     }
 
-    window.abrirItem=function(id){
+    window.abrirItem=async function(id){
       itemAtual=produtos.find(p=>p.id===id);qty=1
+      // Verifica se produto tem adicionais
+      const grupos=await getGruposAdicionais(id)
+      if(grupos.length){
+        // Tem adicionais — abre modal de personalização
+        fecharItem()
+        abrirAdicionais(itemAtual,grupos)
+        return
+      }
+      // Sem adicionais — abre modal simples
       document.getElementById('imName').textContent=itemAtual.nome
       document.getElementById('imDesc').textContent=itemAtual.descricao||''
       document.getElementById('imPrice').textContent=fmt(itemAtual.preco)
@@ -618,17 +1247,23 @@
         qty>1?`Adicionar ${qty}x — ${fmt(itemAtual.preco*qty)}`:'Adicionar ao pedido'
     }
 
-    window.quickAdd=function(id){
+    window.quickAdd=async function(id){
       const p=produtos.find(x=>x.id===id)
+      // Se tem adicionais, abre modal em vez de adicionar direto
+      const grupos=await getGruposAdicionais(id)
+      if(grupos.length){
+        abrirAdicionais(p,grupos)
+        return
+      }
       const ex=cart.find(c=>c.id===id)
       if(ex)ex.qty++;else cart.push({...p,qty:1})
-      atualizarCartBar();showToast(p.nome)
+      salvarCart();atualizarCartBar();showToast(p.nome)
     }
     window.addCarrinho=function(){
       if(!itemAtual)return
       const ex=cart.find(c=>c.id===itemAtual.id)
       if(ex)ex.qty+=qty;else cart.push({...itemAtual,qty})
-      fecharItem();atualizarCartBar();showToast(itemAtual.nome)
+      salvarCart();fecharItem();atualizarCartBar();showToast(itemAtual.nome)
     }
 
     function atualizarCartBar(){
@@ -652,32 +1287,46 @@
       }
       tw.style.display='block';form.style.display='block'
       renderTotais()
-      document.getElementById('csBodyItens').innerHTML=cart.map(i=>`
-        <div class="cs-item">
+      document.getElementById('csBodyItens').innerHTML=cart.map(i=>{
+        const key=i._cartKey||i.id
+        return `<div class="cs-item">
           ${i.foto_url?`<img class="csi-img" src="${i.foto_url}" alt="${i.nome}">`:`<div class="csi-img-ph">🍽️</div>`}
           <div class="csi-info">
             <div class="csi-name">${i.nome}</div>
+            ${i._descAdicionais?`<div style="font-size:0.68rem;color:var(--txt3);margin-top:0.1rem;">${i._descAdicionais}</div>`:''}
             <div class="csi-price">${fmt(i.preco)} un.</div>
           </div>
           <div class="csi-controls">
-            <button class="csi-btn remove" onclick="alterarQty('${i.id}',-1)">−</button>
+            <button class="csi-btn remove" onclick="alterarQtyKey('${key}',-1)">−</button>
             <span class="csi-qty">${i.qty}</span>
-            <button class="csi-btn" onclick="alterarQty('${i.id}',1)">+</button>
+            <button class="csi-btn" onclick="alterarQtyKey('${key}',1)">+</button>
           </div>
           <span class="csi-subtotal">${fmt(i.preco*i.qty)}</span>
-        </div>`).join('')
+        </div>`}).join('')
     }
 
     window.alterarQty=function(id,d){
-      const idx=cart.findIndex(c=>c.id===id);if(idx===-1)return
+      const idx=cart.findIndex(c=>c.id===id&&!c._cartKey);if(idx===-1)return
       cart[idx].qty+=d;if(cart[idx].qty<=0)cart.splice(idx,1)
-      atualizarCartBar();renderCarrinho()
+      salvarCart();atualizarCartBar();renderCarrinho()
+    }
+    window.alterarQtyKey=function(key,d){
+      const idx=cart.findIndex(c=>(c._cartKey||c.id)===key);if(idx===-1)return
+      cart[idx].qty+=d;if(cart[idx].qty<=0)cart.splice(idx,1)
+      salvarCart();atualizarCartBar();renderCarrinho()
     }
 
     window.abrirCarrinho=function(){renderCarrinho();document.getElementById('cartScreen').classList.add('open')}
     window.fecharCarrinho=()=>document.getElementById('cartScreen').classList.remove('open')
 
+    // ============================================================
+    // PAGAMENTO
+    // ============================================================
     window.enviarPedido=async function(){
+      if(loja&&!loja.aberta){
+        alert('A loja esta fechada no momento. Aguarde a reabertura para finalizar o pedido.')
+        return
+      }
       const nome=document.getElementById('cliNome').value.trim()
       const tel=document.getElementById('cliTel').value.replace(/\D/g,'')
       const rua=document.getElementById('cliRua').value.trim()
@@ -694,56 +1343,327 @@
       if(!num)erros.push('Número é obrigatório')
       if(!bairro)erros.push('Bairro é obrigatório')
       if(erros.length){alert('Por favor corrija:\n\n• '+erros.join('\n• '));return}
-      const enderecoCompleto=`${rua}, ${num}${comp?' — '+comp:''}, ${bairro}${cidade?' — '+cidade:''} (CEP: ${cep})`
+
       const btn=document.getElementById('btnEnviar')
-      btn.disabled=true;btn.textContent='Enviando...'
+      btn.disabled=true;btn.textContent='Salvando pedido...'
+
       try{
+        const enderecoCompleto=`${rua}, ${num}${comp?' — '+comp:''}, ${bairro}${cidade?' — '+cidade:''} (CEP: ${cep})`
         const itens=cart.map(i=>({produto_id:i.id,nome:i.nome||'Produto',preco:i.preco,quantidade:i.qty,subtotal:i.preco*i.qty}))
-        const clienteData={
-          nome,telefone:document.getElementById('cliTel').value,
-          endereco:enderecoCompleto,obs,
-          rua,num,comp,bairro,cidade,cep
-        }
+        const clienteData={nome,telefone:document.getElementById('cliTel').value,endereco:enderecoCompleto,obs,rua,num,comp,bairro,cidade,cep}
+
+        // Cria pedido com status aguardando pagamento (inclui taxa de entrega)
+        const taxaEntregaValor=addTaxaEntrega?Number(addTaxaEntrega.taxa):0
+        pedidoAtual=await criarPedido(lojaId,clienteData,itens,cupomAtivo?.id||null,descontoAtivo,'pendente',taxaEntregaValor)
+        pedidoAtual._clienteData=clienteData
+        pedidoAtual._itens=itens
+        pedidoAtual._rua=rua;pedidoAtual._num=num;pedidoAtual._comp=comp
+        pedidoAtual._bairro=bairro;pedidoAtual._cidade=cidade;pedidoAtual._cep=cep
+
+        // Abre tela de pagamento
+        abrirPagamento()
+        btn.disabled=false;btn.textContent='Confirmar pedido'
+      }catch(e){
+        console.error('Erro criarPedido:', e?.message || e)
+        // Mostra erro mais detalhado em dev
+        const msg = e?.message?.includes('column') 
+          ? 'Erro de configuração do banco. Rode o SQL update_pagamento.sql no Supabase.'
+          : 'Erro ao registrar pedido. Tente novamente.'
+        alert(msg)
+        btn.disabled=false;btn.textContent='Confirmar pedido'
+      }
+    }
+
+    function abrirPagamento(){
+      const subtotal=cart.reduce((s,i)=>s+i.preco*i.qty,0)
+      const total=Math.max(0,subtotal-descontoAtivo)
+      document.getElementById('pgtoTotalVal').textContent=fmt(total)
+      pgtoSelecionado=null
+      document.getElementById('pgtoConfirmar').disabled=true
+
+      // Monta opções baseado na configuração da loja
+      const pixAtivo=loja.pix_ativo&&loja.chave_pix
+      const cartaoAtivo=loja.cartao_ativo
+      const dinheiroAtivo=loja.dinheiro_ativo!==false
+
+      let h=''
+
+      if(pixAtivo){
+        h+=`<div class="pgto-opcao" id="pgto-pix" onclick="selecionarPgto('pix')">
+          <div class="pgto-opcao-header">
+            <div class="pgto-opcao-icon" style="background:#E8F5E9;">💚</div>
+            <div class="pgto-opcao-info">
+              <div class="pgto-opcao-nome">PIX</div>
+              <div class="pgto-opcao-desc">Instantâneo · aprovação na hora</div>
+            </div>
+            <div class="pgto-radio"><div class="pgto-radio-inner"></div></div>
+          </div>
+          <div class="pix-area">
+            <div class="pix-chave">
+              <div>
+                <div class="pix-chave-lbl">Chave PIX</div>
+                <div class="pix-chave-val">${loja.chave_pix}</div>
+              </div>
+              <button class="pix-copy-btn" onclick="copiarPix(event)">Copiar</button>
+            </div>
+            <div class="pix-instrucao">
+              1. Copie a chave PIX acima<br>
+              2. Abra seu banco e faça o pagamento de ${fmt(total)}<br>
+              3. Envie o comprovante pelo WhatsApp ao confirmar
+            </div>
+          </div>
+        </div>`
+      }
+
+      // Cartão online (MP) — só aparece se mp_ativo e mp_public_key configurados
+      const mpAtivo = loja.mp_ativo && loja.mp_public_key
+      if(mpAtivo){
+        h+=`<div class="pgto-opcao" id="pgto-cartao" onclick="selecionarPgto('cartao')">
+          <div class="pgto-opcao-header">
+            <div class="pgto-opcao-icon" style="background:#E3F2FD;">💳</div>
+            <div class="pgto-opcao-info">
+              <div class="pgto-opcao-nome">Cartão de crédito ou débito</div>
+              <div class="pgto-opcao-desc">Online · aprovação imediata · seguro</div>
+            </div>
+            <div class="pgto-radio"><div class="pgto-radio-inner"></div></div>
+          </div>
+          <div class="mp-form-wrap">
+            <div class="mp-loading" id="mpLoading">Carregando formulário seguro...</div>
+            <div id="mpCardForm"></div>
+            <select class="pgto-parcelas" id="mpParcelas" style="display:none;">
+              <option value="1">1x sem juros</option>
+            </select>
+            <div class="mp-erro" id="mpErro"></div>
+            <div class="mp-aprovado" id="mpAprovado">Pagamento aprovado!</div>
+          </div>
+        </div>`
+      }
+
+      if(dinheiroAtivo){
+        h+=`<div class="pgto-opcao" id="pgto-dinheiro" onclick="selecionarPgto('dinheiro')">
+          <div class="pgto-opcao-header">
+            <div class="pgto-opcao-icon" style="background:#FFF8E1;">💵</div>
+            <div class="pgto-opcao-info">
+              <div class="pgto-opcao-nome">Dinheiro na entrega</div>
+              <div class="pgto-opcao-desc">Pague ao receber o pedido</div>
+            </div>
+            <div class="pgto-radio"><div class="pgto-radio-inner"></div></div>
+          </div>
+        </div>`
+      }
+
+      if(!h){
+        h=`<div style="text-align:center;padding:2rem;color:var(--txt2);font-size:0.88rem;">
+          Nenhuma forma de pagamento configurada.<br>Entre em contato com o estabelecimento.
+        </div>`
+      }
+
+      document.getElementById('pgtoOpcoes').innerHTML=h
+      document.getElementById('pgtoScreen').classList.add('open')
+    }
+
+    window.fecharPagamento=function(){
+      document.getElementById('pgtoScreen').classList.remove('open')
+    }
+
+    window.selecionarPgto=function(tipo){
+      pgtoSelecionado=tipo
+      document.querySelectorAll('.pgto-opcao').forEach(el=>el.classList.remove('selecionado'))
+      const el=document.getElementById('pgto-'+tipo)
+      if(el)el.classList.add('selecionado')
+      const labels={pix:'Confirmar — paguei no PIX',cartao:'Pagar com cartão',dinheiro:'Confirmar — pago na entrega'}
+      document.getElementById('pgtoConfirmar').textContent=labels[tipo]||'Confirmar pagamento'
+      // Cartão: inicializa formulário MP e deixa o botão desabilitado até preencher
+      if(tipo==='cartao'){
+        document.getElementById('pgtoConfirmar').disabled=true
+        inicializarMPForm()
+      } else {
+        document.getElementById('pgtoConfirmar').disabled=false
+      }
+    }
+
+    function inicializarMPForm(){
+      if(mpFormReady)return
+      if(!loja.mp_public_key)return
+      try{
+        mpInstance=new MercadoPago(loja.mp_public_key,{locale:'pt-BR'})
+        const cardForm=mpInstance.cardForm({
+          amount: String(Math.max(0,cart.reduce((s,i)=>s+i.preco*i.qty,0)-descontoAtivo)),
+          iframe: true,
+          form:{
+            id:'mpCardForm',
+            cardNumber:{id:'form-checkout__cardNumber',placeholder:'Número do cartão'},
+            expirationDate:{id:'form-checkout__expirationDate',placeholder:'MM/AA'},
+            securityCode:{id:'form-checkout__securityCode',placeholder:'CVV'},
+            cardholderName:{id:'form-checkout__cardholderName',placeholder:'Nome como no cartão'},
+            issuer:{id:'form-checkout__issuer',placeholder:'Banco emissor'},
+            installments:{id:'form-checkout__installments',placeholder:'Parcelas'},
+            identificationType:{id:'form-checkout__identificationType',placeholder:'Tipo de doc.'},
+            identificationNumber:{id:'form-checkout__identificationNumber',placeholder:'CPF'},
+            cardholderEmail:{id:'form-checkout__cardholderEmail',placeholder:'E-mail (opcional)'},
+          },
+          callbacks:{
+            onFormMounted: err=>{
+              document.getElementById('mpLoading').style.display='none'
+              if(err)console.warn('Form mount error:',err)
+              else mpFormReady=true
+            },
+            onSubmit: async event=>{
+              event.preventDefault()
+              await processarCartaoMP(cardForm.getCardFormData())
+            },
+            onFetching: resource=>{
+              const btn=document.getElementById('pgtoConfirmar')
+              btn.disabled=true;btn.textContent='Verificando cartão...'
+              return ()=>{
+                btn.disabled=false;btn.textContent='Pagar com cartão'
+              }
+            },
+            onValidityChange: (errors,field)=>{
+              // Habilita botão quando formulário válido
+              const erros=mpInstance?.cardForm?.getCardFormData?.()
+              document.getElementById('pgtoConfirmar').disabled=false
+            }
+          }
+        })
+        mpCardId=cardForm
+        document.getElementById('pgtoConfirmar').disabled=false
+      }catch(e){
+        console.error('Erro ao inicializar MP:',e)
+        document.getElementById('mpLoading').textContent='Erro ao carregar formulário. Recarregue a página.'
+      }
+    }
+
+    window.copiarPix=function(e){
+      e.stopPropagation()
+      navigator.clipboard.writeText(loja.chave_pix||'')
+      const btn=e.target
+      btn.textContent='Copiado!'
+      setTimeout(()=>{btn.textContent='Copiar'},2000)
+    }
+
+    // Processa cartão via Vercel Function
+    async function processarCartaoMP(formData){
+      const btn=document.getElementById('pgtoConfirmar')
+      const erroEl=document.getElementById('mpErro')
+      const aprovEl=document.getElementById('mpAprovado')
+      erroEl.classList.remove('show');aprovEl.classList.remove('show')
+      btn.disabled=true;btn.textContent='Processando pagamento...'
+
+      try{
         const subtotal=cart.reduce((s,i)=>s+i.preco*i.qty,0)
-        const pedido=await criarPedido(lojaId,clienteData,itens,cupomAtivo?.id||null,descontoAtivo)
-        // Mensagem WhatsApp
         const total=Math.max(0,subtotal-descontoAtivo)
-        let msg=`*Novo Pedido — ${loja.nome}*\n\n*Cliente:* ${nome}\n*Celular:* ${document.getElementById('cliTel').value}\n\n`
-        msg+=`*Endereço:*\n${rua}, ${num}${comp?' — '+comp:''}\n${bairro}${cidade?' — '+cidade:''}\nCEP: ${cep}\n\n*Itens:*\n`
+
+        const res=await fetch('/api/processar-pagamento',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            token:              formData.token,
+            valor:              total,
+            payment_method_id:  formData.paymentMethodId,
+            parcelas:           formData.installments||1,
+            descricao:          `Pedido ${loja.nome}`,
+            lojaId:             lojaId,
+            pagador:{
+              email:    formData.cardholderEmail||'cliente@deliveryapp.com',
+              doc_tipo: formData.identificationType||'CPF',
+              doc_num:  formData.identificationNumber||'00000000000'
+            }
+          })
+        })
+
+        const data=await res.json()
+
+        if(data.aprovado){
+          aprovEl.textContent='Pagamento aprovado!'
+          aprovEl.classList.add('show')
+          btn.textContent='Confirmado!'
+          // Continua com o fluxo normal de confirmação
+          await finalizarPedido('cartao_online')
+        } else {
+          erroEl.textContent=data.mensagem||'Pagamento recusado. Tente outro cartão.'
+          erroEl.classList.add('show')
+          btn.disabled=false;btn.textContent='Tentar novamente'
+        }
+      }catch(e){
+        console.error('Erro pagamento:',e)
+        erroEl.textContent='Erro de conexão. Verifique sua internet e tente novamente.'
+        erroEl.classList.add('show')
+        btn.disabled=false;btn.textContent='Tentar novamente'
+      }
+    }
+
+    window.confirmarPagamento=async function(){
+      if(!pgtoSelecionado||!pedidoAtual)return
+      // Cartão online: o submit é feito pelo SDK do MP (onSubmit callback)
+      if(pgtoSelecionado==='cartao'&&mpCardId){
+        mpCardId.cardForm?.submit?.()
+        return
+      }
+      await finalizarPedido(pgtoSelecionado)
+    }
+
+    async function finalizarPedido(formaPagamento){
+      const btn=document.getElementById('pgtoConfirmar')
+      btn.disabled=true;btn.textContent='Confirmando...'
+
+      try{
+        // Atualiza forma de pagamento no banco
+        await atualizarFormaPagamento(pedidoAtual.id, formaPagamento)
+
+        // Monta mensagem WhatsApp com pagamento incluído
+        const subtotal=cart.reduce((s,i)=>s+i.preco*i.qty,0)
+        const total=Math.max(0,subtotal-descontoAtivo)
+        const nome=pedidoAtual._clienteData.nome
+        const tel=pedidoAtual._clienteData.telefone
+        const rua=pedidoAtual._rua,num=pedidoAtual._num,comp=pedidoAtual._comp
+        const bairro=pedidoAtual._bairro,cidade=pedidoAtual._cidade,cep=pedidoAtual._cep
+        const obs=pedidoAtual._clienteData.obs
+
+        const pgtoLabel={pix:'PIX (comprovante em anexo)',cartao:'Cartão na entrega',dinheiro:'Dinheiro na entrega'}
+
+        let msg=`*Novo Pedido — ${loja.nome}*\n\n`
+        msg+=`*Cliente:* ${nome}\n*Celular:* ${tel}\n\n`
+        msg+=`*Endereço:*\n${rua}, ${num}${comp?' — '+comp:''}\n${bairro}${cidade?' — '+cidade:''}\nCEP: ${cep}\n\n`
+        msg+=`*Itens:*\n`
         cart.forEach(i=>{msg+=`• ${i.qty}x ${i.nome} — ${fmt(i.preco*i.qty)}\n`})
-        if(descontoAtivo>0)msg+=`\n*Desconto cupom:* −${fmt(descontoAtivo)}`
+        if(descontoAtivo>0)msg+=`\n*Desconto:* −${fmt(descontoAtivo)}`
         msg+=`\n*Total: ${fmt(total)}*`
+        msg+=`\n*Pagamento:* ${pgtoLabel[pgtoSelecionado]}`
         if(obs)msg+=`\n\n*Obs:* ${obs}`
+
         if(loja.whatsapp)window.open(`https://wa.me/55${loja.whatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`,'_blank')
-        // Calcula pontos ganhos para mostrar na tela de sucesso
+
+        // Calcula pontos
         let pontosGanhos=0
-        if(fidelidadeConfig&&fidelidadeConfig.ativo){
+        if(fidelidadeConfig&&fidelidadeConfig.ativo&&fidelidadeConfig.id){
           if(fidelidadeConfig.tipo_pontuacao==='compra'){
             pontosGanhos=Math.floor(total/(fidelidadeConfig.valor_por_ponto||10))
           } else {
-            pontosGanhos=itens.reduce((s,i)=>s+(i.quantidade*(fidelidadeConfig.pontos_por_real||1)),0)
+            pontosGanhos=pedidoAtual._itens.reduce((s,i)=>s+(i.quantidade*(fidelidadeConfig.pontos_por_real||1)),0)
           }
         }
+
+        // Fecha tela de pagamento e mostra sucesso
+        mpFormReady=false;mpInstance=null;mpCardId=null
+        document.getElementById('pgtoScreen').classList.remove('open')
         document.getElementById('cartScreen').innerHTML=`
           <div class="cs-success">
             <div class="cs-success-icon">🎉</div>
             <div class="cs-success-title">Pedido confirmado!</div>
             <div class="cs-success-sub">
-              Seu pedido foi registrado e enviado pelo WhatsApp.<br>
-              Aguarde a confirmação do estabelecimento.<br><br>
+              Pedido enviado pelo WhatsApp com sucesso!<br><br>
+              <strong>Pagamento:</strong> ${pgtoLabel[pgtoSelecionado]}<br><br>
               <strong>Entrega em:</strong><br>${rua}, ${num}${comp?' — '+comp:''}<br>${bairro}${cidade?' — '+cidade:''} · CEP: ${cep}
             </div>
-            ${pontosGanhos>0?`<div class="cs-success-pontos">
-              <div class="cs-success-pontos-txt">⭐ Você ganhou neste pedido</div>
-              <div class="cs-success-pontos-val">+${pontosGanhos} pontos</div>
-            </div>`:''}
+            ${pontosGanhos>0?`<div class="cs-success-pontos"><div class="cs-success-pontos-txt">Voce ganhou neste pedido</div><div class="cs-success-pontos-val">+${pontosGanhos} pontos</div></div>`:''}
             <button class="cs-novo-btn" onclick="location.reload()">Fazer novo pedido</button>
           </div>`
-        cart=[];atualizarCartBar()
+        cart=[];limparCartSalvo();atualizarCartBar()
       }catch(e){
         console.error(e)
-        alert('Erro ao enviar pedido. Tente novamente.')
-        btn.disabled=false;btn.textContent='Confirmar pedido'
+        alert('Erro ao confirmar. Tente novamente.')
+        btn.disabled=false;btn.textContent='Confirmar pagamento'
       }
     }
 

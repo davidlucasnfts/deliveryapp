@@ -2,7 +2,7 @@
 
 import { supabase } from '../supabase.js'
 import { fmt, toast, tempoDecorrido, isUrgente } from './utils.js'
-import { atualizarStatus } from '../pedidos.js'
+import { atualizarStatus, msgWhatsAppStatus } from '../pedidos.js'
 
 const statusLabel     = { novo:'Novo', prep:'Em preparo', saiu:'Saiu p/ entrega', entregue:'Entregue' }
 const statusNext      = { novo:'prep', prep:'saiu', saiu:'entregue' }
@@ -22,11 +22,31 @@ export function renderPedidos() {
   const badge = document.getElementById('badgeNovos')
   if (badge) { badge.textContent = novos; badge.className = novos > 0 ? 'tab-badge show' : 'tab-badge' }
 
+  // Produto mais vendido hoje
+  const contagem = {}
+  _pedidos.forEach(p => (p.itens_pedido||[]).forEach(i => {
+    contagem[i.nome_produto] = (contagem[i.nome_produto]||0) + i.quantidade
+  }))
+  const topProd = Object.entries(contagem).sort((a,b)=>b[1]-a[1])[0]
+  const ticketMedio = _pedidos.length ? totalHoje / _pedidos.length : 0
+
   let h = `<div class="stats">
     <div class="stat"><div class="stat-val">${_pedidos.length}</div><div class="stat-lbl">Pedidos hoje</div></div>
     <div class="stat"><div class="stat-val">${emAberto.length}</div><div class="stat-lbl">Em aberto</div></div>
     <div class="stat"><div class="stat-val">${fmt(totalHoje)}</div><div class="stat-lbl">Faturamento</div></div>
-  </div>`
+  </div>
+  ${_pedidos.length > 0 ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1rem;">
+    <div class="stat">
+      <div style="font-size:0.68rem;color:var(--txt2);margin-bottom:0.15rem;">🏆 Mais vendido</div>
+      <div style="font-size:0.82rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${topProd?topProd[0]:'—'}</div>
+      <div style="font-size:0.68rem;color:var(--txt3);">${topProd?topProd[1]+' unidades':''}</div>
+    </div>
+    <div class="stat">
+      <div style="font-size:0.68rem;color:var(--txt2);margin-bottom:0.15rem;">💰 Ticket médio</div>
+      <div style="font-size:0.82rem;font-weight:700;color:var(--or);">${fmt(ticketMedio)}</div>
+      <div style="font-size:0.68rem;color:var(--txt3);">por pedido</div>
+    </div>
+  </div>` : ''}`
 
   if (emAberto.length) {
     h += `<div class="sec-title">Em aberto (${emAberto.length})</div>`
@@ -49,6 +69,8 @@ function cardPedido(p) {
   const tempo   = tempoDecorrido(p.criado_em)
   const urgente = isUrgente(p.criado_em, p.status)
   const num     = p.numero || p.id.slice(0, 6).toUpperCase()
+  const pgtoIcon = {pix:'💚 PIX', cartao:'💳 Cartão', dinheiro:'💵 Dinheiro', pendente:'⏳ Pendente'}
+  const pgtoLabel = pgtoIcon[p.forma_pagamento] || ''
 
   return `<div class="order-card ${p.status}" onclick="abrirDetalhes('${p.id}')">
     <div class="oc-top">
@@ -56,6 +78,7 @@ function cardPedido(p) {
         <div class="oc-num">#${num}</div>
         <div class="oc-name">${p.nome_cliente}</div>
         <div class="oc-addr">📍 ${p.endereco_entrega || '—'}</div>
+            ${pgtoLabel?`<div style="font-size:0.68rem;font-weight:700;margin-top:0.2rem;color:var(--txt2);">${pgtoLabel}</div>`:''}
       </div>
       <div class="oc-right">
         <span class="status-pill s-${p.status}">${statusLabel[p.status]}</span>
@@ -67,7 +90,8 @@ function cardPedido(p) {
     <div class="oc-footer">
       <span class="oc-total">${fmt(p.total)}</span>
       <div class="oc-actions">
-        ${p.telefone_cliente ? `<button class="oc-btn btn-wpp" onclick="event.stopPropagation();chamarWpp('${p.telefone_cliente}','${p.nome_cliente}')">WhatsApp</button>` : ''}
+        ${p.telefone_cliente && p.status !== 'novo' ? `<button class="oc-btn btn-wpp" onclick="event.stopPropagation();notificarCliente('${p.id}')">WhatsApp</button>` : ''}
+        ${p.telefone_cliente && p.status === 'novo' ? `<button class="oc-btn btn-wpp" onclick="event.stopPropagation();chamarWpp('${p.telefone_cliente}','${p.nome_cliente}')">WhatsApp</button>` : ''}
         ${prox ? `<button class="oc-btn btn-avancar" onclick="event.stopPropagation();avancarPedido('${p.id}','${prox}')">→ ${statusNextLabel[p.status]}</button>` : ''}
       </div>
     </div>
@@ -112,4 +136,12 @@ export async function avancarModalPedido(id, novo) {
 
 export function chamarWpp(tel, nome) {
   window.open(`https://wa.me/55${tel.replace(/\D/g, '')}?text=${encodeURIComponent(`Olá ${nome}, tudo bem com seu pedido?`)}`, '_blank')
+}
+
+export function notificarCliente(id) {
+  const p = _pedidos.find(x => x.id === id)
+  if (!p || !p.telefone_cliente) return
+  const msg = msgWhatsAppStatus(p.status, p.nome_cliente, '(nome da loja)')
+  if (!msg) { chamarWpp(p.telefone_cliente, p.nome_cliente); return }
+  window.open(`https://wa.me/55${p.telefone_cliente.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank')
 }
