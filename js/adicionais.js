@@ -104,7 +104,7 @@ export function toggleAdicional(grupoId,itemId,maxEscolha,preco,nome){
         window.APP.addSelecionados[grupoId].splice(idx,1)
       }
     } else {
-      if(total>=maxEscolha){showToast('Máximo de '+maxEscolha+' opções neste grupo');return}
+      if(total>=maxEscolha){window.showToast('Máximo de '+maxEscolha+' opções neste grupo');return}
       window.APP.addSelecionados[grupoId].push({id:itemId,preco,nome,window.APP.qty:1})
     }
     // Atualiza visual do botão +
@@ -200,8 +200,8 @@ export function confirmarAdicionais(){
     _descAdicionais:adicionaisEscolhidos.map(a=>a.nome_adicional).join(', ')
   }
   window.APP.confirmQty=window.APP.addQty
-  fecharAdicionais()
-  abrirConfirmacao()
+  window.fecharAdicionais()
+  window.abrirConfirmacao()
 }
 export function abrirConfirmacao(){
   if(!window.APP.confirmItem) return
@@ -222,16 +222,16 @@ export function adicionarConfirmItem(){
   const ex=window.APP.cart.find(c=>c._cartKey===window.APP.confirmItem._cartKey)
   if(ex) ex.qty+=window.APP.confirmQty
   else window.APP.cart.push(window.APP.confirmItem)
-  salvarCart();atualizarCartBar()
-  showToast(window.APP.confirmItem.nome+' adicionado!')
+  window.salvarCart();window.atualizarCartBar()
+  window.showToast(window.APP.confirmItem.nome+' adicionado!')
   document.getElementById('confirmOverlay').classList.remove('open')
   window.APP.confirmItem=null
 }
 export function confirmContinuar(){
-  adicionarConfirmItem()
+  window.adicionarConfirmItem()
   // Fica no cardápio
 }
 export function confirmIrCarrinho(){
-  adicionarConfirmItem()
-  setTimeout(()=>abrirCarrinho(),200)
+  window.adicionarConfirmItem()
+  setTimeout(()=>window.abrirCarrinho(),200)
 }

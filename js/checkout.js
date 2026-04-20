@@ -107,7 +107,7 @@ export async function buscarCep(){
         const compEl=document.getElementById('cliComp')
         if(numEl&&!numEl.value&&cli.endereco_num) numEl.value=cli.endereco_num
         if(compEl&&!compEl.value&&cli.endereco_comp) compEl.value=cli.endereco_comp
-        showToast('Endereço reconhecido!')
+        window.showToast('Endereço reconhecido!')
       }
 
       // Pontos
@@ -136,12 +136,12 @@ export async function aplicarCupom(){
     window.APP.cupomAtivo=res.cupom;window.APP.descontoAtivo=res.desconto
     inp.classList.add('ok');inp.classList.remove('err')
     msg.textContent=res.msg;msg.className='cupom-msg ok'
-    renderTotais()
+    window.renderTotais()
   } else {
     window.APP.cupomAtivo=null;window.APP.descontoAtivo=0
     inp.classList.add('err');inp.classList.remove('ok')
     msg.textContent=res.msg;msg.className='cupom-msg err'
-    renderTotais()
+    window.renderTotais()
   }
 }
 export async function verificarTaxaEntrega(bairro){
@@ -149,7 +149,7 @@ export async function verificarTaxaEntrega(bairro){
   if(!bairro) return
   const taxa=await getTaxaEntrega(window.APP.lojaId,bairro)
   window.APP.addTaxaEntrega=taxa
-  atualizarTaxaUI()
+  window.atualizarTaxaUI()
 }
 export function atualizarTaxaUI(){
   const taxaRow=document.getElementById('taxaEntregaRow')
@@ -492,7 +492,7 @@ export async function finalizarPedido(formaPagamento){
         ${pontosGanhos>0?`<div class="cs-success-pontos"><div class="cs-success-pontos-txt">Voce ganhou neste pedido</div><div class="cs-success-pontos-val">+${pontosGanhos} pontos</div></div>`:''}
         <button class="cs-novo-btn" onclick="location.reload()">Fazer novo pedido</button>
       </div>`
-    window.APP.cart=[];limparCartSalvo();atualizarCartBar()
+    window.APP.cart=[];window.limparCartSalvo();window.atualizarCartBar()
   }catch(e){
     console.error(e)
     alert('Erro ao confirmar. Tente novamente.')

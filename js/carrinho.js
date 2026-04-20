@@ -40,8 +40,8 @@ export function renderCarrinho(){
     return
   }
   tw.style.display='block';form.style.display='block'
-  renderTotais()
-  renderUpsell()
+  window.renderTotais()
+  window.renderUpsell()
   document.getElementById('csBodyItens').innerHTML=window.APP.cart.map(i=>{
     const key=i._cartKey||i.id
     return `<div class="cs-item">
@@ -62,18 +62,18 @@ export function renderCarrinho(){
 export function alterarQty(id,d){
   const idx=window.APP.cart.findIndex(c=>c.id===id&&!c._cartKey);if(idx===-1)return
   window.APP.cart[idx].qty+=d;if(window.APP.cart[idx].qty<=0)window.APP.cart.splice(idx,1)
-  salvarCart();atualizarCartBar();renderCarrinho()
+  window.salvarCart();window.atualizarCartBar();window.renderCarrinho()
 }
 export function alterarQtyKey(key,d){
   const idx=window.APP.cart.findIndex(c=>(c._cartKey||c.id)===key);if(idx===-1)return
   window.APP.cart[idx].qty+=d;if(window.APP.cart[idx].qty<=0)window.APP.cart.splice(idx,1)
-  salvarCart();atualizarCartBar();renderCarrinho()
+  window.salvarCart();window.atualizarCartBar();window.renderCarrinho()
 }
 export function fecharCarrinho(){
   document.getElementById('cartScreen').classList.remove('open')
 }
 
-export function abrirCarrinho(){renderCarrinho();document.getElementById('cartScreen').classList.add('open')}
+export function abrirCarrinho(){window.renderCarrinho();document.getElementById('cartScreen').classList.add('open')}
 export function renderTotais(){
   const subtotal=window.APP.cart.reduce((s,i)=>s+i.preco*i.qty,0)
   const taxa=window.APP.addTaxaEntrega?Number(window.APP.addTaxaEntrega.taxa):0
@@ -140,13 +140,13 @@ export async function upsellAdd(id){
   // Verifica se tem adicionais
   const grupos=await getGruposAdicionais(id)
   if(grupos.length){
-    abrirAdicionais(p,grupos)
+    window.abrirAdicionais(p,grupos)
     return
   }
   // Adiciona direto ao carrinho
   const ex=window.APP.cart.find(c=>c.id===id&&!c._cartKey)
   if(ex) ex.qty++
   else window.APP.cart.push({...p,window.APP.qty:1})
-  salvarCart();atualizarCartBar();renderCarrinho()
-  showToast(p.nome+' adicionado!')
+  window.salvarCart();window.atualizarCartBar();window.renderCarrinho()
+  window.showToast(p.nome+' adicionado!')
 }

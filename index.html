@@ -361,7 +361,7 @@
 
     // Atalhos locais
     const fmt=v=>'R$'+Number(v).toFixed(2).replace('.',',')
-    let loja=null,produtos=[],categorias=[],cart=[],itemAtual=null,qty=1
+    let loja=null,produtos=[],categorias=[],cart=[],itemAtual=null,qty=1,fidelidadeConfig=null,catAtual='todos'
 
     // Expõe funções para onclick no HTML
     const exp=obj=>Object.entries(obj).forEach(([k,v])=>{window[k]=v})
@@ -594,9 +594,10 @@
       fecharItem()
       abrirConfirmacao()
     }
-    function showToast(nome){
+    window.showToast=function(msg){
       const t=document.getElementById('toastAdd')
-      t.innerHTML=`<span class="mi" style="font-size:16px;color:var(--grn);">check_circle</span> ${nome} adicionado!`
+      if(!t) return
+      t.innerHTML=`<span class="mi" style="font-size:16px;color:var(--grn);">check_circle</span> ${msg}`
       t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)
     }
     window.fecharItem=()=>document.getElementById('itemOverlay').classList.remove('open')
