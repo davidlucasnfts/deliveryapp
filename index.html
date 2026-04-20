@@ -1551,15 +1551,17 @@
       btn.disabled=true;btn.textContent='Processando pagamento...'
 
       try{
-        const subtotal=cart.reduce((s,i)=>s+i.preco*i.qty,0)
-        const total=Math.max(0,subtotal-descontoAtivo)
+        // SEGURANÇA: não enviamos valor — backend busca do banco
+        if(!pedidoAtual?.id){
+          throw new Error('Pedido não foi registrado. Recarregue a página.')
+        }
 
         const res=await fetch('/api/processar-pagamento',{
           method:'POST',
           headers:{'Content-Type':'application/json'},
           body:JSON.stringify({
             token:              formData.token,
-            valor:              total,
+            pedidoId:           pedidoAtual.id,
             payment_method_id:  formData.paymentMethodId,
             parcelas:           formData.installments||1,
             descricao:          `Pedido ${loja.nome}`,

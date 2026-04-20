@@ -125,8 +125,31 @@ export async function buscarClientePorTelefone(lojaId, telefone) {
 
 // Cria pedido principal
 export async function criarPedido(lojaId, cliente, itens, cupomId = null, desconto = 0, formaPagamento = 'pendente', taxaEntrega = 0) {
-  const subtotal = itens.reduce((s, i) => s + i.subtotal, 0)
-  const total    = Math.max(0, subtotal + taxaEntrega - desconto)
+  // ─── VALIDAÇÕES ANTES DE QUALQUER INSERT ──────────────
+  if (!lojaId)                 throw new Error('Loja não identificada')
+  if (!cliente?.nome?.trim())  throw new Error('Nome do cliente é obrigatório')
+  if (cliente.nome.trim().length < 3) throw new Error('Nome muito curto (mínimo 3 caracteres)')
+
+  const telLimpo = String(cliente.telefone || '').replace(/\D/g, '')
+  if (telLimpo.length !== 11)  throw new Error('Celular inválido — precisa ter 11 dígitos')
+
+  if (!Array.isArray(itens) || !itens.length) throw new Error('Nenhum item no pedido')
+
+  // Valida cada item individualmente
+  for (const i of itens) {
+    if (!i.produto_id)                     throw new Error('Item sem produto_id')
+    if (!i.quantidade || i.quantidade < 1) throw new Error('Quantidade inválida em algum item')
+    if (!Number.isFinite(Number(i.preco)) || Number(i.preco) < 0) throw new Error('Preço inválido em algum item')
+    if (!Number.isFinite(Number(i.subtotal)) || Number(i.subtotal) < 0) throw new Error('Subtotal inválido em algum item')
+  }
+
+  // Calcula total com segurança
+  const subtotal = itens.reduce((s, i) => s + Number(i.subtotal || 0), 0)
+  const taxaNum  = Math.max(0, Number(taxaEntrega) || 0)
+  const descNum  = Math.max(0, Number(desconto) || 0)
+  const total    = Math.max(0, subtotal + taxaNum - descNum)
+
+  if (total <= 0) throw new Error('Total do pedido é zero ou negativo')
 
   // Monta dados do pedido — forma_pagamento é opcional (depende do SQL ter rodado)
   const dadosPedido = {
