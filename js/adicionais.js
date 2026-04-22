@@ -178,7 +178,7 @@ export function confirmarAdicionais(){
     const sel=window.APP.addSelecionados[g.id]||[]
     sel.forEach(s=>{
       const qty=s.qty||1
-      for(let i=0;i<window.APP.qty;i++){
+      for(let i=0;i<window.APP.addQty;i++){
         adicionaisEscolhidos.push({
           grupo_id:g.id, nome_grupo:g.nome,
           adicional_id:s.id, nome_adicional:s.nome, preco:s.preco
@@ -192,7 +192,7 @@ export function confirmarAdicionais(){
 
   // Prepara item para confirmação
   window.APP.confirmItem={
-    ...addProdutoAtual,
+    ...window.APP.addProdutoAtual,
     _cartKey:cartKey,
     preco:precoFinal,
     qty:window.APP.addQty,
