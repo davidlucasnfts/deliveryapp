@@ -116,7 +116,7 @@ export function renderUpsell(){
   // Monta lista final: até 6 produtos, priorizados primeiro
   sugestoes=[...priorizados,...resto].slice(0,6)
 
-  if(!sugestoes.length||!window.APP.cart.length){
+  if(!sugestoes.length||!window.APP.cart.length||window.APP.loja?.upsell_ativo===false){
     wrap.style.display='none'
     return
   }

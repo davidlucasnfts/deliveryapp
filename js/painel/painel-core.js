@@ -17,7 +17,7 @@ import { renderCardapio, setDados as setDadosCardapio,
   delProdDaCat, toggleNovaCatForm
 } from './painel-cardapio.js'
 import { renderFidelidade, setLoja as setLojaFid, mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade, salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao } from './painel-fidelidade.js'
-import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa, carregarTaxas } from './painel-config.js'
+import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa, carregarTaxas, toggleUpsell, salvarCardapioConfig } from './painel-config.js'
 
 let loja  = null
 let canal = null
@@ -43,7 +43,7 @@ exp({
   mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade,
   salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao,
   // config
-  mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa,
+  mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa, toggleUpsell, salvarCardapioConfig,
   // loja
   toggleLoja, sair, trocarTab,
 })
