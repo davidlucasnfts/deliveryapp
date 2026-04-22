@@ -367,6 +367,13 @@
     let loja=null,produtos=[],categorias=[],cart=[],itemAtual=null,qty=1,fidelidadeConfig=null,catAtual='todos'
 
     // Expõe funções para onclick no HTML
+    window.imgErr=function(img){
+      const ph=document.createElement('div')
+      ph.className=img.dataset.ph||'img-ph'
+      if(img.style.cssText)ph.style.cssText=img.style.cssText
+      ph.textContent=img.dataset.emoji||'🍽️'
+      img.parentNode.replaceChild(ph,img)
+    }
     const exp=obj=>Object.entries(obj).forEach(([k,v])=>{window[k]=v})
     exp({
       carregarCartSalvo,salvarCart,limparCartSalvo,atualizarCartBar,renderCarrinho,
@@ -447,7 +454,7 @@
       document.getElementById('storeName').textContent=loja.nome
       document.getElementById('storeDesc').textContent=loja.descricao||''
       if(loja.banner_url){
-        document.getElementById('heroBanner').outerHTML=`<img class="hero-img" src="${loja.banner_url}" alt="${loja.nome}">`
+        document.getElementById('heroBanner').outerHTML=`<img class="hero-img" src="${loja.banner_url}" alt="${loja.nome}" data-ph="hero-img-placeholder" data-emoji="🍕" onerror="imgErr(this)">`
       }
       document.getElementById('storeMeta').innerHTML=`
         <span class="hero-badge ${loja.aberta?'badge-open':'badge-fechado'}">
@@ -487,7 +494,7 @@
         itens.forEach((p,idx)=>{
           const rot=(ci+idx)%2===0?'rotate(6deg)':'rotate(-6deg)'
           h+=`<div class="item-card" onclick="abrirItem('${p.id}')" style="padding-top:1.5rem;margin-top:${idx===0?'1.5rem':'1rem'};">
-            ${p.foto_url?`<img class="item-float-img" src="${p.foto_url}" alt="${p.nome}" style="transform:${rot};">`:`<div class="item-float-ph" style="transform:${rot};">🍽️</div>`}
+            ${p.foto_url?`<img class="item-float-img" src="${p.foto_url}" alt="${p.nome}" style="transform:${rot};" data-ph="item-float-ph" onerror="imgErr(this)">`:`<div class="item-float-ph" style="transform:${rot};">🍽️</div>`}
             <div class="item-body">
               <div class="iname">${p.nome}</div>
               <div class="idesc">${p.descricao||''}</div>
@@ -530,7 +537,7 @@
         encontrados.forEach((p,idx)=>{
           const rot=idx%2===0?'rotate(6deg)':'rotate(-6deg)'
           h+=`<div class="item-card" onclick="abrirItem('${p.id}')" style="padding-top:1.5rem;margin-top:${idx===0?'1.5rem':'1rem'};">
-            ${p.foto_url?`<img class="item-float-img" src="${p.foto_url}" alt="${p.nome}" loading="lazy" style="transform:${rot};">`:`<div class="item-float-ph" style="transform:${rot};">🍽️</div>`}
+            ${p.foto_url?`<img class="item-float-img" src="${p.foto_url}" alt="${p.nome}" loading="lazy" style="transform:${rot};" data-ph="item-float-ph" onerror="imgErr(this)">`:`<div class="item-float-ph" style="transform:${rot};">🍽️</div>`}
             <div class="item-body">
               <div class="iname">${p.nome}</div>
               <div class="idesc">${p.descricao||''}</div>
@@ -569,7 +576,7 @@
       document.getElementById('qtyNum').textContent=1
       document.getElementById('imAddBtn').textContent='Adicionar ao pedido'
       document.getElementById('imImgWrap').innerHTML=itemAtual.foto_url
-        ?`<img class="im-img" src="${itemAtual.foto_url}" alt="${itemAtual.nome}">`
+        ?`<img class="im-img" src="${itemAtual.foto_url}" alt="${itemAtual.nome}" data-ph="im-img-placeholder" onerror="imgErr(this)">`
         :`<div class="im-img-placeholder">🍽️</div>`
       document.getElementById('itemOverlay').classList.add('open')
     }

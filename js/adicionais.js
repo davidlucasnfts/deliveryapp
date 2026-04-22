@@ -13,7 +13,7 @@ export function abrirAdicionais(produto, grupos){
   document.getElementById('addProdPreco').textContent=fmt(produto.preco)
   document.getElementById('addProdDesc').textContent=produto.descricao||''
   document.getElementById('addFotoWrap').innerHTML=produto.foto_url
-    ?`<img class="add-prod-foto" src="${produto.foto_url}" alt="${produto.nome}" loading="lazy">`
+    ?`<img class="add-prod-foto" src="${produto.foto_url}" alt="${produto.nome}" loading="lazy" data-ph="add-prod-foto-ph" onerror="imgErr(this)">`
     :`<div class="add-prod-foto-ph">🍽️</div>`
   document.getElementById('addQtyNum').textContent=1
 
