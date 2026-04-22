@@ -65,8 +65,52 @@ export function renderCardapio() {
     </div>`
   })
 
+  h += renderUpsellAdmin()
   document.getElementById('mainBody').innerHTML = h
   initSeguraParaOrdenar()
+}
+
+function renderUpsellAdmin() {
+  const selecionados = _produtos.filter(p => p.upsell)
+  const disponiveis  = _produtos.filter(p => !p.upsell && p.disponivel !== false)
+
+  const listaHTML = selecionados.length
+    ? selecionados.map(p => `
+      <div style="display:flex;align-items:center;gap:0.65rem;padding:0.5rem 0;border-bottom:1px solid #F9FAFB;">
+        <div style="width:40px;height:40px;border-radius:9px;background:#FEF3C7;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;overflow:hidden;">
+          ${p.foto_url ? `<img src="${p.foto_url}" style="width:40px;height:40px;object-fit:cover;border-radius:9px;">` : '🍽️'}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.82rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.nome}</div>
+          <div style="font-size:0.75rem;color:var(--or);font-weight:700;">${fmt(p.preco)}</div>
+        </div>
+        <button onclick="removerUpsell('${p.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;border-radius:7px;padding:0.25rem 0.6rem;cursor:pointer;font-size:0.75rem;font-weight:700;flex-shrink:0;">Remover</button>
+      </div>`).join('')
+    : `<div style="font-size:0.78rem;color:var(--txt3);text-align:center;padding:0.75rem 0;">Nenhum produto adicionado ainda</div>`
+
+  const opcoesSelect = disponiveis.map(p =>
+    `<option value="${p.id}">${p.nome} — ${fmt(p.preco)}</option>`
+  ).join('')
+
+  return `
+  <div style="margin-top:1.25rem;">
+    <div class="sec-hd">
+      <span class="sec-title">⭐ Peça também</span>
+    </div>
+    <div style="background:#fff;border-radius:12px;border:1px solid #F0EDEB;padding:0.85rem;margin-bottom:1rem;">
+      <p style="font-size:0.75rem;color:var(--txt2);margin-bottom:0.75rem;line-height:1.5;">
+        Produtos que aparecem como sugestão quando o cliente abre o carrinho.
+      </p>
+      <div id="upsellAdminLista">${listaHTML}</div>
+      <div style="display:flex;gap:0.5rem;margin-top:0.85rem;">
+        <select id="upsellSelect" style="flex:1;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.45rem 0.65rem;font-size:0.82rem;font-family:'Poppins',sans-serif;color:var(--txt);outline:none;background:#fff;">
+          <option value="">Selecionar produto...</option>
+          ${opcoesSelect}
+        </select>
+        <button class="btn-or" onclick="adicionarUpsell()">+ Adicionar</button>
+      </div>
+    </div>
+  </div>`
 }
 
 function prodCard(p) {
@@ -401,6 +445,30 @@ async function _deletarProdId(id) {
   await supabase.from('grupos_adicionais').delete().eq('produto_id', id)
   await supabase.from('produtos').delete().eq('id', id)
   _produtos.splice(_produtos.findIndex(x => x.id === id), 1)
+}
+
+// ════════════════════════════════════════════
+// PEÇA TAMBÉM — gerenciamento pelo dono
+// ════════════════════════════════════════════
+export async function adicionarUpsell() {
+  const sel = document.getElementById('upsellSelect')
+  const id = sel?.value
+  if (!id) { toast('⚠️ Selecione um produto'); return }
+  await supabase.from('produtos').update({ upsell: true }).eq('id', id)
+  const p = _produtos.find(x => x.id === id)
+  if (p) p.upsell = true
+  renderCardapio()
+  const el = document.getElementById('upsellAdminLista')
+  el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  toast('✅ Adicionado ao "Peça também"!')
+}
+
+export async function removerUpsell(id) {
+  await supabase.from('produtos').update({ upsell: false }).eq('id', id)
+  const p = _produtos.find(x => x.id === id)
+  if (p) p.upsell = false
+  renderCardapio()
+  toast('Produto removido do "Peça também"')
 }
 
 // Exporta abrirNovoEp para compatibilidade

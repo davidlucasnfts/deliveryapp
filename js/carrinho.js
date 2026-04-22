@@ -94,29 +94,11 @@ export function renderUpsell(){
   const scroll=document.getElementById('upsellScroll')
   if(!wrap||!scroll) return
 
-  // Pega IDs dos produtos que já estão no carrinho
+  // Mostra apenas produtos que o dono marcou como "Peça também"
   const idsNoCarrinho=new Set(window.APP.cart.map(i=>i.id))
+  const sugestoes=window.APP.produtos.filter(p=>p.upsell===true&&!idsNoCarrinho.has(p.id)&&p.disponivel!==false)
 
-  // Seleciona produtos que NÃO estão no carrinho
-  // Prioridade: 1) bebidas/sobremesas, 2) mais baratos, 3) aleatório
-  let sugestoes=window.APP.produtos.filter(p=>!idsNoCarrinho.has(p.id)&&p.disponivel!==false)
-
-  // Tenta priorizar categorias "complementares" (bebidas, sobremesas, acompanhamentos)
-  const catNomes={}
-  window.APP.categorias.forEach(cat=>{catNomes[cat.id]=cat.nome.toLowerCase()})
-  const complementares=['bebida','refrigerante','suco','sobremesa','acompanhamento','porção','porcao','batata','drink']
-
-  // Separa em complementares e resto
-  const priorizados=sugestoes.filter(p=>{
-    const catNome=catNomes[p.categoria_id]||''
-    return complementares.some(term=>catNome.includes(term))
-  })
-  const resto=sugestoes.filter(p=>!priorizados.includes(p))
-
-  // Monta lista final: até 6 produtos, priorizados primeiro
-  sugestoes=[...priorizados,...resto].slice(0,6)
-
-  if(!sugestoes.length||!window.APP.cart.length||window.APP.loja?.upsell_ativo===false){
+  if(!sugestoes.length||!window.APP.cart.length){
     wrap.style.display='none'
     return
   }

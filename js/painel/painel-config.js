@@ -63,19 +63,6 @@ export function renderConfig() {
       <button class="copy-link" onclick="copiarLink()">📋 Copiar link</button>
     </div>
     <div class="cfg-card">
-      <div class="cfg-title">Cardápio</div>
-      <div class="cfg-row">
-        <div>
-          <div style="font-size:0.83rem;font-weight:700;color:var(--txt);">"Peça também" no carrinho</div>
-          <div style="font-size:0.72rem;color:var(--txt3);">Mostra sugestões de produtos quando o cliente abre o carrinho</div>
-        </div>
-        <button class="toggle ${_loja.upsell_ativo!==false?'on':''}" id="togUpsell" onclick="toggleUpsell()"></button>
-      </div>
-      <div style="margin-top:0.75rem;">
-        <button class="cfg-save" onclick="salvarCardapioConfig()">Salvar</button>
-      </div>
-    </div>
-    <div class="cfg-card">
       <div class="cfg-title">Informações da loja</div>
       <label class="cfg-lbl">Nome</label>
       <input class="cfg-inp" id="cfgNome" value="${_loja.nome || ''}">
@@ -219,18 +206,6 @@ export async function salvarHorario() {
   await supabase.from('lojas').update({ hora_abre: abre||null, hora_fecha: fecha||null }).eq('id', _loja.id)
   Object.assign(_loja, { hora_abre: abre, hora_fecha: fecha })
   toast(abre && fecha ? `✅ Horário salvo — abre ${abre}, fecha ${fecha}` : '✅ Horário automático removido')
-}
-
-export function toggleUpsell() {
-  const btn = document.getElementById('togUpsell')
-  if (btn) btn.classList.toggle('on')
-}
-
-export async function salvarCardapioConfig() {
-  const upsellAtivo = document.getElementById('togUpsell')?.classList.contains('on')
-  await supabase.from('lojas').update({ upsell_ativo: upsellAtivo }).eq('id', _loja.id)
-  _loja.upsell_ativo = upsellAtivo
-  toast(upsellAtivo ? '✅ "Peça também" ativado!' : '✅ "Peça também" desativado!')
 }
 
 export async function salvarConfig() {

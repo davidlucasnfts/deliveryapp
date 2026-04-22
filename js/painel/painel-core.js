@@ -14,10 +14,11 @@ import { renderCardapio, setDados as setDadosCardapio,
   abrirModalAdd, fecharModalAdd, salvarAdicionais,
   initBtnNovoGrupo,
   addNovoGrupo, addItemGrupo, removerGrupo, removerItemGrupo,
-  delProdDaCat, toggleNovaCatForm
+  delProdDaCat, toggleNovaCatForm,
+  adicionarUpsell, removerUpsell
 } from './painel-cardapio.js'
 import { renderFidelidade, setLoja as setLojaFid, mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade, salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao } from './painel-fidelidade.js'
-import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa, carregarTaxas, toggleUpsell, salvarCardapioConfig } from './painel-config.js'
+import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa, carregarTaxas } from './painel-config.js'
 
 let loja  = null
 let canal = null
@@ -43,7 +44,9 @@ exp({
   mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade,
   salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao,
   // config
-  mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa, toggleUpsell, salvarCardapioConfig,
+  mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa,
+  // upsell
+  adicionarUpsell, removerUpsell,
   // loja
   toggleLoja, sair, trocarTab,
 })
