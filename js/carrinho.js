@@ -94,9 +94,8 @@ export function renderUpsell(){
   const scroll=document.getElementById('upsellScroll')
   if(!wrap||!scroll) return
 
-  // Mostra apenas produtos que o dono marcou como "Peça também"
-  const idsNoCarrinho=new Set(window.APP.cart.map(i=>i.id))
-  const sugestoes=window.APP.produtos.filter(p=>p.upsell===true&&!idsNoCarrinho.has(p.id)&&p.disponivel!==false)
+  // Mostra todos os produtos marcados como "Peça também" — mesmo que já estejam no carrinho
+  const sugestoes=window.APP.produtos.filter(p=>p.upsell===true&&p.disponivel!==false)
 
   if(!sugestoes.length||!window.APP.cart.length){
     wrap.style.display='none'
