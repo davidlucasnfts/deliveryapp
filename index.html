@@ -526,10 +526,12 @@
       const fw=document.getElementById('featuredWrap')
       const destaques=produtos.filter(p=>p.destaque===true&&p.disponivel!==false)
       clearInterval(_destaqueTimer)
+      let excludeId=null
       if(fw){
         if(destaques.length===1){
           fw.style.display='block'
           fw.innerHTML=featuredHtml(destaques[0])
+          excludeId=destaques[0].id
         } else if(destaques.length>1){
           _destaqueItems=destaques; _destaqueIdx=0
           const dotsHtml=destaques.map((_,i)=>`<span class="destaque-dot${i===0?' ativo':''}" onclick="goDestaque(${i})"></span>`).join('')
@@ -540,18 +542,30 @@
             goDestaque(_destaqueIdx)
           },3000)
         } else {
-          fw.style.display='none'
+          // Sem destaques marcados: mostra o primeiro produto disponível como featured
+          let firstItem=null
+          for(const cat of cats){
+            const itens=produtos.filter(p=>p.categoria_id===cat.id&&p.disponivel!==false)
+            if(itens.length){firstItem=itens[0];break}
+          }
+          if(firstItem){
+            fw.style.display='block'
+            fw.innerHTML=featuredHtml(firstItem)
+            excludeId=firstItem.id
+          } else {
+            fw.style.display='none'
+          }
         }
       }
-      // Renderiza lista completa
+      // Renderiza lista de categorias, excluindo o item já exibido no destaque
       let h=''
       cats.forEach(cat=>{
-        const itens=produtos.filter(p=>p.categoria_id===cat.id)
+        const itens=produtos.filter(p=>p.categoria_id===cat.id&&p.id!==excludeId)
         if(!itens.length)return
         h+=`<div class="sec-hd">${cat.nome}</div>`
         itens.forEach(p=>{h+=cardHtml(p)})
       })
-      if(!h&&!destaques.length)h='<div style="text-align:center;padding:3rem;color:var(--txt3);font-size:0.85rem;">Nenhum item disponível</div>'
+      if(!h)h='<div style="text-align:center;padding:3rem;color:var(--txt3);font-size:0.85rem;">Nenhum item disponível</div>'
       document.getElementById('menuBody').innerHTML=h
     }
     window.goDestaque=function(idx){
