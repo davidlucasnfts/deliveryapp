@@ -4,27 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DeliveryApp — Sistema de Delivery para Lanchonetes</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
-    :root{--or:#F97316;--ye:#FACC15;--txt:#1C1917;--txt2:#78716C;}
-    body{font-family:'Poppins',sans-serif;background:#fff;min-height:100vh;}
+    :root{--or:#a63400;--pr-grad:linear-gradient(135deg,#a63400,#ff7948);--ye:#FACC15;--txt:#2d2f31;--txt2:#4a4c4e;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:#FFFCF7;min-height:100vh;}
 
     /* HERO */
     .hero{background:linear-gradient(135deg,#1C1917 0%,#292524 60%,#3D2800 100%);padding:4rem 2rem 5rem;text-align:center;position:relative;overflow:hidden;}
-    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(249,115,22,0.15),transparent 60%);}
-    .hero-badge{display:inline-block;background:rgba(249,115,22,0.15);border:1px solid rgba(249,115,22,0.3);border-radius:20px;padding:0.35rem 1rem;font-size:0.78rem;font-weight:600;color:var(--or);margin-bottom:1.5rem;position:relative;}
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 50%,rgba(166,52,0,0.18),transparent 60%);}
+    .hero-badge{display:inline-block;background:rgba(166,52,0,0.15);border:1px solid rgba(166,52,0,0.3);border-radius:20px;padding:0.35rem 1rem;font-size:0.78rem;font-weight:600;color:var(--or);margin-bottom:1.5rem;position:relative;}
     .hero-title{font-size:clamp(2rem,5vw,3.5rem);font-weight:800;color:#fff;line-height:1.1;margin-bottom:1rem;position:relative;}
     .hero-title span{color:var(--or);}
     .hero-sub{font-size:clamp(0.9rem,2vw,1.1rem);color:rgba(255,255,255,0.6);max-width:540px;margin:0 auto 2.5rem;line-height:1.7;position:relative;}
     .hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;position:relative;}
-    .btn-primary{background:var(--or);color:#fff;border:none;border-radius:12px;padding:0.85rem 2rem;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:none;transition:background 0.15s;}
-    .btn-primary:hover{background:#EA6C0A;}
-    .btn-secondary{background:rgba(255,255,255,0.08);color:#fff;border:1.5px solid rgba(255,255,255,0.2);border-radius:12px;padding:0.85rem 2rem;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:none;transition:all 0.15s;}
+    .btn-primary{background:var(--pr-grad);color:#fff;border:none;border-radius:12px;padding:0.85rem 2rem;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;transition:opacity 0.15s;}
+    .btn-primary:hover{opacity:0.9;}
+    .btn-secondary{background:rgba(255,255,255,0.08);color:#fff;border:1.5px solid rgba(255,255,255,0.2);border-radius:12px;padding:0.85rem 2rem;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;transition:all 0.15s;}
     .btn-secondary:hover{background:rgba(255,255,255,0.15);}
 
     /* STATS */
-    .stats{background:#FFF7ED;padding:2rem;display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;border-bottom:1px solid #FED7AA;}
+    .stats{background:#F6F3EE;padding:2rem;display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;}
     .stat{text-align:center;}
     .stat-val{font-size:2rem;font-weight:800;color:var(--or);}
     .stat-lbl{font-size:0.78rem;color:var(--txt2);margin-top:0.1rem;}
@@ -34,25 +34,25 @@
     .section-title{font-size:clamp(1.4rem,3vw,2rem);font-weight:800;color:var(--txt);text-align:center;margin-bottom:0.5rem;}
     .section-sub{font-size:0.9rem;color:var(--txt2);text-align:center;margin-bottom:3rem;}
     .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;}
-    .feature{background:#fff;border-radius:16px;border:1.5px solid #F3F4F6;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+    .feature{background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 8px 24px rgba(45,47,49,0.06);}
     .feature-icon{font-size:2rem;margin-bottom:0.75rem;}
     .feature-title{font-size:0.95rem;font-weight:700;color:var(--txt);margin-bottom:0.4rem;}
     .feature-desc{font-size:0.82rem;color:var(--txt2);line-height:1.6;}
 
     /* PREÇOS */
-    .pricing-bg{background:#F9FAFB;padding:4rem 2rem;}
+    .pricing-bg{background:#F6F3EE;padding:4rem 2rem;}
     .pricing-wrap{max-width:800px;margin:0 auto;}
     .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:2rem;}
-    .price-card{background:#fff;border-radius:16px;border:1.5px solid #F3F4F6;padding:1.5rem;text-align:center;}
-    .price-card.featured{border-color:var(--or);background:#FFF7ED;}
-    .price-badge{display:inline-block;background:var(--or);color:#fff;border-radius:20px;padding:0.2rem 0.75rem;font-size:0.7rem;font-weight:700;margin-bottom:0.75rem;}
+    .price-card{background:#fff;border-radius:16px;padding:1.5rem;text-align:center;box-shadow:0 8px 24px rgba(45,47,49,0.06);}
+    .price-card.featured{background:#fff3ee;box-shadow:0 8px 28px rgba(166,52,0,0.12);}
+    .price-badge{display:inline-block;background:var(--pr-grad);color:#fff;border-radius:20px;padding:0.2rem 0.75rem;font-size:0.7rem;font-weight:700;margin-bottom:0.75rem;}
     .price-name{font-size:0.85rem;font-weight:700;color:var(--txt2);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:1px;}
     .price-val{font-size:2.2rem;font-weight:800;color:var(--txt);}
     .price-val span{font-size:0.9rem;font-weight:500;color:var(--txt2);}
     .price-desc{font-size:0.78rem;color:var(--txt2);margin-top:0.5rem;line-height:1.5;}
 
     /* CTA FINAL */
-    .cta{background:linear-gradient(135deg,#F97316,#EA580C);padding:4rem 2rem;text-align:center;}
+    .cta{background:var(--pr-grad);padding:4rem 2rem;text-align:center;}
     .cta-title{font-size:clamp(1.4rem,3vw,2rem);font-weight:800;color:#fff;margin-bottom:0.75rem;}
     .cta-sub{font-size:0.9rem;color:rgba(255,255,255,0.8);margin-bottom:2rem;}
     .btn-white{background:#fff;color:var(--or);border:none;border-radius:12px;padding:0.85rem 2rem;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:none;}
@@ -61,11 +61,11 @@
     footer{background:#1C1917;padding:1.5rem 2rem;text-align:center;font-size:0.78rem;color:rgba(255,255,255,0.4);}
 
     /* NAVBAR */
-    nav{background:#1C1917;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
-    .nav-logo{font-size:1.1rem;font-weight:800;color:var(--or);text-decoration:none;}
+    nav{background:#2d2f31;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+    .nav-logo{font-size:1.1rem;font-weight:800;color:#ff7948;text-decoration:none;}
     .nav-links{display:flex;gap:1rem;align-items:center;}
     .nav-link{color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.82rem;font-weight:500;}
-    .nav-btn{background:var(--or);color:#fff;border:none;border-radius:8px;padding:0.4rem 1rem;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;text-decoration:none;}
+    .nav-btn{background:var(--pr-grad);color:#fff;border:none;border-radius:8px;padding:0.4rem 1rem;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;}
   </style>
 </head>
 <body>
