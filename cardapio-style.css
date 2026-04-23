@@ -58,6 +58,13 @@
     .cat-btn.active{background:var(--pr-grad);color:#fff;box-shadow:0 4px 14px rgba(166,52,0,0.30);}
     .cat-btn:not(.active){background:var(--surf);color:var(--txt2);}
 
+    /* DESTAQUE SLIDER */
+    .destaque-slider-wrap{position:relative;}
+    #destaqueCard{transition:opacity 0.2s ease;}
+    .destaque-dots{display:flex;gap:0.35rem;justify-content:center;padding:0.55rem 0 0.1rem;}
+    .destaque-dot{width:7px;height:7px;border-radius:50%;background:var(--bg4);cursor:pointer;transition:all 0.25s ease;border:none;padding:0;flex-shrink:0;}
+    .destaque-dot.ativo{background:var(--pr);width:20px;border-radius:4px;}
+
     /* FEATURED CARD */
     .featured-wrap{padding:0.75rem 1.25rem 0.5rem;}
     .featured-card{border-radius:20px;overflow:hidden;cursor:pointer;background:#111;box-shadow:var(--shadow-lg);}

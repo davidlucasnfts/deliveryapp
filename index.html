@@ -384,6 +384,7 @@
     // Atalhos locais
     const fmt=v=>'R$'+Number(v).toFixed(2).replace('.',',')
     let loja=null,produtos=[],categorias=[],cart=[],itemAtual=null,qty=1,fidelidadeConfig=null,catAtual='todos'
+    let _destaqueIdx=0,_destaqueTimer=null,_destaqueItems=[]
 
     // Expõe funções para onclick no HTML
     window.imgErr=function(img){
@@ -523,24 +524,47 @@
     function renderMenu(){
       const cats=catAtual==='todos'?categorias:categorias.filter(c=>c.id===catAtual)
       const fw=document.getElementById('featuredWrap')
-      // Encontra o primeiro item para o card destaque
-      let firstItem=null
-      for(const cat of cats){
-        const itens=produtos.filter(p=>p.categoria_id===cat.id)
-        if(itens.length){firstItem=itens[0];break}
+      const destaques=produtos.filter(p=>p.destaque===true&&p.disponivel!==false)
+      clearInterval(_destaqueTimer)
+      if(fw){
+        if(destaques.length===1){
+          fw.style.display='block'
+          fw.innerHTML=featuredHtml(destaques[0])
+        } else if(destaques.length>1){
+          _destaqueItems=destaques; _destaqueIdx=0
+          const dotsHtml=destaques.map((_,i)=>`<span class="destaque-dot${i===0?' ativo':''}" onclick="goDestaque(${i})"></span>`).join('')
+          fw.style.display='block'
+          fw.innerHTML=`<div class="destaque-slider-wrap"><div id="destaqueCard">${featuredHtml(destaques[0])}</div><div class="destaque-dots">${dotsHtml}</div></div>`
+          _destaqueTimer=setInterval(()=>{
+            _destaqueIdx=(_destaqueIdx+1)%_destaqueItems.length
+            goDestaque(_destaqueIdx)
+          },3000)
+        } else {
+          fw.style.display='none'
+        }
       }
-      if(firstItem&&fw){fw.style.display='block';fw.innerHTML=featuredHtml(firstItem)}
-      else if(fw){fw.style.display='none'}
-      // Renderiza lista sem o item destaque
+      // Renderiza lista completa
       let h=''
       cats.forEach(cat=>{
-        const itens=produtos.filter(p=>p.categoria_id===cat.id&&p.id!==firstItem?.id)
+        const itens=produtos.filter(p=>p.categoria_id===cat.id)
         if(!itens.length)return
         h+=`<div class="sec-hd">${cat.nome}</div>`
         itens.forEach(p=>{h+=cardHtml(p)})
       })
-      if(!h&&!firstItem)h='<div style="text-align:center;padding:3rem;color:var(--txt3);font-size:0.85rem;">Nenhum item disponível</div>'
+      if(!h&&!destaques.length)h='<div style="text-align:center;padding:3rem;color:var(--txt3);font-size:0.85rem;">Nenhum item disponível</div>'
       document.getElementById('menuBody').innerHTML=h
+    }
+    window.goDestaque=function(idx){
+      _destaqueIdx=idx
+      const card=document.getElementById('destaqueCard')
+      const dots=document.querySelectorAll('.destaque-dot')
+      if(!card||!_destaqueItems.length)return
+      card.style.opacity='0'
+      setTimeout(()=>{
+        card.innerHTML=featuredHtml(_destaqueItems[_destaqueIdx])
+        dots.forEach((d,i)=>d.classList.toggle('ativo',i===_destaqueIdx))
+        card.style.opacity='1'
+      },200)
     }
     window.filtrar=function(catId,el){
       catAtual=catId

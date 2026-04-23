@@ -334,6 +334,9 @@
       <label class="mbox-lbl">Nome do produto</label>
       <input class="mbox-inp" id="epNome" placeholder="Ex: Pizza Calabresa, X-Burguer...">
 
+      <label class="mbox-lbl">Descrição</label>
+      <textarea class="mbox-ta" id="epDesc" placeholder="Ingredientes, tamanho..."></textarea>
+
       <div class="mbox-row" style="margin-bottom:0.85rem;">
         <div style="flex:1;">
           <label class="mbox-lbl">Preço (R$)</label>
@@ -344,27 +347,19 @@
           <select class="mbox-sel" id="epCat"></select>
         </div>
       </div>
-      <label class="ep-lbl">Nome do produto</label>
-      <input class="ep-inp" id="epNome" placeholder="Ex: Pizza Calabresa">
-      <label class="ep-lbl">Descrição</label>
-      <textarea class="ep-ta" id="epDesc" placeholder="Ingredientes, tamanho..."></textarea>
-      <label class="ep-lbl">Preço (R$)</label>
-      <input class="ep-inp" id="epPreco" type="number" step="0.01" placeholder="0,00">
-      <label class="ep-lbl">Categoria</label>
-      <select class="ep-sel" id="epCat"></select>
-      <label class="ep-lbl">Foto do produto</label>
-      <div class="ep-img-info">📐 Alta qualidade 1080×1080px · JPG/PNG · até 20MB</div>
-      <div class="ep-img-area" id="epImgArea">
+
+      <div class="img-info">📐 Alta qualidade 1080×1080px · JPG/PNG · até 20MB</div>
+      <div class="foto-area" id="epImgArea">
         <input type="file" accept="image/jpeg,image/png,image/webp" id="epFileInput" onchange="handleImgUpload(this)">
-        <div class="ep-img-icon">📷</div>
-        <div class="ep-img-txt">Toque para adicionar foto</div>
-        <div class="ep-img-sub">Após o upload, arraste para centralizar</div>
+        <div class="foto-icon">📷</div>
+        <div class="foto-txt">Toque para adicionar foto</div>
+        <div class="foto-sub">Após o upload, arraste para centralizar</div>
       </div>
       <div id="epImgPosWrap" class="img-pos-wrap" style="display:none;">
         <img id="epImgPos" class="img-pos-img" alt="">
         <div class="img-pos-hint">👆 Arraste para centralizar</div>
       </div>
-      <button id="epUploadBtn" style="display:none;width:100%;background:var(--or);color:#fff;border:none;border-radius:10px;padding:0.65rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:0.75rem;">
+      <button id="epUploadBtn" style="display:none;width:100%;background:var(--pr-grad);color:#fff;border:none;border-radius:10px;padding:0.65rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:0.75rem;">
         ✓ Confirmar posição e enviar
       </button>
       <button id="epTrocarBtn" style="display:none;width:100%;background:var(--bg3);color:#92400E;border:none;border-radius:10px;padding:0.55rem;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:0.75rem;" onclick="document.getElementById('epFileInput').click()">
@@ -372,8 +367,8 @@
       </button>
       <div class="ep-progress" id="epProgress"><div class="ep-progress-bar" id="epProgressBar"></div></div>
       <div class="ep-progress-txt" id="epProgressTxt"></div>
-      <button class="ep-save" onclick="saveEp()">Salvar produto</button>
-      <button class="ep-del-prod" id="epDelBtn" onclick="deletarProduto()" style="display:none;">🗑️ Excluir este produto</button>
+      <button class="btn-salvar" onclick="saveEp()">Salvar produto</button>
+      <button class="btn-excluir" id="epDelBtn" onclick="deletarProduto()" style="display:none;">🗑️ Excluir este produto</button>
     </div>
   </div>
 
