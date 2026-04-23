@@ -21,36 +21,18 @@
 
   <div id="app" style="display:none;">
     <header class="header">
-      <span class="header-logo" id="headerLogo">DeliveryApp</span>
       <button class="header-btn">
-        <span class="mi" style="font-size:20px;color:var(--txt2);">location_on</span>
+        <span class="mi" style="font-size:22px;color:var(--txt);">menu</span>
+      </button>
+      <span class="header-title" id="storeName">DeliveryApp</span>
+      <button class="header-btn">
+        <span class="mi" style="font-size:22px;color:var(--txt);">person</span>
       </button>
     </header>
-    <div class="hero">
-      <div class="hero-img-wrap">
-        <div id="heroBanner" class="hero-img-placeholder">🍕</div>
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-          <div class="hero-name" id="storeName"></div>
-          <div class="hero-desc" id="storeDesc"></div>
-          <div class="hero-badges" id="storeMeta"></div>
-        </div>
-      </div>
-    </div>
+
     <div class="cats-wrap"><div class="cats" id="catsBar"></div></div>
 
-    <!-- BUSCA -->
-    <div style="padding:0 1.25rem 0.5rem;">
-      <div style="position:relative;">
-        <span class="mi" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);font-size:18px;color:var(--txt3);pointer-events:none;">search</span>
-        <input id="searchInput" type="search"
-          placeholder="Buscar no cardápio..."
-          style="width:100%;border:1.5px solid rgba(56,56,53,0.12);border-radius:14px;padding:0.65rem 0.9rem 0.65rem 2.6rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;color:var(--txt);background:var(--surf);outline:none;"
-          oninput="buscarProdutos(this.value)">
-        <button id="searchClear" onclick="limparBusca()"
-          style="display:none;position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;font-size:1rem;color:var(--txt3);cursor:pointer;">✕</button>
-      </div>
-    </div>
+    <div class="featured-wrap" id="featuredWrap" style="display:none;"></div>
 
     <div class="menu-body" id="menuBody"></div>
   </div>
@@ -91,16 +73,53 @@
     </div>
   </div>
 
-  <!-- CART BAR -->
-  <div class="cart-bar" id="cartBar">
-    <div class="cart-bar-inner">
-      <div class="cb-left">
-        <div class="cb-cnt" id="cbCnt">0 itens</div>
-        <div class="cb-tot" id="cbTot">R$0,00</div>
+  <!-- CART PILL -->
+  <div class="cart-pill" id="cartPill">
+    <div class="cp-left">
+      <span class="mi" style="font-size:22px;color:#fff;">shopping_basket</span>
+      <div class="cp-info">
+        <span class="cp-title">Seu pedido</span>
+        <span class="cp-count" id="cpCount">0 itens</span>
       </div>
-      <button class="cb-btn" onclick="abrirCarrinho()">
-        Ver carrinho <span class="mi" style="font-size:18px;color:var(--pr);">shopping_basket</span>
+    </div>
+    <div class="cp-right">
+      <span class="cp-total" id="cpTotal">R$0,00</span>
+      <button class="cp-btn" onclick="abrirCarrinho()">Ver</button>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="bnav-tab bnav-active" id="bnavCardapio" onclick="bnavIr('cardapio')">
+      <span class="mi bnav-icon">restaurant_menu</span>
+      <span class="bnav-lbl">Cardápio</span>
+    </button>
+    <button class="bnav-tab" id="bnavCategorias" onclick="bnavIr('categorias')">
+      <span class="mi bnav-icon">grid_view</span>
+      <span class="bnav-lbl">Categorias</span>
+    </button>
+    <button class="bnav-tab" id="bnavPedidos" onclick="bnavIr('pedidos')">
+      <span class="mi bnav-icon">shopping_bag</span>
+      <span class="bnav-lbl">Pedidos</span>
+    </button>
+    <button class="bnav-tab" id="bnavPerfil" onclick="bnavIr('perfil')">
+      <span class="mi bnav-icon">person</span>
+      <span class="bnav-lbl">Perfil</span>
+    </button>
+  </nav>
+
+  <!-- TELA PEDIDOS -->
+  <div class="pedidos-screen" id="pedidosScreen">
+    <div class="cs-header">
+      <button class="cs-back" onclick="fecharPedidos()">
+        <span class="mi" style="font-size:20px;color:var(--txt2);">arrow_back</span>
       </button>
+      <span class="cs-title">Meus pedidos</span>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;">
+      <div style="font-size:3.5rem;margin-bottom:1rem;">🧾</div>
+      <div style="font-size:1rem;font-weight:700;color:var(--txt2);margin-bottom:0.5rem;">Nenhum pedido ainda</div>
+      <div style="font-size:0.82rem;color:var(--txt3);line-height:1.6;">Seus pedidos aparecerão aqui após a confirmação via WhatsApp.</div>
     </div>
   </div>
 
@@ -350,7 +369,7 @@
 
     // Estado compartilhado — todos os módulos acessam via window.APP
     const params=new URLSearchParams(window.location.search)
-    const lojaId=params.get('loja')
+    const lojaId=params.get('loja')||'0509197c-fb63-4319-9eae-e4e71368d3c4'
     window.APP={
       lojaId,
       loja:null, produtos:[], categorias:[], cart:[], itemAtual:null, qty:1, catAtual:'todos',
@@ -444,7 +463,6 @@
         document.getElementById('loading').style.display='none'
         document.getElementById('app').style.display='block'
         document.title=loja.nome+' — Cardápio'
-        document.getElementById('headerLogo').textContent='🍕 '+loja.nome
       }catch(e){
         console.error(e)
         document.getElementById('loading').innerHTML='<div class="inativa"><div class="inativa-icon">⚠️</div><div class="inativa-txt">Erro ao carregar</div><div class="inativa-sub">Tente recarregar a página.</div></div>'
@@ -452,20 +470,38 @@
     }
     function renderHero(){
       document.getElementById('storeName').textContent=loja.nome
-      document.getElementById('storeDesc').textContent=loja.descricao||''
-      if(loja.banner_url){
-        document.getElementById('heroBanner').outerHTML=`<img class="hero-img" src="${loja.banner_url}" alt="${loja.nome}" data-ph="hero-img-placeholder" data-emoji="🍕" onerror="imgErr(this)">`
-      }
-      document.getElementById('storeMeta').innerHTML=`
-        <span class="hero-badge ${loja.aberta?'badge-open':'badge-fechado'}">
-          <span class="${loja.aberta?'pulse':''}"></span>
-          ${loja.aberta?'ABERTO':'FECHADO'}
-        </span>
-        ${loja.tempo_entrega?`<span class="hero-badge badge-glass"><span class="mi" style="font-size:13px;">schedule</span>${loja.tempo_entrega}</span>`:''}
-        ${loja.cidade?`<span class="hero-badge badge-glass"><span class="mi" style="font-size:13px;">location_on</span>${loja.cidade}</span>`:''}`
-      // Banner de fechado
+      document.title=loja.nome+' — Cardápio'
       const bannerFechado=document.getElementById('bannerFechado')
       if(bannerFechado)bannerFechado.style.display=loja.aberta?'none':'flex'
+    }
+    function cardHtml(p){
+      return `<div class="pcard" onclick="abrirItem('${p.id}')">
+        <div class="pcard-img">
+          ${p.foto_url?`<img src="${p.foto_url}" alt="${p.nome}" loading="lazy" data-ph="pcard-img-ph" onerror="imgErr(this)">`:`<div class="pcard-img-ph">🍽️</div>`}
+        </div>
+        <div class="pcard-info">
+          <div class="pcard-nome">${p.nome}</div>
+          <div class="pcard-desc">${p.descricao||''}</div>
+          <div class="pcard-preco">${fmt(p.preco)}</div>
+        </div>
+        <button class="pcard-add" onclick="event.stopPropagation();quickAdd('${p.id}')">+</button>
+      </div>`
+    }
+    function featuredHtml(p){
+      return `<div class="featured-card" onclick="abrirItem('${p.id}')">
+        <div class="featured-img-wrap">
+          ${p.foto_url?`<img src="${p.foto_url}" alt="${p.nome}" data-ph="featured-img-ph" onerror="imgErr(this)">`:`<div class="featured-ph">🍽️</div>`}
+          <div class="featured-overlay"></div>
+          <div class="featured-info">
+            <span class="featured-nome">${p.nome}</span>
+            <span class="featured-preco-badge">${fmt(p.preco)}</span>
+          </div>
+        </div>
+        <div class="featured-foot">
+          <span class="featured-desc-txt">${p.descricao||''}</span>
+          <button class="featured-add" onclick="event.stopPropagation();quickAdd('${p.id}')">+</button>
+        </div>
+      </div>`
     }
     function renderCats(){
       let h=`<button class="cat-btn active" onclick="filtrar('todos',this)">Todos</button>`
@@ -486,27 +522,24 @@
     }
     function renderMenu(){
       const cats=catAtual==='todos'?categorias:categorias.filter(c=>c.id===catAtual)
-      let h=''
-      cats.forEach((cat,ci)=>{
+      const fw=document.getElementById('featuredWrap')
+      // Encontra o primeiro item para o card destaque
+      let firstItem=null
+      for(const cat of cats){
         const itens=produtos.filter(p=>p.categoria_id===cat.id)
+        if(itens.length){firstItem=itens[0];break}
+      }
+      if(firstItem&&fw){fw.style.display='block';fw.innerHTML=featuredHtml(firstItem)}
+      else if(fw){fw.style.display='none'}
+      // Renderiza lista sem o item destaque
+      let h=''
+      cats.forEach(cat=>{
+        const itens=produtos.filter(p=>p.categoria_id===cat.id&&p.id!==firstItem?.id)
         if(!itens.length)return
         h+=`<div class="sec-hd">${cat.nome}</div>`
-        itens.forEach((p,idx)=>{
-          const rot=(ci+idx)%2===0?'rotate(6deg)':'rotate(-6deg)'
-          h+=`<div class="item-card" onclick="abrirItem('${p.id}')" style="padding-top:1.5rem;margin-top:${idx===0?'1.5rem':'1rem'};">
-            ${p.foto_url?`<img class="item-float-img" src="${p.foto_url}" alt="${p.nome}" style="transform:${rot};" data-ph="item-float-ph" onerror="imgErr(this)">`:`<div class="item-float-ph" style="transform:${rot};">🍽️</div>`}
-            <div class="item-body">
-              <div class="iname">${p.nome}</div>
-              <div class="idesc">${p.descricao||''}</div>
-              <div class="iprice">${fmt(p.preco)}</div>
-            </div>
-            <button class="iadd-float" onclick="event.stopPropagation();quickAdd('${p.id}')">
-              <span class="mi" style="font-size:20px;">add</span>
-            </button>
-          </div>`
-        })
+        itens.forEach(p=>{h+=cardHtml(p)})
       })
-      if(!h)h='<div style="text-align:center;padding:3rem;color:var(--txt3);font-size:0.85rem;">Nenhum item disponível</div>'
+      if(!h&&!firstItem)h='<div style="text-align:center;padding:3rem;color:var(--txt3);font-size:0.85rem;">Nenhum item disponível</div>'
       document.getElementById('menuBody').innerHTML=h
     }
     window.filtrar=function(catId,el){
@@ -534,21 +567,10 @@
         </div>`
       } else {
         h+=`<div class="sec-hd">${encontrados.length} resultado${encontrados.length!==1?'s':''} para "${termo}"</div>`
-        encontrados.forEach((p,idx)=>{
-          const rot=idx%2===0?'rotate(6deg)':'rotate(-6deg)'
-          h+=`<div class="item-card" onclick="abrirItem('${p.id}')" style="padding-top:1.5rem;margin-top:${idx===0?'1.5rem':'1rem'};">
-            ${p.foto_url?`<img class="item-float-img" src="${p.foto_url}" alt="${p.nome}" loading="lazy" style="transform:${rot};" data-ph="item-float-ph" onerror="imgErr(this)">`:`<div class="item-float-ph" style="transform:${rot};">🍽️</div>`}
-            <div class="item-body">
-              <div class="iname">${p.nome}</div>
-              <div class="idesc">${p.descricao||''}</div>
-              <div class="iprice">${fmt(p.preco)}</div>
-            </div>
-            <button class="iadd-float" onclick="event.stopPropagation();quickAdd('${p.id}')">
-              <span class="mi" style="font-size:20px;">add</span>
-            </button>
-          </div>`
-        })
+        encontrados.forEach(p=>{h+=cardHtml(p)})
       }
+      const fw=document.getElementById('featuredWrap')
+      if(fw)fw.style.display='none'
       document.getElementById('menuBody').innerHTML=h
     }
     window.limparBusca=function(){
@@ -612,7 +634,15 @@
     }
     window.fecharItem=()=>document.getElementById('itemOverlay').classList.remove('open')
     window.abrirCarrinho=function(){renderCarrinho();document.getElementById('cartScreen').classList.add('open')}
-    window.fecharCarrinho=()=>document.getElementById('cartScreen').classList.remove('open')
+    window.fecharCarrinho=function(){document.getElementById('cartScreen').classList.remove('open')}
+    window.fecharPedidos=function(){document.getElementById('pedidosScreen').classList.remove('open');bnavSetActive('bnavCardapio')}
+    function bnavSetActive(id){document.querySelectorAll('.bnav-tab').forEach(t=>t.classList.remove('bnav-active'));const el=document.getElementById(id);if(el)el.classList.add('bnav-active')}
+    window.bnavIr=function(tab){
+      if(tab==='cardapio'){bnavSetActive('bnavCardapio');window.scrollTo({top:0,behavior:'smooth'})}
+      else if(tab==='categorias'){bnavSetActive('bnavCategorias');document.querySelector('.cats-wrap')?.scrollIntoView({behavior:'smooth'})}
+      else if(tab==='pedidos'){bnavSetActive('bnavPedidos');document.getElementById('pedidosScreen').classList.add('open')}
+      else if(tab==='perfil'){bnavSetActive('bnavPerfil');window.showToast('Perfil em breve')}
+    }
 
     init()
   </script>

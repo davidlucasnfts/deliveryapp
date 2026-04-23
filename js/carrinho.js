@@ -23,11 +23,15 @@ export function atualizarCartBar(){
   const subtotal=window.APP.cart.reduce((s,i)=>s+i.preco*i.qty,0)
   const total=Math.max(0,subtotal-window.APP.descontoAtivo)
   const count=window.APP.cart.reduce((s,i)=>s+i.qty,0)
-  const bar=document.getElementById('cartBar')
-  if(!count){bar.classList.remove('show');return}
-  bar.classList.add('show')
-  document.getElementById('cbCnt').textContent=count+(count===1?' item':' itens')
-  document.getElementById('cbTot').textContent=fmt(total)
+  const pill=document.getElementById('cartPill')
+  if(!pill)return
+  if(count){
+    document.getElementById('cpCount').textContent=count+(count===1?' item':' itens')
+    document.getElementById('cpTotal').textContent=fmt(total)
+    pill.classList.add('show')
+  }else{
+    pill.classList.remove('show')
+  }
 }
 export function renderCarrinho(){
   const subtotal=window.APP.cart.reduce((s,i)=>s+i.preco*i.qty,0)
@@ -80,7 +84,6 @@ export function renderTotais(){
   const total=Math.max(0,subtotal+taxa-window.APP.descontoAtivo)
   document.getElementById('csSubtotal').textContent=fmt(subtotal)
   document.getElementById('csTotalFinal').textContent=fmt(total)
-  document.getElementById('cbTot').textContent=fmt(total)
   const dr=document.getElementById('csDescontoRow')
   if(window.APP.descontoAtivo>0){
     dr.style.display='flex'
