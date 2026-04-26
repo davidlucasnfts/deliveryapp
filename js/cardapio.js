@@ -56,18 +56,15 @@ export async function getGruposAdicionais(produtoId) {
 // Busca taxa de entrega por bairro
 export async function getTaxaEntrega(lojaId, bairro) {
   if (!bairro) return null
-  const termo = bairro.toLowerCase().trim()
+  const termo = bairro.trim()
   const { data } = await supabase
     .from('taxas_entrega')
     .select('*')
     .eq('loja_id', lojaId)
     .eq('ativo', true)
-  if (!data?.length) return null
-  // Busca por correspondência parcial
-  const found = data.find(t =>
-    t.bairro.toLowerCase().includes(termo) || termo.includes(t.bairro.toLowerCase())
-  )
-  return found || null
+    .ilike('bairro', `%${termo}%`)
+    .limit(1)
+  return data?.[0] || null
 }
 
 // Busca todas as taxas de entrega de uma loja

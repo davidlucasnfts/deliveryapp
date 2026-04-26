@@ -120,7 +120,7 @@ export async function buscarCep(){
     document.getElementById('cliNum').focus()
 
   }catch(e){
-    console.error('buscarCep:',e)
+    window.showToast('⚠️ Verifique sua conexão')
     h.textContent='Erro ao buscar. Preencha manualmente.';h.className='cep-hint err'
   }
 }
@@ -204,7 +204,7 @@ export async function enviarPedido(){
     abrirPagamento()
     btn.disabled=false;btn.textContent='Confirmar pedido'
   }catch(e){
-    console.error('Erro criarPedido:', e?.message || e)
+    window.showToast('⚠️ Verifique sua conexão')
     // Mostra erro mais detalhado em dev
     const msg = e?.message?.includes('column') 
       ? 'Erro de configuração do banco. Rode o SQL update_pagamento.sql no Supabase.'
@@ -365,7 +365,7 @@ export function inicializarMPForm(){
     window.APP.mpCardId=cardForm
     document.getElementById('pgtoConfirmar').disabled=false
   }catch(e){
-    console.error('Erro ao inicializar MP:',e)
+    window.showToast('⚠️ Verifique sua conexão')
     document.getElementById('mpLoading').textContent='Erro ao carregar formulário. Recarregue a página.'
   }
 }
@@ -421,7 +421,7 @@ export async function processarCartaoMP(formData){
       btn.disabled=false;btn.textContent='Tentar novamente'
     }
   }catch(e){
-    console.error('Erro pagamento:',e)
+    window.showToast('⚠️ Verifique sua conexão')
     erroEl.textContent='Erro de conexão. Verifique sua internet e tente novamente.'
     erroEl.classList.add('show')
     btn.disabled=false;btn.textContent='Tentar novamente'
@@ -494,8 +494,7 @@ export async function finalizarPedido(formaPagamento){
       </div>`
     window.APP.cart=[];window.limparCartSalvo();window.atualizarCartBar()
   }catch(e){
-    console.error(e)
-    alert('Erro ao confirmar. Tente novamente.')
+    window.showToast('⚠️ Erro ao confirmar. Tente novamente.')
     btn.disabled=false;btn.textContent='Confirmar pagamento'
   }
 }
