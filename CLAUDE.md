@@ -77,6 +77,7 @@ deliveryapp/
 | `fidelidade_config` | configuração do programa de fidelidade |
 | `cupons` | cupons de desconto |
 | `transmissoes` | histórico de transmissões WhatsApp |
+| `banners` | banners promocionais por loja (foto_url, ordem, ativo) — bucket storage: `banners` |
 
 ## Segurança
 - RLS ativo em todas as tabelas
@@ -108,26 +109,6 @@ Concorrentes: Anota AI (R$280-399/mês), CardapioWeb (R$135-300/mês)
 
 ---
 
-# BUG ATUAL — PRIORIDADE MÁXIMA
-
-O cardápio do cliente (index.html) não está carregando — fica preso em "Carregando cardápio...".
-
-**Causa provável:** Os módulos JS (carrinho.js, adicionais.js, checkout.js) foram extraídos do index.html recentemente. A substituição automática de variáveis locais por `window.APP.xxx` gerou erros como:
-- Chaves de objetos substituídas erroneamente: `{window.APP.qty: 1}` (inválido) em vez de `{qty: 1}`
-- `const window.APP.qty` (declaração inválida)
-- Classes CSS com window.APP dentro: `csi-window.APP.qty`
-
-**O que fazer:**
-1. Abra os 3 arquivos: `js/carrinho.js`, `js/adicionais.js`, `js/checkout.js`
-2. Busque por padrões inválidos:
-   - `{...window.APP.xxx:` → trocar por `{...xxx:`  (chave de objeto não pode ter ponto)
-   - `const window.APP.` ou `let window.APP.` → trocar por `const ` ou `let `
-   - Strings com `window.APP.` dentro de texto → trocar pelo texto correto
-3. Teste no navegador: `https://deliveryapp-theta.vercel.app/index.html?loja=0509197c-fb63-4319-9eae-e4e71368d3c4`
-4. Após corrigir: `git add . && git commit -m "fix: corrige erros nos modulos JS" && git push`
-
----
-
 # FUNCIONALIDADES CONCLUÍDAS
 
 1. ✅ Cardápio digital do cliente (hero, categorias, busca, carrinho persistente)
@@ -143,6 +124,7 @@ O cardápio do cliente (index.html) não está carregando — fica preso em "Car
 11. ✅ "Peça também" no carrinho (upsell — sugere bebidas/sobremesas)
 12. ✅ Modal de confirmação após adicionais (quantidade + observações + continuar/carrinho)
 13. ✅ Separação do index.html em módulos (carrinho.js, adicionais.js, checkout.js, cardapio-style.css)
+14. ✅ Banners promocionais no cardápio (carrossel até 3, troca a cada 4s, upload no painel)
 
 ---
 
@@ -156,7 +138,12 @@ O cardápio do cliente (index.html) não está carregando — fica preso em "Car
 - **Referência:** igual ao Anota AI — padrão esperado em apps de delivery mobile
 - **Por que:** melhora navegação, o cliente encontra o carrinho mais fácil
 
-### 2. Melhorias técnicas rápidas (segunda IA sugeriu)
+### 2. Seção "Destaques" no topo do cardápio
+- **O que:** grid horizontal com produtos marcados como destaque pelo dono. Preço promocional riscado com % de desconto. Acima das categorias
+- **Onde:** index.html + coluna `destaque` boolean na tabela `produtos` + `preco_original` numeric
+- **Referência:** Anota AI foto 1 — seção "Destaques" com cards grandes
+
+### 3. Melhorias técnicas rápidas
 - **getTaxaEntrega:** trocar `.find()` local por `.ilike('bairro', '%termo%')` no Supabase (economiza dados)
   - Arquivo: `js/cardapio.js` função `getTaxaEntrega`
 - **Cache HTTP:** adicionar Cache-Control no `vercel.json` para CSS, JS e imagens
@@ -164,17 +151,7 @@ O cardápio do cliente (index.html) não está carregando — fica preso em "Car
 
 ## Média Prioridade (próximo mês)
 
-### 3. Banners promocionais no topo do cardápio
-- **O que:** carrossel de até 3 banners. Dono faz upload no painel, define ação (abrir categoria ou só visual). Troca automática a cada 4 segundos
-- **Onde:** index.html (acima das categorias) + painel-config.js (nova seção) + nova tabela `banners` no Supabase
-- **Referência:** Anota AI tem, CardapioWeb tem
-
-### 4. Seção "Destaques" no topo do cardápio
-- **O que:** grid horizontal com produtos marcados como destaque pelo dono. Preço promocional riscado com % de desconto. Acima das categorias
-- **Onde:** index.html + coluna `destaque` boolean na tabela `produtos` + `preco_original` numeric
-- **Referência:** Anota AI foto 1 — seção "Destaques" com cards grandes
-
-### 5. Selos nos produtos (vegano, sem glúten, novo, destaque)
+### 4. Selos nos produtos (vegano, sem glúten, novo, destaque)
 - **O que:** ícones visuais no card do produto no cardápio. Dono marca no painel ao editar produto
 - **Onde:** index.html (card do produto) + painel-cardapio.js (checkboxes no modal de produto) + coluna `selos` jsonb na tabela `produtos`
 - **Referência:** concorrentes têm, especialmente para público fitness
