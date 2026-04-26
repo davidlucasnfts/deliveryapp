@@ -104,11 +104,11 @@ function renderDestaqueAdmin() {
       </p>
       <div id="destaqueAdminLista">${listaHTML}</div>
       <div style="display:flex;gap:0.5rem;margin-top:0.85rem;">
-        <select id="destaqueSelect" style="flex:1;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.45rem 0.65rem;font-size:0.82rem;font-family:'Plus Jakarta Sans',sans-serif;color:var(--txt);outline:none;background:#fff;">
+        <select id="destaqueSelect" style="flex:1;min-width:0;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.45rem 0.65rem;font-size:0.82rem;font-family:'Plus Jakarta Sans',sans-serif;color:var(--txt);outline:none;background:#fff;">
           <option value="">Selecionar produto...</option>
           ${opcoesSelect}
         </select>
-        <button class="btn-or" onclick="adicionarDestaque()">+ Adicionar</button>
+        <button class="btn-or" style="flex-shrink:0;white-space:nowrap;" onclick="adicionarDestaque()">+ Adicionar</button>
       </div>
     </div>
   </div>`
@@ -147,11 +147,11 @@ function renderUpsellAdmin() {
       </p>
       <div id="upsellAdminLista">${listaHTML}</div>
       <div style="display:flex;gap:0.5rem;margin-top:0.85rem;">
-        <select id="upsellSelect" style="flex:1;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.45rem 0.65rem;font-size:0.82rem;font-family:'Poppins',sans-serif;color:var(--txt);outline:none;background:#fff;">
+        <select id="upsellSelect" style="flex:1;min-width:0;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.45rem 0.65rem;font-size:0.82rem;font-family:'Plus Jakarta Sans',sans-serif;color:var(--txt);outline:none;background:#fff;">
           <option value="">Selecionar produto...</option>
           ${opcoesSelect}
         </select>
-        <button class="btn-or" onclick="adicionarUpsell()">+ Adicionar</button>
+        <button class="btn-or" style="flex-shrink:0;white-space:nowrap;" onclick="adicionarUpsell()">+ Adicionar</button>
       </div>
     </div>
   </div>`
@@ -498,7 +498,8 @@ export async function adicionarDestaque() {
   const sel = document.getElementById('destaqueSelect')
   const id = sel?.value
   if (!id) { toast('⚠️ Selecione um produto'); return }
-  await supabase.from('produtos').update({ destaque: true }).eq('id', id)
+  const { error } = await supabase.from('produtos').update({ destaque: true }).eq('id', id)
+  if (error) { toast('❌ Erro: ' + error.message); return }
   const p = _produtos.find(x => x.id === id)
   if (p) p.destaque = true
   renderCardapio()

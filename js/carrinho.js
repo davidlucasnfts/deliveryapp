@@ -66,12 +66,14 @@ export function renderCarrinho(){
 export function alterarQty(id,d){
   const idx=window.APP.cart.findIndex(c=>c.id===id&&!c._cartKey);if(idx===-1)return
   window.APP.cart[idx].qty+=d;if(window.APP.cart[idx].qty<=0)window.APP.cart.splice(idx,1)
-  window.salvarCart();window.atualizarCartBar();window.renderCarrinho()
+  window.salvarCart();window.atualizarCartBar()
+  if(!window.APP.cart.length){setTimeout(()=>window.fecharCarrinho(),300)}else{window.renderCarrinho()}
 }
 export function alterarQtyKey(key,d){
   const idx=window.APP.cart.findIndex(c=>(c._cartKey||c.id)===key);if(idx===-1)return
   window.APP.cart[idx].qty+=d;if(window.APP.cart[idx].qty<=0)window.APP.cart.splice(idx,1)
-  window.salvarCart();window.atualizarCartBar();window.renderCarrinho()
+  window.salvarCart();window.atualizarCartBar()
+  if(!window.APP.cart.length){setTimeout(()=>window.fecharCarrinho(),300)}else{window.renderCarrinho()}
 }
 export function fecharCarrinho(){
   document.getElementById('cartScreen').classList.remove('open')

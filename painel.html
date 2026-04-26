@@ -7,9 +7,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
-    :root{--or:#a63400;--pr-grad:linear-gradient(135deg,#a63400,#ff7948);--bg:#FFFCF7;--bg2:#fff;--bg3:#F0EEE8;--txt:#2d2f31;--txt2:#4a4c4e;--txt3:#6b6d6f;--grn:#16A34A;--red:#DC2626;--rad:12px;}
+    :root{--or:#E85000;--pr-grad:linear-gradient(135deg,#E85000,#FF7A30);--bg:#FFFCF7;--bg2:#fff;--bg3:#F0EEE8;--txt:#2d2f31;--txt2:#4a4c4e;--txt3:#6b6d6f;--grn:#16A34A;--red:#DC2626;--rad:12px;}
     *{box-sizing:border-box;margin:0;padding:0;}
-    body{background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--txt);min-height:100vh;}
+    body{background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--txt);min-height:100vh;overflow-x:hidden;}
 
     /* ── HEADER ── */
     .hd{background:var(--txt);color:#fff;padding:0.65rem 1rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:30;}
@@ -48,7 +48,7 @@
     .cat-header:hover{background:#FAFAFA;}
     .cat-header-icon{font-size:1.1rem;flex-shrink:0;}
     .cat-header-info{flex:1;min-width:0;}
-    .cat-header-nome{font-size:0.85rem;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:0.4rem;}
+    .cat-header-nome{font-size:0.85rem;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:0.4rem;text-transform:capitalize;}
     .cat-tag-combo{background:#FEF3C7;color:#92400E;font-size:0.6rem;font-weight:700;padding:0.15rem 0.45rem;border-radius:99px;}
     .cat-header-count{font-size:0.72rem;color:var(--txt3);margin-top:0.1rem;}
     .cat-header-actions{display:flex;align-items:center;gap:0.45rem;flex-shrink:0;}
@@ -71,7 +71,7 @@
     .cat-prod-thumb{width:44px;height:44px;border-radius:9px;object-fit:cover;background:#FEF3C7;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;overflow:hidden;}
     .cat-prod-thumb img{width:100%;height:100%;object-fit:cover;border-radius:9px;}
     .cat-prod-info{flex:1;min-width:0;}
-    .cat-prod-nome{font-size:0.82rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .cat-prod-nome{font-size:0.82rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:capitalize;}
     .cat-prod-preco{font-size:0.78rem;color:var(--or);font-weight:700;margin-top:0.1rem;}
     .cat-prod-add-badge{font-size:0.62rem;background:#FFF7ED;color:var(--or);border-radius:5px;padding:0.1rem 0.4rem;margin-top:0.15rem;display:inline-block;}
     .cat-prod-actions{display:flex;align-items:center;gap:0.35rem;flex-shrink:0;}
@@ -128,9 +128,8 @@
     .foto-txt{font-size:0.8rem;font-weight:600;color:#C2410C;}
     .foto-sub{font-size:0.68rem;color:var(--txt3);margin-top:0.15rem;}
     .img-info{background:#EFF6FF;border-radius:8px;padding:0.45rem 0.7rem;font-size:0.7rem;color:#1D4ED8;margin-bottom:0.75rem;}
-    .img-pos-wrap{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:12px;background:#F9FAFB;cursor:grab;margin-bottom:0.75rem;touch-action:none;border:2px dashed #FED7AA;}
-    .img-pos-img{position:absolute;width:150%;height:150%;object-fit:cover;pointer-events:none;}
-    .img-pos-hint{position:absolute;bottom:0.5rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.6);color:#fff;font-size:0.65rem;font-weight:600;padding:0.25rem 0.65rem;border-radius:99px;white-space:nowrap;}
+    .img-pos-wrap{width:100%;min-height:140px;border-radius:12px;background:#111;margin-bottom:0.75rem;border:2px solid #FED7AA;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .img-pos-img{max-width:100%;max-height:280px;width:100%;height:auto;object-fit:contain;display:block;}
     .ep-progress{background:#F3F4F6;border-radius:20px;height:6px;margin-bottom:0.75rem;display:none;overflow:hidden;}
     .ep-progress-bar{height:100%;background:var(--or);border-radius:20px;width:0%;transition:width 0.3s;}
     .ep-progress-txt{font-size:0.72rem;color:var(--or);text-align:center;margin-bottom:0.5rem;display:none;}
@@ -348,7 +347,7 @@
         </div>
       </div>
 
-      <div class="img-info">📐 Alta qualidade 1080×1080px · JPG/PNG · até 20MB</div>
+      <div class="img-info">📷 JPG/PNG · até 20MB · centralizada automaticamente</div>
       <div class="foto-area" id="epImgArea">
         <input type="file" accept="image/jpeg,image/png,image/webp" id="epFileInput" onchange="handleImgUpload(this)">
         <div class="foto-icon">📷</div>
@@ -357,7 +356,6 @@
       </div>
       <div id="epImgPosWrap" class="img-pos-wrap" style="display:none;">
         <img id="epImgPos" class="img-pos-img" alt="">
-        <div class="img-pos-hint">👆 Arraste para centralizar</div>
       </div>
       <button id="epUploadBtn" style="display:none;width:100%;background:var(--pr-grad);color:#fff;border:none;border-radius:10px;padding:0.65rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-bottom:0.75rem;">
         ✓ Confirmar posição e enviar

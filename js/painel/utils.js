@@ -50,38 +50,11 @@ export function setImgOffset(x, y) {
 }
 
 export function atualizarPosImagem() {
-  const img = document.getElementById('epImgPos')
-  if (!img) return
-  img.style.left = `calc(${imgOffsetX}% - 75%)`
-  img.style.top  = `calc(${imgOffsetY}% - 75%)`
+  // imagem centralizada via CSS object-fit:contain — sem posicionamento manual
 }
 
 export function iniciarDragImagem() {
-  const wrap = document.getElementById('epImgPosWrap')
-  if (!wrap || wrap._dragInit) return
-  wrap._dragInit = true
-  let dragging = false, startX = 0, startY = 0, ox = 50, oy = 50
-
-  const onStart = (cx, cy) => {
-    dragging = true
-    startX = cx; startY = cy
-    ox = imgOffsetX; oy = imgOffsetY
-  }
-  const onMove = (cx, cy) => {
-    if (!dragging) return
-    const rect = wrap.getBoundingClientRect()
-    imgOffsetX = Math.max(0, Math.min(100, ox - (cx - startX) / rect.width  * 100))
-    imgOffsetY = Math.max(0, Math.min(100, oy - (cy - startY) / rect.height * 100))
-    atualizarPosImagem()
-  }
-  const onEnd = () => { dragging = false }
-
-  wrap.addEventListener('mousedown',  e => onStart(e.clientX, e.clientY))
-  wrap.addEventListener('mousemove',  e => onMove(e.clientX, e.clientY))
-  wrap.addEventListener('mouseup',    onEnd)
-  wrap.addEventListener('touchstart', e => onStart(e.touches[0].clientX, e.touches[0].clientY), { passive: true })
-  wrap.addEventListener('touchmove',  e => onMove(e.touches[0].clientX, e.touches[0].clientY), { passive: false })
-  wrap.addEventListener('touchend',   onEnd)
+  // removido: imagem agora é responsiva e centralizada automaticamente
 }
 
 export function comprimirImagem(file, maxSize = 1080) {
@@ -91,16 +64,15 @@ export function comprimirImagem(file, maxSize = 1080) {
       const img = new Image()
       img.onload = () => {
         const { width: w, height: h } = img
-        const lado = Math.min(w, h)
-        const c1 = document.createElement('canvas')
-        c1.width = lado; c1.height = lado
-        const ox = (imgOffsetX / 100) * (w - lado)
-        const oy = (imgOffsetY / 100) * (h - lado)
-        c1.getContext('2d').drawImage(img, ox, oy, lado, lado, 0, 0, lado, lado)
-        const c2 = document.createElement('canvas')
-        c2.width = maxSize; c2.height = maxSize
-        c2.getContext('2d').drawImage(c1, 0, 0, maxSize, maxSize)
-        c2.toBlob(blob => blob ? resolve(blob) : reject(new Error('Erro ao comprimir')), 'image/jpeg', 0.92)
+        let newW = w, newH = h
+        if (w > maxSize || h > maxSize) {
+          if (w >= h) { newW = maxSize; newH = Math.round(h * maxSize / w) }
+          else        { newH = maxSize; newW = Math.round(w * maxSize / h) }
+        }
+        const c = document.createElement('canvas')
+        c.width = newW; c.height = newH
+        c.getContext('2d').drawImage(img, 0, 0, newW, newH)
+        c.toBlob(blob => blob ? resolve(blob) : reject(new Error('Erro ao comprimir')), 'image/jpeg', 0.92)
       }
       img.onerror = reject
       img.src = e.target.result

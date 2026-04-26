@@ -492,6 +492,7 @@
       return `<div class="featured-card" onclick="abrirItem('${p.id}')">
         <div class="featured-img-wrap">
           ${p.foto_url?`<img src="${p.foto_url}" alt="${p.nome}" data-ph="featured-img-ph" onerror="imgErr(this)">`:`<div class="featured-ph">🍽️</div>`}
+          <div class="featured-tag">Mais pedidos 🔥</div>
           <div class="featured-overlay"></div>
           <div class="featured-info">
             <span class="featured-nome">${p.nome}</span>
@@ -524,7 +525,7 @@
     function renderMenu(){
       const cats=catAtual==='todos'?categorias:categorias.filter(c=>c.id===catAtual)
       const fw=document.getElementById('featuredWrap')
-      const destaques=produtos.filter(p=>p.destaque===true&&p.disponivel!==false)
+      const destaques=produtos.filter(p=>!!p.destaque&&p.disponivel!==false)
       clearInterval(_destaqueTimer)
       let excludeId=null
       if(fw){
@@ -542,19 +543,7 @@
             goDestaque(_destaqueIdx)
           },3000)
         } else {
-          // Sem destaques marcados: mostra o primeiro produto disponível como featured
-          let firstItem=null
-          for(const cat of cats){
-            const itens=produtos.filter(p=>p.categoria_id===cat.id&&p.disponivel!==false)
-            if(itens.length){firstItem=itens[0];break}
-          }
-          if(firstItem){
-            fw.style.display='block'
-            fw.innerHTML=featuredHtml(firstItem)
-            excludeId=firstItem.id
-          } else {
-            fw.style.display='none'
-          }
+          fw.style.display='none'
         }
       }
       // Renderiza lista de categorias, excluindo o item já exibido no destaque
@@ -579,6 +568,11 @@
         dots.forEach((d,i)=>d.classList.toggle('ativo',i===_destaqueIdx))
         card.style.opacity='1'
       },200)
+      clearInterval(_destaqueTimer)
+      _destaqueTimer=setInterval(()=>{
+        _destaqueIdx=(_destaqueIdx+1)%_destaqueItems.length
+        goDestaque(_destaqueIdx)
+      },3000)
     }
     window.filtrar=function(catId,el){
       catAtual=catId
