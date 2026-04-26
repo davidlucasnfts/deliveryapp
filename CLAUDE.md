@@ -125,6 +125,8 @@ Concorrentes: Anota AI (R$280-399/mês), CardapioWeb (R$135-300/mês)
 12. ✅ Modal de confirmação após adicionais (quantidade + observações + continuar/carrinho)
 13. ✅ Separação do index.html em módulos (carrinho.js, adicionais.js, checkout.js, cardapio-style.css)
 14. ✅ Banners promocionais no cardápio (carrossel até 3, troca a cada 4s, upload no painel)
+15. ✅ Seção "Destaques" no cardápio (produtos com destaque=true, carrossel horizontal)
+16. ✅ Barra de navegação inferior (Início / Carrinho com badge)
 
 ---
 
@@ -132,18 +134,7 @@ Concorrentes: Anota AI (R$280-399/mês), CardapioWeb (R$135-300/mês)
 
 ## Alta Prioridade (fazer agora)
 
-### 1. Barra de navegação inferior no cardápio
-- **O que:** barra fixa no rodapé com ícones: Início / Carrinho (com badge de quantidade)
-- **Onde:** index.html + cardapio-style.css
-- **Referência:** igual ao Anota AI — padrão esperado em apps de delivery mobile
-- **Por que:** melhora navegação, o cliente encontra o carrinho mais fácil
-
-### 2. Seção "Destaques" no topo do cardápio
-- **O que:** grid horizontal com produtos marcados como destaque pelo dono. Preço promocional riscado com % de desconto. Acima das categorias
-- **Onde:** index.html + coluna `destaque` boolean na tabela `produtos` + `preco_original` numeric
-- **Referência:** Anota AI foto 1 — seção "Destaques" com cards grandes
-
-### 3. Melhorias técnicas rápidas
+### 1. Melhorias técnicas rápidas
 - **getTaxaEntrega:** trocar `.find()` local por `.ilike('bairro', '%termo%')` no Supabase (economiza dados)
   - Arquivo: `js/cardapio.js` função `getTaxaEntrega`
 - **Cache HTTP:** adicionar Cache-Control no `vercel.json` para CSS, JS e imagens
