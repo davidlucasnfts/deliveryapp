@@ -370,9 +370,10 @@
     .pgto-parcelas{width:100%;border:1.5px solid rgba(56,56,53,0.12);border-radius:12px;padding:0.65rem 0.9rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;color:var(--txt);background:var(--surf);margin-top:0.65rem;outline:none;}
 
     /* BANNER PROMO */
-    .banner-promo-wrap{padding:0.75rem 1.25rem 0;}
-    .banner-promo-card{border-radius:16px;overflow:hidden;cursor:pointer;background:var(--bg2);}
-    .banner-promo-img{width:100%;height:148px;object-fit:cover;border-radius:16px;display:block;}
+    .banner-promo-wrap{padding:0.75rem 1.25rem 0;margin-top:62px;}
+    .banner-promo-wrap.ativo ~ .cats-wrap{margin-top:0;}
+    .banner-promo-card{border-radius:16px;overflow:visible;cursor:pointer;background:var(--bg2);}
+    .banner-promo-img{width:100%;height:auto;object-fit:contain;border-radius:16px;display:block;}
     .banner-promo-slider-wrap{position:relative;}
     #bannerPromoCard{transition:opacity 0.2s ease;}
     .banner-dots{display:flex;gap:0.35rem;justify-content:center;padding:0.4rem 0 0.1rem;}

@@ -486,8 +486,8 @@
       const bw=document.getElementById('bannerPromoWrap')
       if(!bw)return
       clearInterval(_bannerTimer)
-      if(!_bannerItems.length){bw.style.display='none';return}
-      bw.style.display='block'
+      if(!_bannerItems.length){bw.style.display='none';bw.classList.remove('ativo');return}
+      bw.style.display='block';bw.classList.add('ativo')
       if(_bannerItems.length===1){
         bw.innerHTML=bannerHtml(_bannerItems[0])
         return
