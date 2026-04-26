@@ -363,19 +363,28 @@ export function abrirModalProd(prodId, catIdPre) {
   document.getElementById('epProgress').style.display   = 'none'
   document.getElementById('epProgressTxt').style.display = 'none'
 
+  const fitAtual = p?.img_fit || 'contain'
+  document.querySelectorAll('[name="epImgFit"]').forEach(el => { el.checked = el.value === fitAtual })
+
   if (p?.foto_url) {
     setImgOffset(p.img_offset_x || 50, p.img_offset_y || 50)
     document.getElementById('epImgArea').style.display    = 'none'
     document.getElementById('epImgPosWrap').style.display = 'block'
     document.getElementById('epTrocarBtn').style.display  = 'block'
-    document.getElementById('epImgPos').src = p.foto_url
-    atualizarPosImagem(); iniciarDragImagem()
+    const imgEl = document.getElementById('epImgPos')
+    imgEl.src = p.foto_url
+    if (fitAtual === 'cover') {
+      atualizarPosImagem(); iniciarDragImagem()
+    } else {
+      imgEl.style.objectFit = 'contain'
+      imgEl.style.width = '100%'
+      imgEl.style.height = 'auto'
+      imgEl.style.objectPosition = ''
+      imgEl.parentElement.style.aspectRatio = ''
+    }
   } else {
     setImgOffset(50, 50)
   }
-
-  const fitAtual = p?.img_fit || 'contain'
-  document.querySelectorAll('[name="epImgFit"]').forEach(el => { el.checked = el.value === fitAtual })
   document.querySelectorAll('[data-selo]').forEach(el => {
     el.checked = (p?.selos || []).includes(el.dataset.selo)
   })
@@ -390,13 +399,34 @@ export function fecharModalProd() {
 
 document.addEventListener('change', e => {
   if (e.target.name !== 'epImgFit') return
-  const posWrap = document.getElementById('epImgPosWrap')
-  const epImgPos = document.getElementById('epImgPos')
-  if (!posWrap || !epImgPos?.src) return
+  const img = document.getElementById('epImgPos')
+  if (!img?.src || img.src === window.location.href) return
   if (e.target.value === 'cover') {
-    posWrap.style.display = 'block'
-    document.getElementById('epTrocarBtn').style.display = 'block'
-    atualizarPosImagem(); iniciarDragImagem()
+    iniciarDragImagem()
+    const btn = document.getElementById('epUploadBtn')
+    btn.style.display = 'block'
+    btn.textContent = '✓ Confirmar posição'
+    btn.onclick = async () => {
+      if (!_editProdId) { btn.style.display = 'none'; return }
+      btn.disabled = true; btn.textContent = 'Salvando...'
+      await supabase.from('produtos').update({ img_fit: 'cover', img_offset_x: imgOffsetX, img_offset_y: imgOffsetY }).eq('id', _editProdId)
+      const p = _produtos.find(x => x.id === _editProdId)
+      if (p) { p.img_fit = 'cover'; p.img_offset_x = imgOffsetX; p.img_offset_y = imgOffsetY }
+      btn.style.display = 'none'; btn.disabled = false
+      toast('✅ Posição salva!')
+    }
+  } else {
+    const wrap = img.parentElement
+    wrap.style.height = ''
+    wrap.style.minHeight = ''
+    img.style.objectFit = 'contain'
+    img.style.maxWidth = ''
+    img.style.maxHeight = ''
+    img.style.width = '100%'
+    img.style.height = 'auto'
+    img.style.cursor = 'default'
+    img.style.objectPosition = ''
+    document.getElementById('epUploadBtn').style.display = 'none'
   }
 })
 

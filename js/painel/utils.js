@@ -50,11 +50,66 @@ export function setImgOffset(x, y) {
 }
 
 export function atualizarPosImagem() {
-  // imagem centralizada via CSS object-fit:contain — sem posicionamento manual
+  const img = document.getElementById('epImgPos')
+  if (img) img.style.objectPosition = `${imgOffsetX}% ${imgOffsetY}%`
 }
 
+let _dragCleanup = null
 export function iniciarDragImagem() {
-  // removido: imagem agora é responsiva e centralizada automaticamente
+  if (_dragCleanup) { _dragCleanup(); _dragCleanup = null }
+  const img = document.getElementById('epImgPos')
+  if (!img) return
+  const wrap = img.parentElement
+  requestAnimationFrame(() => {
+    const sz = wrap.offsetWidth
+    wrap.style.height = sz + 'px'
+    wrap.style.minHeight = '0'
+    img.style.objectFit = 'cover'
+    img.style.maxWidth = 'none'
+    img.style.maxHeight = 'none'
+    img.style.width = sz + 'px'
+    img.style.height = sz + 'px'
+  })
+  img.style.cursor = 'grab'
+  atualizarPosImagem()
+
+  let dragging = false, startX, startY, startOffX, startOffY
+  const onStart = e => {
+    dragging = true
+    const pt = e.touches ? e.touches[0] : e
+    startX = pt.clientX; startY = pt.clientY
+    startOffX = imgOffsetX; startOffY = imgOffsetY
+    img.style.cursor = 'grabbing'
+    e.preventDefault()
+  }
+  const onMove = e => {
+    if (!dragging) return
+    const pt = e.touches ? e.touches[0] : e
+    const wrap = img.parentElement
+    const dx = (pt.clientX - startX) / wrap.offsetWidth  * 100
+    const dy = (pt.clientY - startY) / wrap.offsetHeight * 100
+    imgOffsetX = Math.max(0, Math.min(100, startOffX - dx))
+    imgOffsetY = Math.max(0, Math.min(100, startOffY - dy))
+    atualizarPosImagem()
+    e.preventDefault()
+  }
+  const onEnd = () => { dragging = false; img.style.cursor = 'grab' }
+
+  img.addEventListener('mousedown', onStart)
+  img.addEventListener('touchstart', onStart, { passive: false })
+  document.addEventListener('mousemove', onMove)
+  document.addEventListener('touchmove', onMove, { passive: false })
+  document.addEventListener('mouseup', onEnd)
+  document.addEventListener('touchend', onEnd)
+
+  _dragCleanup = () => {
+    img.removeEventListener('mousedown', onStart)
+    img.removeEventListener('touchstart', onStart)
+    document.removeEventListener('mousemove', onMove)
+    document.removeEventListener('touchmove', onMove)
+    document.removeEventListener('mouseup', onEnd)
+    document.removeEventListener('touchend', onEnd)
+  }
 }
 
 export function comprimirImagem(file, maxSize = 1080) {
