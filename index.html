@@ -30,6 +30,7 @@
       </button>
     </header>
 
+    <div class="banner-promo-wrap" id="bannerPromoWrap" style="display:none;"></div>
     <div class="cats-wrap"><div class="cats" id="catsBar"></div></div>
 
     <div class="featured-wrap" id="featuredWrap" style="display:none;"></div>
@@ -385,6 +386,7 @@
     const fmt=v=>'R$'+Number(v).toFixed(2).replace('.',',')
     let loja=null,produtos=[],categorias=[],cart=[],itemAtual=null,qty=1,fidelidadeConfig=null,catAtual='todos'
     let _destaqueIdx=0,_destaqueTimer=null,_destaqueItems=[]
+    let _bannerIdx=0,_bannerTimer=null,_bannerItems=[]
 
     // Expõe funções para onclick no HTML
     window.imgErr=function(img){
@@ -438,12 +440,14 @@
       try{
         loja=await getLoja(lojaId)
         categorias=await getCategorias(lojaId)
-        const [{data:p},{data:fc}]=await Promise.all([
+        const [{data:p},{data:fc},{data:bn}]=await Promise.all([
           supabase.from('produtos').select('*,categorias(nome)').eq('loja_id',lojaId).eq('disponivel',true).order('ordem'),
-          supabase.from('fidelidade_config').select('*').eq('loja_id',lojaId).eq('ativo',true).single()
+          supabase.from('fidelidade_config').select('*').eq('loja_id',lojaId).eq('ativo',true).single(),
+          supabase.from('banners').select('*').eq('loja_id',lojaId).eq('ativo',true).order('ordem')
         ])
         produtos=p||[]
         fidelidadeConfig=fc||null
+        _bannerItems=bn||[]
         // Sincroniza estado global para os módulos
         window.APP.loja=loja
         window.APP.produtos=produtos
@@ -457,7 +461,7 @@
         verificarHorarioAutomatico()
         carregarCartSalvo()
         cart=window.APP.cart
-        renderHero();renderCats();renderMenu()
+        renderHero();renderBanners();renderCats();renderMenu()
         atualizarCartBar()
         // Reverifica a cada minuto
         setInterval(verificarHorarioAutomatico, 60000)
@@ -474,6 +478,38 @@
       document.title=loja.nome+' — Cardápio'
       const bannerFechado=document.getElementById('bannerFechado')
       if(bannerFechado)bannerFechado.style.display=loja.aberta?'none':'flex'
+    }
+    function bannerHtml(b){
+      return `<div class="banner-promo-card"><img src="${b.foto_url}" class="banner-promo-img" alt="Banner" loading="lazy" onerror="this.style.display='none'"></div>`
+    }
+    function renderBanners(){
+      const bw=document.getElementById('bannerPromoWrap')
+      if(!bw)return
+      clearInterval(_bannerTimer)
+      if(!_bannerItems.length){bw.style.display='none';return}
+      bw.style.display='block'
+      if(_bannerItems.length===1){
+        bw.innerHTML=bannerHtml(_bannerItems[0])
+        return
+      }
+      _bannerIdx=0
+      const dotsHtml=_bannerItems.map((_,i)=>`<span class="banner-dot${i===0?' ativo':''}" onclick="goBanner(${i})"></span>`).join('')
+      bw.innerHTML=`<div class="banner-promo-slider-wrap"><div id="bannerPromoCard">${bannerHtml(_bannerItems[0])}</div><div class="banner-dots">${dotsHtml}</div></div>`
+      _bannerTimer=setInterval(()=>{_bannerIdx=(_bannerIdx+1)%_bannerItems.length;goBanner(_bannerIdx)},4000)
+    }
+    window.goBanner=function(idx){
+      _bannerIdx=idx
+      const card=document.getElementById('bannerPromoCard')
+      const dots=document.querySelectorAll('.banner-dot')
+      if(!card||!_bannerItems.length)return
+      card.style.opacity='0'
+      setTimeout(()=>{
+        card.innerHTML=bannerHtml(_bannerItems[_bannerIdx])
+        dots.forEach((d,i)=>d.classList.toggle('ativo',i===_bannerIdx))
+        card.style.opacity='1'
+      },200)
+      clearInterval(_bannerTimer)
+      _bannerTimer=setInterval(()=>{_bannerIdx=(_bannerIdx+1)%_bannerItems.length;goBanner(_bannerIdx)},4000)
     }
     function cardHtml(p){
       return `<div class="pcard" onclick="abrirItem('${p.id}')">

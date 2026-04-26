@@ -16,7 +16,8 @@ import { renderCardapio, setDados as setDadosCardapio,
   addNovoGrupo, addItemGrupo, removerGrupo, removerItemGrupo,
   delProdDaCat, toggleNovaCatForm,
   adicionarUpsell, removerUpsell,
-  adicionarDestaque, removerDestaque
+  adicionarDestaque, removerDestaque,
+  adicionarBanner, removerBanner
 } from './painel-cardapio.js'
 import { renderFidelidade, setLoja as setLojaFid, mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade, salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao } from './painel-fidelidade.js'
 import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa, carregarTaxas } from './painel-config.js'
@@ -49,6 +50,7 @@ exp({
   // destaques + upsell
   adicionarDestaque, removerDestaque,
   adicionarUpsell, removerUpsell,
+  adicionarBanner, removerBanner,
   // loja
   toggleLoja, sair, trocarTab,
 })
