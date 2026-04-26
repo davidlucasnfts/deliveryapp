@@ -374,6 +374,10 @@ export function abrirModalProd(prodId, catIdPre) {
     setImgOffset(50, 50)
   }
 
+  document.querySelectorAll('[data-selo]').forEach(el => {
+    el.checked = (p?.selos || []).includes(el.dataset.selo)
+  })
+
   document.getElementById('modalProd').classList.add('open')
   setTimeout(() => document.getElementById('epNome').focus(), 100)
 }
@@ -444,7 +448,8 @@ export async function saveEp() {
   if (!preco || preco <= 0) { toast('⚠️ Preço inválido'); return }
   if (!categoria_id)  { toast('⚠️ Selecione uma categoria'); return }
 
-  const dados = { nome, descricao, preco, categoria_id, img_offset_x: imgOffsetX, img_offset_y: imgOffsetY }
+  const selos = [...document.querySelectorAll('[data-selo]:checked')].map(el => el.dataset.selo)
+  const dados = { nome, descricao, preco, categoria_id, img_offset_x: imgOffsetX, img_offset_y: imgOffsetY, selos }
   if (_uploadedUrl) dados.foto_url = _uploadedUrl
 
   if (!_editProdId) {

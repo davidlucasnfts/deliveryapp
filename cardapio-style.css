@@ -94,6 +94,12 @@
     .pcard-img-ph{font-size:2rem;}
     .pcard-info{flex:1;min-width:0;}
     .pcard-nome{font-size:0.92rem;font-weight:700;color:var(--txt);margin-bottom:0.2rem;line-height:1.3;text-transform:capitalize;}
+    .pcard-selos{display:flex;flex-wrap:wrap;gap:0.2rem;margin-bottom:0.25rem;}
+    .selo{font-size:0.6rem;font-weight:700;padding:0.12rem 0.4rem;border-radius:99px;white-space:nowrap;}
+    .selo-vegano{background:#DCFCE7;color:#166534;}
+    .selo-sem-gluten{background:#FEF9C3;color:#854D0E;}
+    .selo-novo{background:#EDE9FE;color:#5B21B6;}
+    .selo-picante{background:#FEE2E2;color:#991B1B;}
     .pcard-desc{font-size:0.75rem;color:var(--txt3);margin-bottom:0.35rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;}
     .pcard-preco{font-size:0.95rem;font-weight:800;color:var(--pr);}
     .pcard-add{width:34px;height:34px;border-radius:50%;border:none;background:var(--pr-grad);color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform 0.15s;line-height:1;box-shadow:0 3px 10px rgba(166,52,0,0.30);}

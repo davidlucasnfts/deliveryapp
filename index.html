@@ -511,6 +511,11 @@
       clearInterval(_bannerTimer)
       _bannerTimer=setInterval(()=>{_bannerIdx=(_bannerIdx+1)%_bannerItems.length;goBanner(_bannerIdx)},4000)
     }
+    const _selosMap={vegano:{i:'🌱',l:'Vegano',c:'vegano'},sem_gluten:{i:'🌾',l:'Sem glúten',c:'sem-gluten'},novo:{i:'✨',l:'Novo',c:'novo'},picante:{i:'🌶️',l:'Picante',c:'picante'}}
+    function selosHtml(selos){
+      if(!selos?.length)return''
+      return`<div class="pcard-selos">${selos.map(s=>_selosMap[s]?`<span class="selo selo-${_selosMap[s].c}">${_selosMap[s].i} ${_selosMap[s].l}</span>`:'').join('')}</div>`
+    }
     function cardHtml(p){
       return `<div class="pcard" onclick="abrirItem('${p.id}')">
         <div class="pcard-img">
@@ -518,6 +523,7 @@
         </div>
         <div class="pcard-info">
           <div class="pcard-nome">${p.nome}</div>
+          ${selosHtml(p.selos)}
           <div class="pcard-desc">${p.descricao||''}</div>
           <div class="pcard-preco">${fmt(p.preco)}</div>
         </div>

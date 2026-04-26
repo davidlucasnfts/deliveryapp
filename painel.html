@@ -119,6 +119,9 @@
     .btn-salvar:hover{opacity:0.9;}
     .btn-cancelar{width:100%;background:var(--bg3);color:var(--txt2);border:none;border-radius:11px;padding:0.75rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
     .btn-excluir{width:100%;background:#FEF2F2;color:var(--red);border:none;border-radius:11px;padding:0.7rem;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-top:0.5rem;}
+    .selos-check-wrap{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.85rem;}
+    .selo-check{display:flex;align-items:center;gap:0.35rem;font-size:0.82rem;font-weight:600;color:var(--txt);background:var(--bg2);border-radius:8px;padding:0.4rem 0.75rem;cursor:pointer;user-select:none;}
+    .selo-check input{accent-color:var(--or);cursor:pointer;}
 
     /* ── FOTO UPLOAD ── */
     .foto-area{border:2px dashed #FED7AA;border-radius:12px;padding:1.1rem;text-align:center;cursor:pointer;background:#FFF7ED;margin-bottom:0.85rem;position:relative;}
@@ -365,6 +368,13 @@
       </button>
       <div class="ep-progress" id="epProgress"><div class="ep-progress-bar" id="epProgressBar"></div></div>
       <div class="ep-progress-txt" id="epProgressTxt"></div>
+      <label class="mbox-lbl" style="margin-top:0.75rem;">Selos</label>
+      <div class="selos-check-wrap">
+        <label class="selo-check"><input type="checkbox" data-selo="vegano"> 🌱 Vegano</label>
+        <label class="selo-check"><input type="checkbox" data-selo="sem_gluten"> 🌾 Sem glúten</label>
+        <label class="selo-check"><input type="checkbox" data-selo="novo"> ✨ Novo</label>
+        <label class="selo-check"><input type="checkbox" data-selo="picante"> 🌶️ Picante</label>
+      </div>
       <button class="btn-salvar" onclick="saveEp()">Salvar produto</button>
       <button class="btn-excluir" id="epDelBtn" onclick="deletarProduto()" style="display:none;">🗑️ Excluir este produto</button>
     </div>
