@@ -374,6 +374,8 @@ export function abrirModalProd(prodId, catIdPre) {
     setImgOffset(50, 50)
   }
 
+  const fitAtual = p?.img_fit || 'contain'
+  document.querySelectorAll('[name="epImgFit"]').forEach(el => { el.checked = el.value === fitAtual })
   document.querySelectorAll('[data-selo]').forEach(el => {
     el.checked = (p?.selos || []).includes(el.dataset.selo)
   })
@@ -385,6 +387,18 @@ export function abrirModalProd(prodId, catIdPre) {
 export function fecharModalProd() {
   document.getElementById('modalProd').classList.remove('open')
 }
+
+document.addEventListener('change', e => {
+  if (e.target.name !== 'epImgFit') return
+  const posWrap = document.getElementById('epImgPosWrap')
+  const epImgPos = document.getElementById('epImgPos')
+  if (!posWrap || !epImgPos?.src) return
+  if (e.target.value === 'cover') {
+    posWrap.style.display = 'block'
+    document.getElementById('epTrocarBtn').style.display = 'block'
+    atualizarPosImagem(); iniciarDragImagem()
+  }
+})
 
 export async function handleImgUpload(input) {
   if (!input.files?.[0]) return
@@ -449,7 +463,8 @@ export async function saveEp() {
   if (!categoria_id)  { toast('⚠️ Selecione uma categoria'); return }
 
   const selos = [...document.querySelectorAll('[data-selo]:checked')].map(el => el.dataset.selo)
-  const dados = { nome, descricao, preco, categoria_id, img_offset_x: imgOffsetX, img_offset_y: imgOffsetY, selos }
+  const img_fit = document.querySelector('[name="epImgFit"]:checked')?.value || 'cover'
+  const dados = { nome, descricao, preco, categoria_id, img_offset_x: imgOffsetX, img_offset_y: imgOffsetY, selos, img_fit }
   if (_uploadedUrl) dados.foto_url = _uploadedUrl
 
   if (!_editProdId) {

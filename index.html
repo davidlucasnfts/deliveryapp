@@ -518,9 +518,10 @@
     }
     function cardHtml(p){
       const pos=`${p.img_offset_x??50}% ${p.img_offset_y??50}%`
+      const fit=p.img_fit||'cover'
       return `<div class="pcard" onclick="abrirItem('${p.id}')">
         <div class="pcard-img">
-          ${p.foto_url?`<img src="${p.foto_url}" alt="${p.nome}" loading="lazy" data-ph="pcard-img-ph" onerror="imgErr(this)" style="object-position:${pos}">`:`<div class="pcard-img-ph">🍽️</div>`}
+          ${p.foto_url?`<img src="${p.foto_url}" alt="${p.nome}" loading="lazy" data-ph="pcard-img-ph" onerror="imgErr(this)" style="object-fit:${fit};object-position:${pos}">`:`<div class="pcard-img-ph">🍽️</div>`}
         </div>
         <div class="pcard-info">
           <div class="pcard-nome">${p.nome}</div>

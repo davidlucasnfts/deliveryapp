@@ -119,6 +119,12 @@
     .btn-salvar:hover{opacity:0.9;}
     .btn-cancelar{width:100%;background:var(--bg3);color:var(--txt2);border:none;border-radius:11px;padding:0.75rem;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
     .btn-excluir{width:100%;background:#FEF2F2;color:var(--red);border:none;border-radius:11px;padding:0.7rem;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-top:0.5rem;}
+    .img-fit-wrap{display:flex;gap:0.5rem;margin-bottom:0.85rem;}
+    .img-fit-opt{flex:1;display:flex;flex-direction:column;gap:0.15rem;background:var(--bg2);border-radius:10px;padding:0.6rem 0.75rem;cursor:pointer;border:2px solid transparent;transition:border-color 0.15s;}
+    .img-fit-opt:has(input:checked){border-color:var(--or);background:#FFF7ED;}
+    .img-fit-opt input{display:none;}
+    .img-fit-opt span{font-size:0.82rem;font-weight:700;color:var(--txt);}
+    .img-fit-opt small{font-size:0.68rem;color:var(--txt3);}
     .selos-check-wrap{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.85rem;}
     .selo-check{display:flex;align-items:center;gap:0.35rem;font-size:0.82rem;font-weight:600;color:var(--txt);background:var(--bg2);border-radius:8px;padding:0.4rem 0.75rem;cursor:pointer;user-select:none;}
     .selo-check input{accent-color:var(--or);cursor:pointer;}
@@ -348,6 +354,20 @@
           <label class="mbox-lbl">Categoria</label>
           <select class="mbox-sel" id="epCat"></select>
         </div>
+      </div>
+
+      <label class="mbox-lbl">Exibição da foto no cardápio</label>
+      <div class="img-fit-wrap">
+        <label class="img-fit-opt">
+          <input type="radio" name="epImgFit" value="contain" checked>
+          <span>🖼️ Preencher</span>
+          <small>Foto inteira, sem corte</small>
+        </label>
+        <label class="img-fit-opt">
+          <input type="radio" name="epImgFit" value="cover">
+          <span>✋ Ajustável</span>
+          <small>Arraste para focar no produto</small>
+        </label>
       </div>
 
       <div class="img-info">📷 JPG/PNG · até 20MB · centralizada automaticamente</div>
