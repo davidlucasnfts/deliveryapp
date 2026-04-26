@@ -60,17 +60,16 @@ export function iniciarDragImagem() {
   const img = document.getElementById('epImgPos')
   if (!img) return
   const wrap = img.parentElement
-  requestAnimationFrame(() => {
-    const sz = wrap.offsetWidth
-    wrap.style.height = sz + 'px'
-    wrap.style.minHeight = '0'
-    img.style.objectFit = 'cover'
-    img.style.maxWidth = 'none'
-    img.style.maxHeight = 'none'
-    img.style.width = sz + 'px'
-    img.style.height = sz + 'px'
-  })
-  img.style.cursor = 'grab'
+  // Wrap quadrado via aspect-ratio — sem rAF, sem timing
+  wrap.style.aspectRatio = '1 / 1'
+  wrap.style.height      = ''
+  // Reseta todos os estilos de contain e força cover
+  img.style.objectFit  = 'cover'
+  img.style.width      = '100%'
+  img.style.height     = '100%'
+  img.style.maxWidth   = 'none'
+  img.style.maxHeight  = 'none'
+  img.style.cursor     = 'grab'
   atualizarPosImagem()
 
   let dragging = false, startX, startY, startOffX, startOffY

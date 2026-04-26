@@ -1,10 +1,19 @@
+// js/painel/painel-cardapio.js — cardápio: estado, render, categorias
+
 import { supabase } from '../supabase.js'
-import { fmt, toast, comprimirImagem, atualizarPosImagem, iniciarDragImagem, imgOffsetX, imgOffsetY, setImgOffset } from './utils.js'
+import { fmt, toast } from './utils.js'
+import { renderDestaqueAdmin, renderUpsellAdmin, renderBannerAdmin, carregarBanners } from './painel-extras.js'
+import { abrirModalProd, fecharModalProd, deletarProdPorId } from './painel-modal-produto.js'
+
+export * from './painel-modal-produto.js'
+export * from './painel-extras.js'
 
 let _loja = null, _produtos = [], _categorias = []
 let _editCatId = null
-let _editProdId = null, _uploadedUrl = null
-let _addProdId = null
+
+export function getLoja()       { return _loja }
+export function getProdutos()   { return _produtos }
+export function getCategorias() { return _categorias }
 
 export async function setDados(loja, produtos, categorias) {
   _loja = loja; _produtos = produtos; _categorias = categorias
@@ -31,7 +40,7 @@ export function renderCardapio() {
   }
 
   _categorias.forEach((cat, idx) => {
-    const itens = _produtos.filter(p => p.categoria_id === cat.id)
+    const itens   = _produtos.filter(p => p.categoria_id === cat.id)
     const primeiro = idx === 0, ultimo = idx === _categorias.length - 1
 
     h += `
@@ -73,90 +82,22 @@ export function renderCardapio() {
   initSeguraParaOrdenar()
 }
 
-function renderDestaqueAdmin() {
-  const selecionados = _produtos.filter(p => p.destaque)
-  const disponiveis  = _produtos.filter(p => !p.destaque && p.disponivel !== false)
-
-  const listaHTML = selecionados.length
-    ? selecionados.map(p => `
-      <div style="display:flex;align-items:center;gap:0.65rem;padding:0.5rem 0;border-bottom:1px solid #F9FAFB;">
-        <div style="width:40px;height:40px;border-radius:9px;background:#F0EEE8;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;overflow:hidden;">
-          ${p.foto_url ? `<img src="${p.foto_url}" style="width:40px;height:40px;object-fit:cover;border-radius:9px;">` : '🍽️'}
-        </div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:0.82rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.nome}</div>
-          <div style="font-size:0.75rem;color:var(--or);font-weight:700;">${fmt(p.preco)}</div>
-        </div>
-        <button onclick="removerDestaque('${p.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;border-radius:7px;padding:0.25rem 0.6rem;cursor:pointer;font-size:0.75rem;font-weight:700;flex-shrink:0;">Remover</button>
-      </div>`).join('')
-    : `<div style="font-size:0.78rem;color:var(--txt3);text-align:center;padding:0.75rem 0;">Nenhum produto em destaque ainda</div>`
-
-  const opcoesSelect = disponiveis.map(p =>
-    `<option value="${p.id}">${p.nome} — ${fmt(p.preco)}</option>`
-  ).join('')
-
-  return `
-  <div style="margin-top:1.25rem;">
-    <div class="sec-hd">
-      <span class="sec-title">🔥 Destaques do cardápio</span>
-    </div>
-    <div style="background:#fff;border-radius:12px;border:1px solid #F0EDEB;padding:0.85rem;margin-bottom:1rem;">
-      <p style="font-size:0.75rem;color:var(--txt2);margin-bottom:0.75rem;line-height:1.5;">
-        Produtos em destaque aparecem no topo do cardápio. Com 2 ou mais, exibe slide automático a cada 3s.
-      </p>
-      <div id="destaqueAdminLista">${listaHTML}</div>
-      <div style="display:flex;gap:0.5rem;margin-top:0.85rem;">
-        <select id="destaqueSelect" style="flex:1;min-width:0;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.45rem 0.65rem;font-size:0.82rem;font-family:'Plus Jakarta Sans',sans-serif;color:var(--txt);outline:none;background:#fff;">
-          <option value="">Selecionar produto...</option>
-          ${opcoesSelect}
-        </select>
-        <button class="btn-or" style="flex-shrink:0;white-space:nowrap;" onclick="adicionarDestaque()">+ Adicionar</button>
-      </div>
-    </div>
-  </div>`
-}
-
-function renderUpsellAdmin() {
-  const selecionados = _produtos.filter(p => p.upsell)
-  const disponiveis  = _produtos.filter(p => !p.upsell && p.disponivel !== false)
-
-  const listaHTML = selecionados.length
-    ? selecionados.map(p => `
-      <div style="display:flex;align-items:center;gap:0.65rem;padding:0.5rem 0;border-bottom:1px solid #F9FAFB;">
-        <div style="width:40px;height:40px;border-radius:9px;background:#FEF3C7;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;overflow:hidden;">
-          ${p.foto_url ? `<img src="${p.foto_url}" style="width:40px;height:40px;object-fit:cover;border-radius:9px;">` : '🍽️'}
-        </div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:0.82rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.nome}</div>
-          <div style="font-size:0.75rem;color:var(--or);font-weight:700;">${fmt(p.preco)}</div>
-        </div>
-        <button onclick="removerUpsell('${p.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;border-radius:7px;padding:0.25rem 0.6rem;cursor:pointer;font-size:0.75rem;font-weight:700;flex-shrink:0;">Remover</button>
-      </div>`).join('')
-    : `<div style="font-size:0.78rem;color:var(--txt3);text-align:center;padding:0.75rem 0;">Nenhum produto adicionado ainda</div>`
-
-  const opcoesSelect = disponiveis.map(p =>
-    `<option value="${p.id}">${p.nome} — ${fmt(p.preco)}</option>`
-  ).join('')
-
-  return `
-  <div style="margin-top:1.25rem;">
-    <div class="sec-hd">
-      <span class="sec-title">⭐ Peça também</span>
-    </div>
-    <div style="background:#fff;border-radius:12px;border:1px solid #F0EDEB;padding:0.85rem;margin-bottom:1rem;">
-      <p style="font-size:0.75rem;color:var(--txt2);margin-bottom:0.75rem;line-height:1.5;">
-        Produtos que aparecem como sugestão quando o cliente abre o carrinho.
-      </p>
-      <div id="upsellAdminLista">${listaHTML}</div>
-      <div style="display:flex;gap:0.5rem;margin-top:0.85rem;">
-        <select id="upsellSelect" style="flex:1;min-width:0;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.45rem 0.65rem;font-size:0.82rem;font-family:'Plus Jakarta Sans',sans-serif;color:var(--txt);outline:none;background:#fff;">
-          <option value="">Selecionar produto...</option>
-          ${opcoesSelect}
-        </select>
-        <button class="btn-or" style="flex-shrink:0;white-space:nowrap;" onclick="adicionarUpsell()">+ Adicionar</button>
-      </div>
-    </div>
-  </div>`
+function prodEmoji(p) {
+  const n = ((p.nome || '') + ' ' + (p.categorias?.nome || '')).toLowerCase()
+  if (/pizza/.test(n))                                      return '🍕'
+  if (/hambur|burger|x-burg/.test(n))                      return '🍔'
+  if (/lanche|sanduíche|sanduiche/.test(n))                return '🥪'
+  if (/frango|chicken/.test(n))                            return '🍗'
+  if (/carne|churr|bife|costela|picanha/.test(n))          return '🥩'
+  if (/porção|porcao|frit|batata/.test(n))                 return '🍟'
+  if (/bebid|suco|drink|refri|coca|guaraná|água/.test(n))  return '🥤'
+  if (/sobrem|doce|bolo|torta|pudim/.test(n))              return '🍰'
+  if (/açaí|acai|sorvete/.test(n))                         return '🍦'
+  if (/salad|vegano|vegana/.test(n))                       return '🥗'
+  if (/massa|macar|lasanha/.test(n))                       return '🍝'
+  if (/combo|promo/.test(n))                               return '🔥'
+  if (/sushi|temaki|japon/.test(n))                        return '🍣'
+  return '🍽️'
 }
 
 function prodCard(p) {
@@ -166,7 +107,7 @@ function prodCard(p) {
     <div class="cat-prod-thumb">
       ${p.foto_url
         ? `<img src="${p.foto_url}" alt="${p.nome}" style="width:44px;height:44px;object-fit:cover;border-radius:9px;">`
-        : '🍽️'}
+        : `<span style="font-size:1.5rem;">${prodEmoji(p)}</span>`}
     </div>
     <div class="cat-prod-info">
       <div class="cat-prod-nome">${p.nome}</div>
@@ -194,9 +135,6 @@ export function toggleCat(id) {
   chev.classList.toggle('open')
 }
 
-// ════════════════════════════════════════════
-// TOGGLE ATIVO
-// ════════════════════════════════════════════
 export async function toggleCatAtiva(id) {
   const cat = _categorias.find(x => x.id === id)
   cat.ativa = !cat.ativa
@@ -268,7 +206,7 @@ export async function moverCat(id, dir) {
 }
 
 // ════════════════════════════════════════════
-// MODAL CATEGORIA — simples: nome + tipo
+// MODAL CATEGORIA
 // ════════════════════════════════════════════
 export function abrirModalCat(id) {
   _editCatId = id || null
@@ -278,7 +216,6 @@ export function abrirModalCat(id) {
   document.getElementById('catNome').value = cat?.nome || ''
   document.getElementById('catDelBtn').style.display = cat ? 'block' : 'none'
 
-  // Tipo selecionado
   document.querySelectorAll('#catTipoWrap .tipo-opt').forEach(opt => {
     opt.classList.toggle('on', opt.dataset.val === (cat?.tipo || 'normal'))
   })
@@ -327,7 +264,9 @@ export async function deletarCategoria() {
     ? `Esta categoria tem ${prods.length} produto(s). Todos serão excluídos. Confirmar?`
     : 'Excluir esta categoria?'
   if (!confirm(msg)) return
-  for (const p of prods) await _deletarProdId(p.id)
+  let falhou = false
+  for (const p of prods) { const ok = await deletarProdPorId(p.id); if (!ok) falhou = true }
+  if (falhou) { fecharModalCat(); renderCardapio(); return }
   await supabase.from('categorias').delete().eq('id', _editCatId)
   _categorias.splice(_categorias.findIndex(c => c.id === _editCatId), 1)
   fecharModalCat()
@@ -336,498 +275,17 @@ export async function deletarCategoria() {
 }
 
 // ════════════════════════════════════════════
-// MODAL PRODUTO — info básica + foto
+// ALIASES E STUBS DE COMPATIBILIDADE
 // ════════════════════════════════════════════
-export function abrirModalProd(prodId, catIdPre) {
-  _editProdId = prodId || null
-  _uploadedUrl = null
-  const p = prodId ? _produtos.find(x => x.id === prodId) : null
-
-  document.getElementById('prodModalTitulo').textContent = p ? 'Editar produto' : 'Novo produto'
-  document.getElementById('epNome').value    = p?.nome      || ''
-  document.getElementById('epPreco').value   = p?.preco     || ''
-  document.getElementById('epDesc').value    = p?.descricao || ''
-  document.getElementById('epDelBtn').style.display = p ? 'block' : 'none'
-
-  // Categorias no select
-  const catPad = catIdPre || p?.categoria_id || ''
-  document.getElementById('epCat').innerHTML = _categorias.map(c =>
-    `<option value="${c.id}" ${c.id === catPad ? 'selected' : ''}>${c.tipo === 'combo' ? '🔥 ' : ''}${c.nome}</option>`
-  ).join('')
-
-  // Reset foto
-  document.getElementById('epImgArea').style.display    = 'block'
-  document.getElementById('epImgPosWrap').style.display = 'none'
-  document.getElementById('epUploadBtn').style.display  = 'none'
-  document.getElementById('epTrocarBtn').style.display  = 'none'
-  document.getElementById('epProgress').style.display   = 'none'
-  document.getElementById('epProgressTxt').style.display = 'none'
-
-  const fitAtual = p?.img_fit || 'contain'
-  document.querySelectorAll('[name="epImgFit"]').forEach(el => { el.checked = el.value === fitAtual })
-
-  if (p?.foto_url) {
-    setImgOffset(p.img_offset_x || 50, p.img_offset_y || 50)
-    document.getElementById('epImgArea').style.display    = 'none'
-    document.getElementById('epImgPosWrap').style.display = 'block'
-    document.getElementById('epTrocarBtn').style.display  = 'block'
-    const imgEl = document.getElementById('epImgPos')
-    imgEl.src = p.foto_url
-    if (fitAtual === 'cover') {
-      atualizarPosImagem(); iniciarDragImagem()
-    } else {
-      imgEl.style.objectFit = 'contain'
-      imgEl.style.width = '100%'
-      imgEl.style.height = 'auto'
-      imgEl.style.objectPosition = ''
-      imgEl.parentElement.style.aspectRatio = ''
-    }
-  } else {
-    setImgOffset(50, 50)
-  }
-  document.querySelectorAll('[data-selo]').forEach(el => {
-    el.checked = (p?.selos || []).includes(el.dataset.selo)
-  })
-
-  document.getElementById('modalProd').classList.add('open')
-  setTimeout(() => document.getElementById('epNome').focus(), 100)
-}
-
-export function fecharModalProd() {
-  document.getElementById('modalProd').classList.remove('open')
-}
-
-document.addEventListener('change', e => {
-  if (e.target.name !== 'epImgFit') return
-  const img = document.getElementById('epImgPos')
-  if (!img?.src || img.src === window.location.href) return
-  if (e.target.value === 'cover') {
-    iniciarDragImagem()
-    const btn = document.getElementById('epUploadBtn')
-    btn.style.display = 'block'
-    btn.textContent = '✓ Confirmar posição'
-    btn.onclick = async () => {
-      if (!_editProdId) { btn.style.display = 'none'; return }
-      btn.disabled = true; btn.textContent = 'Salvando...'
-      await supabase.from('produtos').update({ img_fit: 'cover', img_offset_x: imgOffsetX, img_offset_y: imgOffsetY }).eq('id', _editProdId)
-      const p = _produtos.find(x => x.id === _editProdId)
-      if (p) { p.img_fit = 'cover'; p.img_offset_x = imgOffsetX; p.img_offset_y = imgOffsetY }
-      btn.style.display = 'none'; btn.disabled = false
-      toast('✅ Posição salva!')
-    }
-  } else {
-    const wrap = img.parentElement
-    wrap.style.height = ''
-    wrap.style.minHeight = ''
-    img.style.objectFit = 'contain'
-    img.style.maxWidth = ''
-    img.style.maxHeight = ''
-    img.style.width = '100%'
-    img.style.height = 'auto'
-    img.style.cursor = 'default'
-    img.style.objectPosition = ''
-    document.getElementById('epUploadBtn').style.display = 'none'
-  }
-})
-
-export async function handleImgUpload(input) {
-  if (!input.files?.[0]) return
-  const file = input.files[0]
-  if (file.size > 20 * 1024 * 1024) { toast('❌ Máximo 20MB'); return }
-  const imgEl = document.getElementById('epImgPos')
-  const reader = new FileReader()
-  reader.onload = e => {
-    document.getElementById('epImgArea').style.display    = 'none'
-    document.getElementById('epImgPosWrap').style.display = 'block'
-    document.getElementById('epUploadBtn').style.display  = 'block'
-    imgEl.src = e.target.result
-    setImgOffset(50, 50); atualizarPosImagem(); iniciarDragImagem()
-  }
-  reader.readAsDataURL(file)
-
-  document.getElementById('epUploadBtn').onclick = async () => {
-    document.getElementById('epUploadBtn').style.display = 'none'
-    const bar = document.getElementById('epProgressBar')
-    document.getElementById('epProgress').style.display    = 'block'
-    document.getElementById('epProgressTxt').style.display = 'block'
-    document.getElementById('epProgressTxt').textContent   = 'Comprimindo...'
-    bar.style.width = '20%'
-    try {
-      const blob = await comprimirImagem(file, 1080)
-      bar.style.width = '55%'
-      document.getElementById('epProgressTxt').textContent = 'Enviando...'
-      const path = `${_loja.id}/${_editProdId || 'novo_' + Date.now()}_${Date.now()}.jpg`
-      const { error } = await supabase.storage.from('produtos').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
-      if (error) throw new Error(error.message)
-      const { data: urlData } = supabase.storage.from('produtos').getPublicUrl(path)
-      _uploadedUrl = urlData.publicUrl
-      imgEl.src = _uploadedUrl
-      bar.style.width = '100%'
-      document.getElementById('epProgressTxt').textContent = '✅ Foto pronta!'
-      document.getElementById('epTrocarBtn').style.display = 'block'
-      setTimeout(() => {
-        document.getElementById('epProgress').style.display    = 'none'
-        document.getElementById('epProgressTxt').style.display = 'none'
-      }, 2000)
-      if (_editProdId) {
-        await supabase.from('produtos').update({ foto_url: _uploadedUrl, img_offset_x: imgOffsetX, img_offset_y: imgOffsetY }).eq('id', _editProdId)
-        const p = _produtos.find(x => x.id === _editProdId)
-        if (p) { p.foto_url = _uploadedUrl; p.img_offset_x = imgOffsetX; p.img_offset_y = imgOffsetY }
-      }
-    } catch (err) {
-      document.getElementById('epProgress').style.display    = 'none'
-      document.getElementById('epProgressTxt').style.display = 'none'
-      document.getElementById('epUploadBtn').style.display   = 'block'
-      toast('❌ Erro: ' + err.message)
-    }
-  }
-}
-
-export async function saveEp() {
-  const nome         = document.getElementById('epNome').value.trim()
-  const preco        = parseFloat(document.getElementById('epPreco').value)
-  const categoria_id = document.getElementById('epCat').value
-  const descricao    = document.getElementById('epDesc').value.trim()
-  if (!nome)          { toast('⚠️ Nome é obrigatório'); return }
-  if (!preco || preco <= 0) { toast('⚠️ Preço inválido'); return }
-  if (!categoria_id)  { toast('⚠️ Selecione uma categoria'); return }
-
-  const selos = [...document.querySelectorAll('[data-selo]:checked')].map(el => el.dataset.selo)
-  const img_fit = document.querySelector('[name="epImgFit"]:checked')?.value || 'cover'
-  const dados = { nome, descricao, preco, categoria_id, img_offset_x: imgOffsetX, img_offset_y: imgOffsetY, selos, img_fit }
-  if (_uploadedUrl) dados.foto_url = _uploadedUrl
-
-  if (!_editProdId) {
-    const { data, error } = await supabase.from('produtos')
-      .insert({ ...dados, loja_id: _loja.id, disponivel: true })
-      .select('*,categorias(nome)').single()
-    if (error) { toast('❌ Erro ao criar produto'); return }
-    _produtos.push(data)
-    toast('✅ Produto criado!')
-  } else {
-    await supabase.from('produtos').update(dados).eq('id', _editProdId)
-    const p = _produtos.find(x => x.id === _editProdId)
-    Object.assign(p, dados)
-    const cat = _categorias.find(c => c.id === categoria_id)
-    if (p && cat) p.categorias = { nome: cat.nome }
-    toast('✅ Produto salvo!')
-  }
-  fecharModalProd()
-  renderCardapio()
-}
-
-export async function deletarProduto() {
-  if (!_editProdId) return
-  if (!confirm('Excluir este produto?')) return
-  fecharModalProd()
-  await _deletarProdId(_editProdId)
-  renderCardapio()
-}
-
-export async function confirmarDelProd(id) {
-  const p = _produtos.find(x => x.id === id)
-  if (!confirm(`Excluir "${p?.nome}"?`)) return
-  await _deletarProdId(id)
-  renderCardapio()
-  toast('🗑️ Produto excluído')
-}
-
-async function _deletarProdId(id) {
-  const p = _produtos.find(x => x.id === id)
-  if (p?.foto_url) {
-    const path = p.foto_url.split('/produtos/')[1]
-    if (path) await supabase.storage.from('produtos').remove([path])
-  }
-  await supabase.from('grupos_adicionais').delete().eq('produto_id', id)
-  await supabase.from('produtos').delete().eq('id', id)
-  _produtos.splice(_produtos.findIndex(x => x.id === id), 1)
-}
-
-// ════════════════════════════════════════════
-// DESTAQUES — gerenciamento pelo dono
-// ════════════════════════════════════════════
-export async function adicionarDestaque() {
-  const sel = document.getElementById('destaqueSelect')
-  const id = sel?.value
-  if (!id) { toast('⚠️ Selecione um produto'); return }
-  const { error } = await supabase.from('produtos').update({ destaque: true }).eq('id', id)
-  if (error) { toast('❌ Erro: ' + error.message); return }
-  const p = _produtos.find(x => x.id === id)
-  if (p) p.destaque = true
-  renderCardapio()
-  toast('✅ Produto adicionado aos destaques!')
-}
-
-export async function removerDestaque(id) {
-  await supabase.from('produtos').update({ destaque: false }).eq('id', id)
-  const p = _produtos.find(x => x.id === id)
-  if (p) p.destaque = false
-  renderCardapio()
-  toast('Produto removido dos destaques')
-}
-
-// ════════════════════════════════════════════
-// PEÇA TAMBÉM — gerenciamento pelo dono
-// ════════════════════════════════════════════
-export async function adicionarUpsell() {
-  const sel = document.getElementById('upsellSelect')
-  const id = sel?.value
-  if (!id) { toast('⚠️ Selecione um produto'); return }
-  await supabase.from('produtos').update({ upsell: true }).eq('id', id)
-  const p = _produtos.find(x => x.id === id)
-  if (p) p.upsell = true
-  renderCardapio()
-  const el = document.getElementById('upsellAdminLista')
-  el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-  toast('✅ Adicionado ao "Peça também"!')
-}
-
-export async function removerUpsell(id) {
-  await supabase.from('produtos').update({ upsell: false }).eq('id', id)
-  const p = _produtos.find(x => x.id === id)
-  if (p) p.upsell = false
-  renderCardapio()
-  toast('Produto removido do "Peça também"')
-}
-
-// ════════════════════════════════════════════
-// BANNERS PROMOCIONAIS
-// ════════════════════════════════════════════
-let _banners = []
-
-async function carregarBanners() {
-  const { data } = await supabase.from('banners').select('*').eq('loja_id', _loja.id).eq('ativo', true).order('ordem')
-  _banners = data || []
-}
-
-function renderBannerAdmin() {
-  const listaHTML = _banners.length
-    ? _banners.map(b => `
-      <div style="display:flex;align-items:center;gap:0.65rem;padding:0.5rem 0;border-bottom:1px solid #F9FAFB;">
-        <img src="${b.foto_url}" style="width:72px;height:40px;object-fit:cover;border-radius:7px;flex-shrink:0;background:#F0EEE8;">
-        <div style="flex:1;font-size:0.78rem;color:var(--txt2);">Banner ${_banners.indexOf(b)+1}</div>
-        <button onclick="removerBanner('${b.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;border-radius:7px;padding:0.25rem 0.6rem;cursor:pointer;font-size:0.75rem;font-weight:700;flex-shrink:0;">Remover</button>
-      </div>`).join('')
-    : `<div style="font-size:0.78rem;color:var(--txt3);text-align:center;padding:0.75rem 0;">Nenhum banner adicionado ainda</div>`
-
-  const podeAdicionar = _banners.length < 3
-
-  return `
-  <div style="margin-top:1.25rem;">
-    <div class="sec-hd">
-      <span class="sec-title">🖼️ Banners promocionais</span>
-    </div>
-    <div style="background:#fff;border-radius:12px;border:1px solid #F0EDEB;padding:0.85rem;margin-bottom:1rem;">
-      <p style="font-size:0.75rem;color:var(--txt2);margin-bottom:0.75rem;line-height:1.5;">
-        Imagens livres exibidas no topo do cardápio. Máx 3 banners. Troca automática a cada 4s.
-      </p>
-      <div id="bannerAdminLista">${listaHTML}</div>
-      ${podeAdicionar ? `
-      <div style="margin-top:0.85rem;position:relative;">
-        <input type="file" id="bannerFileInput" accept="image/jpeg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" onchange="adicionarBanner(this)">
-        <div style="border:2px dashed #FED7AA;border-radius:10px;padding:0.85rem;text-align:center;background:#FFF7ED;cursor:pointer;">
-          <div style="font-size:1.3rem;margin-bottom:0.2rem;">🖼️</div>
-          <div style="font-size:0.8rem;font-weight:700;color:#C2410C;">Toque para adicionar banner</div>
-          <div style="font-size:0.68rem;color:var(--txt3);margin-top:0.1rem;">JPG/PNG · até 20MB · ${3 - _banners.length} restante${3 - _banners.length !== 1 ? 's' : ''}</div>
-        </div>
-      </div>` : `<div style="font-size:0.75rem;color:var(--txt3);text-align:center;margin-top:0.65rem;">Limite de 3 banners atingido</div>`}
-    </div>
-  </div>`
-}
-
-export async function adicionarBanner(input) {
-  if (!input.files?.[0]) return
-  const file = input.files[0]
-  if (file.size > 20 * 1024 * 1024) { toast('❌ Máximo 20MB'); return }
-  if (_banners.length >= 3) { toast('⚠️ Limite de 3 banners'); return }
-  toast('⏳ Enviando banner...')
-  try {
-    const blob = await comprimirImagem(file, 1200)
-    const path = `${_loja.id}/banner_${Date.now()}.jpg`
-    const { error: upErr } = await supabase.storage.from('banners').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
-    if (upErr) throw new Error(upErr.message)
-    const { data: urlData } = supabase.storage.from('banners').getPublicUrl(path)
-    const { error: dbErr } = await supabase.from('banners').insert({ loja_id: _loja.id, foto_url: urlData.publicUrl, ordem: _banners.length })
-    if (dbErr) throw new Error(dbErr.message)
-    await carregarBanners()
-    renderCardapio()
-    toast('✅ Banner adicionado!')
-  } catch(err) {
-    toast('❌ Erro: ' + err.message)
-  }
-}
-
-export async function removerBanner(id) {
-  const { error } = await supabase.from('banners').delete().eq('id', id)
-  if (error) { toast('❌ Erro ao remover'); return }
-  await carregarBanners()
-  renderCardapio()
-  toast('Banner removido')
-}
-
-// Exporta abrirNovoEp para compatibilidade
-export function abrirNovoEp(catId) { abrirModalProd(null, catId) }
-export function openEp(id) { abrirModalProd(id, null) }
-export function closeEp() { fecharModalProd() }
+export function abrirNovoEp(catId)      { abrirModalProd(null, catId) }
+export function openEp(id)              { abrirModalProd(id, null) }
+export function closeEp()               { fecharModalProd() }
 export function abrirNovoEpNaCat(catId) { abrirModalProd(null, catId) }
-
-// Stubs de compatibilidade
-export function toggleNovaCatForm() {}
-export function openEc(id) { abrirModalCat(id) }
-export function closeEc() { fecharModalCat() }
-export function delProdDaCat() {}
-export function addNovoGrupo() {}
-export function addItemGrupo() {}
-export function removerGrupo() {}
-export function removerItemGrupo() {}
-
-// ════════════════════════════════════════════
-// MODAL ADICIONAIS — dedicado, separado, limpo
-// ════════════════════════════════════════════
-export async function abrirModalAdd(prodId, prodNome) {
-  _addProdId = prodId
-
-  document.getElementById('addModalTitulo').textContent = `Adicionais — ${prodNome}`
-
-  // Carrega grupos existentes
-  const { data: grupos } = await supabase
-    .from('grupos_adicionais')
-    .select('*, adicionais(*)')
-    .eq('produto_id', prodId)
-    .eq('ativo', true)
-    .order('ordem')
-
-  // Reconstrói a lista
-  const lista = document.getElementById('adicionaisLista')
-  lista.innerHTML = ''
-
-  if (grupos?.length) {
-    grupos.forEach(g => adicionarGrupoDOM(g.nome, g.obrigatorio, g.max_escolha || 1,
-      (g.adicionais || []).map(i => ({ nome: i.nome, preco: i.preco }))
-    ))
-  } else {
-    lista.innerHTML = `<div class="add-vazio" id="addVazio">
-      Nenhum adicional ainda.<br>
-      Ex: <strong>Borda</strong> (Catupiry, Cheddar), <strong>Ponto da carne</strong> (Mal, Ao ponto, Bem passado)
-    </div>`
-  }
-
-  document.getElementById('modalAdd').classList.add('open')
-}
-
-export function fecharModalAdd() {
-  document.getElementById('modalAdd').classList.remove('open')
-}
-
-function adicionarGrupoDOM(nome = '', obrigatorio = false, max = 1, itens = []) {
-  const lista = document.getElementById('adicionaisLista')
-  document.getElementById('addVazio')?.remove()
-
-  const grupo = document.createElement('div')
-  grupo.className = 'add-pg'
-
-  // Header do grupo
-  const hd = document.createElement('div')
-  hd.className = 'add-pg-hd'
-  hd.innerHTML = `
-    <input class="add-pg-nome" placeholder="Nome do grupo (ex: Borda, Tamanho, Ponto da carne...)" value="${nome}">
-    <select class="add-pg-sel">
-      <option value="0" ${!obrigatorio ? 'selected' : ''}>Opcional</option>
-      <option value="1" ${obrigatorio ? 'selected' : ''}>Obrigatório</option>
-    </select>
-    <div class="add-pg-max-wrap">Máx <input type="number" class="add-pg-max" min="1" max="20" value="${max}"></div>
-    <button class="add-pg-del">🗑</button>`
-
-  hd.querySelector('.add-pg-del').addEventListener('click', () => {
-    grupo.remove()
-    if (!lista.querySelector('.add-pg')) {
-      lista.innerHTML = `<div class="add-vazio" id="addVazio">Nenhum adicional ainda.</div>`
-    }
-  })
-  grupo.appendChild(hd)
-
-  // Corpo com opções
-  const body = document.createElement('div')
-  body.className = 'add-pg-body'
-
-  function novaOpcaoDOM(nomeItem = '', precoItem = '') {
-    const row = document.createElement('div')
-    row.className = 'add-it'
-    row.innerHTML = `
-      <input class="add-it-nome" placeholder="Ex: Borda Catupiry, Sem cebola...">
-      <input class="add-it-preco" type="number" step="0.01" min="0" placeholder="0,00">
-      <button class="add-it-del">×</button>`
-    row.querySelector('.add-it-nome').value  = nomeItem
-    row.querySelector('.add-it-preco').value = precoItem || ''
-    row.querySelector('.add-it-del').addEventListener('click', () => row.remove())
-    body.insertBefore(row, btnAddOpcao)
-    row.querySelector('.add-it-nome').focus()
-  }
-
-  const btnAddOpcao = document.createElement('button')
-  btnAddOpcao.className = 'add-nova-op'
-  btnAddOpcao.textContent = '+ Adicionar opção'
-  btnAddOpcao.addEventListener('click', () => novaOpcaoDOM())
-  body.appendChild(btnAddOpcao)
-
-  itens.forEach(i => novaOpcaoDOM(i.nome, i.preco))
-  grupo.appendChild(body)
-  lista.appendChild(grupo)
-}
-
-export async function salvarAdicionais() {
-  if (!_addProdId) return
-
-  // 1. Deleta grupos antigos
-  await supabase.from('grupos_adicionais').delete().eq('produto_id', _addProdId)
-
-  const grupos = document.querySelectorAll('#adicionaisLista .add-pg')
-  let totalGrupos = 0
-
-  for (let i = 0; i < grupos.length; i++) {
-    const g = grupos[i]
-    const nome    = g.querySelector('.add-pg-nome')?.value.trim()
-    const obrig   = g.querySelector('.add-pg-sel')?.value === '1'
-    const max     = parseInt(g.querySelector('.add-pg-max')?.value) || 1
-    if (!nome) continue
-
-    const { data: grupoSalvo } = await supabase.from('grupos_adicionais').insert({
-      produto_id:  _addProdId,
-      loja_id:     _loja.id,
-      nome, obrigatorio: obrig,
-      min_escolha: obrig ? 1 : 0,
-      max_escolha: max,
-      ordem: i, ativo: true
-    }).select().single()
-
-    if (!grupoSalvo) continue
-    totalGrupos++
-
-    const itens = [...g.querySelectorAll('.add-it')]
-      .map((row, j) => ({
-        nome:  row.querySelector('.add-it-nome')?.value.trim(),
-        preco: parseFloat(row.querySelector('.add-it-preco')?.value) || 0,
-        ordem: j
-      }))
-      .filter(it => it.nome)
-
-    if (itens.length) {
-      await supabase.from('adicionais').insert(
-        itens.map(it => ({ grupo_id: grupoSalvo.id, loja_id: _loja.id, ...it, ativo: true }))
-      )
-    }
-  }
-
-  // Atualiza badge no card do produto
-  const p = _produtos.find(x => x.id === _addProdId)
-  if (p) p._numGrupos = totalGrupos
-
-  fecharModalAdd()
-  renderCardapio()
-  toast(totalGrupos > 0 ? `✅ ${totalGrupos} grupo(s) salvo(s)!` : '✅ Adicionais removidos')
-}
-
-// Registra botão + Novo grupo no modal de adicionais
-export function initBtnNovoGrupo() {
-  document.getElementById('btnNovoGrupo')?.addEventListener('click', () => adicionarGrupoDOM())
-}
+export function openEc(id)              { abrirModalCat(id) }
+export function closeEc()               { fecharModalCat() }
+export function toggleNovaCatForm()     {}
+export function delProdDaCat()          {}
+export function addNovoGrupo()          {}
+export function addItemGrupo()          {}
+export function removerGrupo()          {}
+export function removerItemGrupo()      {}
