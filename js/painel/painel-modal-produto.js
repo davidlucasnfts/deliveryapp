@@ -50,13 +50,11 @@ export function abrirModalProd(prodId, catIdPre) {
     } else {
       imgEl.style.objectFit      = 'contain'
       imgEl.style.width          = '100%'
-      imgEl.style.height         = 'auto'
+      imgEl.style.height         = '100%'
       imgEl.style.maxWidth       = ''
       imgEl.style.maxHeight      = ''
-      imgEl.style.objectPosition = ''
-      imgEl.parentElement.style.aspectRatio = ''
-      imgEl.parentElement.style.height      = ''
-      imgEl.parentElement.style.minHeight   = ''
+      imgEl.style.objectPosition = '50% 50%'
+      imgEl.style.cursor         = 'default'
     }
   } else {
     setImgOffset(50, 50)
@@ -92,17 +90,13 @@ document.addEventListener('change', e => {
       toast('✅ Posição salva!')
     }
   } else {
-    const wrap = img.parentElement
-    wrap.style.aspectRatio = ''
-    wrap.style.height      = ''
-    wrap.style.minHeight   = ''
-    img.style.objectFit    = 'contain'
-    img.style.width        = '100%'
-    img.style.height       = 'auto'
-    img.style.maxWidth     = ''
-    img.style.maxHeight    = ''
-    img.style.cursor       = 'default'
-    img.style.objectPosition = ''
+    img.style.objectFit      = 'contain'
+    img.style.width          = '100%'
+    img.style.height         = '100%'
+    img.style.maxWidth       = ''
+    img.style.maxHeight      = ''
+    img.style.cursor         = 'default'
+    img.style.objectPosition = '50% 50%'
     document.getElementById('epUploadBtn').style.display = 'none'
   }
 })

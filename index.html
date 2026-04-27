@@ -21,13 +21,12 @@
 
   <div id="app" style="display:none;">
     <header class="header">
-      <button class="header-btn">
-        <span class="mi" style="font-size:22px;color:var(--txt);">menu</span>
-      </button>
-      <span class="header-title" id="storeName">DeliveryApp</span>
-      <button class="header-btn">
-        <span class="mi" style="font-size:22px;color:var(--txt);">person</span>
-      </button>
+      <div class="header-top">
+        <div class="header-nome" id="storeName">DeliveryApp</div>
+        <button class="header-perfil-btn" onclick="window.showToast('Perfil em breve')">PERFIL DA LOJA</button>
+      </div>
+      <div class="header-desc" id="storeDesc" style="display:none;"></div>
+      <div class="header-info-bar" id="headerInfo" style="display:none;"></div>
     </header>
 
     <div class="banner-promo-wrap" id="bannerPromoWrap" style="display:none;"></div>

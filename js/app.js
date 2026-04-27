@@ -110,8 +110,26 @@ async function init() {
 function renderHero() {
   document.getElementById('storeName').textContent = loja.nome
   document.title = loja.nome + ' — Cardápio'
+  const aberta = loja.aberta !== false
+
+  const storeDesc = document.getElementById('storeDesc')
+  if (storeDesc) {
+    storeDesc.textContent = loja.descricao || ''
+    storeDesc.style.display = loja.descricao ? 'block' : 'none'
+  }
+
+  const headerInfo = document.getElementById('headerInfo')
+  if (headerInfo) {
+    const itens = []
+    itens.push(`<span class="hinfo-status ${aberta ? 'aberto' : 'fechado'}">${aberta ? 'Aberto' : 'Fechado'}</span>`)
+    if (loja.tempo_entrega) itens.push(`<span class="hinfo-item"><span class="mi" style="font-size:13px;vertical-align:-2px;">schedule</span> ${loja.tempo_entrega}</span>`)
+    if (loja.cidade)        itens.push(`<span class="hinfo-item"><span class="mi" style="font-size:13px;vertical-align:-2px;">place</span> ${loja.cidade}</span>`)
+    headerInfo.innerHTML = itens.join('')
+    headerInfo.style.display = 'flex'
+  }
+
   const bannerFechado = document.getElementById('bannerFechado')
-  if (bannerFechado) bannerFechado.style.display = loja.aberta ? 'none' : 'flex'
+  if (bannerFechado) bannerFechado.style.display = aberta ? 'none' : 'flex'
 }
 
 function bannerHtml(b) {
@@ -152,12 +170,30 @@ function selosHtml(selos) {
   return `<div class="pcard-selos">${selos.map(s => _selosMap[s] ? `<span class="selo selo-${_selosMap[s].c}">${_selosMap[s].i} ${_selosMap[s].l}</span>` : '').join('')}</div>`
 }
 
+function prodEmoji(p) {
+  const n = ((p.nome || '') + ' ' + (p.categorias?.nome || '')).toLowerCase()
+  if (/pizza/.test(n))                                     return '🍕'
+  if (/hambur|burger|x-burg/.test(n))                     return '🍔'
+  if (/lanche|sanduíche|sanduiche/.test(n))               return '🥪'
+  if (/frango|chicken/.test(n))                           return '🍗'
+  if (/carne|churr|bife|costela|picanha/.test(n))         return '🥩'
+  if (/porção|porcao|frit|batata/.test(n))                return '🍟'
+  if (/bebid|suco|drink|refri|coca|guaraná|água/.test(n)) return '🥤'
+  if (/sobrem|doce|bolo|torta|pudim/.test(n))             return '🍰'
+  if (/açaí|acai|sorvete/.test(n))                        return '🍦'
+  if (/salad|vegano|vegana/.test(n))                      return '🥗'
+  if (/massa|macar|lasanha/.test(n))                      return '🍝'
+  if (/combo|promo/.test(n))                              return '🔥'
+  if (/sushi|temaki|japon/.test(n))                       return '🍣'
+  return '🍽️'
+}
+
 function cardHtml(p) {
   const pos = `${p.img_offset_x ?? 50}% ${p.img_offset_y ?? 50}%`
   const fit = p.img_fit || 'cover'
   return `<div class="pcard" onclick="abrirItem('${p.id}')">
     <div class="pcard-img">
-      ${p.foto_url ? `<img src="${p.foto_url}" alt="${p.nome}" loading="lazy" data-ph="pcard-img-ph" onerror="imgErr(this)" style="object-fit:${fit};object-position:${pos}">` : `<div class="pcard-img-ph">🍽️</div>`}
+      ${p.foto_url ? `<img src="${p.foto_url}" alt="${p.nome}" loading="lazy" data-ph="pcard-img-ph" onerror="imgErr(this)" style="object-fit:${fit};object-position:${pos}">` : `<div class="pcard-img-ph">${prodEmoji(p)}</div>`}
     </div>
     <div class="pcard-info">
       <div class="pcard-nome">${p.nome}</div>
@@ -172,7 +208,7 @@ function cardHtml(p) {
 function featuredHtml(p) {
   return `<div class="featured-card" onclick="abrirItem('${p.id}')">
     <div class="featured-img-wrap">
-      ${p.foto_url ? `<img src="${p.foto_url}" alt="${p.nome}" data-ph="featured-img-ph" onerror="imgErr(this)">` : `<div class="featured-ph">🍽️</div>`}
+      ${p.foto_url ? `<img src="${p.foto_url}" alt="${p.nome}" data-ph="featured-img-ph" onerror="imgErr(this)">` : `<div class="featured-ph">${prodEmoji(p)}</div>`}
       <div class="featured-tag">Mais pedidos 🔥</div>
       <div class="featured-overlay"></div>
       <div class="featured-info">

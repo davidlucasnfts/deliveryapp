@@ -68,8 +68,10 @@ export function renderConfig() {
       <input class="cfg-inp" id="cfgNome" value="${_loja.nome || ''}">
       <label class="cfg-lbl">Descrição</label>
       <input class="cfg-inp" id="cfgDesc" value="${_loja.descricao || ''}">
-      <label class="cfg-lbl">Tempo de entrega</label>
-      <input class="cfg-inp" id="cfgTempo" value="${_loja.tempo_entrega || ''}">
+      <label class="cfg-lbl">Tempo de entrega (ex: 35-50 min)</label>
+      <input class="cfg-inp" id="cfgTempo" value="${_loja.tempo_entrega || ''}" placeholder="35-50 min">
+      <label class="cfg-lbl">Cidade</label>
+      <input class="cfg-inp" id="cfgCidade" value="${_loja.cidade || ''}" placeholder="São Luís">
       <label class="cfg-lbl">WhatsApp (com DDD)</label>
       <div class="field-wrap">
         <input class="cfg-inp" id="cfgWpp" value="${_loja.whatsapp || ''}" type="tel"
@@ -215,6 +217,7 @@ export async function salvarConfig() {
     nome:          document.getElementById('cfgNome').value,
     descricao:     document.getElementById('cfgDesc').value,
     tempo_entrega: document.getElementById('cfgTempo').value,
+    cidade:        document.getElementById('cfgCidade').value,
     whatsapp:      document.getElementById('cfgWpp').value
   }
   await supabase.from('lojas').update(updates).eq('id', _loja.id)
