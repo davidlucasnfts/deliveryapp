@@ -3,7 +3,11 @@
     "allow": [
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(node --check js/painel/painel-cardapio.js)",
+      "Bash(node --check js/painel/painel-core.js)",
+      "Bash(netstat -ano)",
+      "PowerShell(netstat *)"
     ]
   }
 }
