@@ -189,3 +189,26 @@ Concorrentes: Anota AI (R$280-399/mês), CardapioWeb (R$135-300/mês)
 5. **Testar no navegador** após deploy: abrir F12 Console e verificar erros vermelhos
 6. **Mobile-first** — testar em viewport 390px
 7. **Supabase anon key é pública** — segurança é via RLS, não por esconder a key
+8. **vercel.json:** padrões `source` usam path-to-regexp, não regex puro — `(?:...)` é inválido, usar entradas separadas por extensão
+9. **Deploy quebrado na Vercel?** Criar novo projeto importando o mesmo repo — a tela de criação mostra o erro real do vercel.json
+
+---
+
+# PROGRESSO DAS SESSÕES
+
+## 2026-04-27
+
+### ✅ Feito
+- Header expandido no cardápio (nome grande, status aberto/fechado, tempo, cidade)
+- Emoji automático por tipo de produto quando sem foto
+- Campo "Cidade" no painel de configurações
+- CSS compactado (cards e espaçamentos menores)
+- Separação do `painel-cardapio.js` em módulos menores
+- Correção do bug que quebrava todos os deploys na Vercel (`(?:...)` inválido no `vercel.json`)
+- Recriação do projeto na Vercel com integração GitHub funcionando
+- GitHub Action para auto-deploy via deploy hook (`.github/workflows/deploy.yml`)
+- `package.json` mínimo adicionado para Vercel reconhecer projeto
+
+### 🔜 Próximos passos
+- Verificar se o cardápio está exibindo o novo header corretamente no mobile
+- Checar se campo "cidade" está salvando e exibindo (coluna `cidade` precisa existir na tabela `lojas`)
