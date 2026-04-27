@@ -1,4 +1,6 @@
 {
+  "buildCommand": null,
+  "outputDirectory": ".",
   "functions": {
     "api/processar-pagamento.js": {
       "memory": 256,
