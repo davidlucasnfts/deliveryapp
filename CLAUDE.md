@@ -10,7 +10,7 @@ SaaS de cardápio digital + delivery para lanchonetes, pizzarias, açaiterias, h
 
 ## Infraestrutura
 - **Supabase URL:** https://gkzdqnhhecfwkmrsfrcj.supabase.co
-- **Vercel:** deliveryapp-theta.vercel.app (auto-deploy via git push)
+- **Vercel:** deliveryapp-git-main-davidlucasnfts-projects.vercel.app (auto-deploy via git push)
 - **Bucket Storage:** `produtos` (público)
 - **Login admin:** davidlucasnfts@gmail.com
 - **Login dono piloto:** dono@pizzariamelinda.com / melinda123
