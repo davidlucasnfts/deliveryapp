@@ -1,0 +1,114 @@
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--or:#E85000;--pr-grad:linear-gradient(135deg,#E85000,#FF7A30);--bg:#fff;--bg2:#F6F3EE;--bg3:#F0EEE8;--txt:#2d2f31;--txt2:#4a4c4e;--txt3:#6b6d6f;--green:#22C55E;--red:#EF4444;--blue:#3B82F6;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#FFFCF7;padding:1rem;}
+.wrap{max-width:700px;margin:0 auto;}
+
+/* STATUS */
+.status-card{background:#fff;border-radius:16px;padding:1.1rem 1.25rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;box-shadow:0 8px 24px rgba(45,47,49,0.06);}
+.s-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
+.s-info{flex:1;}
+.s-title{font-size:0.88rem;font-weight:700;color:var(--txt);}
+.s-sub{font-size:0.73rem;color:var(--txt2);margin-top:0.1rem;}
+.s-pill{border-radius:20px;padding:0.22rem 0.7rem;font-size:0.7rem;font-weight:700;flex-shrink:0;}
+.pill-ok{background:#DCFCE7;color:#15803D;}
+.pill-warn{background:#FEF3C7;color:#92400E;}
+.pill-off{background:#F3F4F6;color:#6B7280;}
+
+/* GATEWAY GRID */
+.gw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.65rem;margin-bottom:1rem;}
+.gw-card{background:#fff;border-radius:12px;padding:0.85rem 0.75rem;cursor:pointer;text-align:center;transition:all 0.15s;box-shadow:0 4px 16px rgba(45,47,49,0.05);}
+.gw-card:hover{box-shadow:0 6px 20px rgba(166,52,0,0.1);}
+.gw-card.selected{background:#fff3ee;box-shadow:0 0 0 2px var(--or),0 6px 20px rgba(166,52,0,0.1);}
+.gw-logo{font-size:1.6rem;margin-bottom:0.35rem;}
+.gw-name{font-size:0.78rem;font-weight:700;color:var(--txt);}
+.gw-tag{font-size:0.65rem;color:var(--txt3);margin-top:0.1rem;}
+.gw-badge{font-size:0.62rem;font-weight:700;border-radius:10px;padding:0.12rem 0.45rem;margin-top:0.3rem;display:inline-block;}
+.gw-badge.popular{background:#FFF7ED;color:#C2410C;}
+.gw-badge.barato{background:#F0FDF4;color:#15803D;}
+.gw-badge.inter{background:#EFF6FF;color:#1D4ED8;}
+
+/* TABS */
+.tab-row{display:flex;background:#F0EEE8;border-radius:12px;padding:0.25rem;margin-bottom:1rem;gap:0.25rem;}
+.tab{flex:1;padding:0.48rem;text-align:center;font-size:0.75rem;font-weight:600;border-radius:9px;cursor:pointer;border:none;background:transparent;color:var(--txt2);font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.15s;}
+.tab.active{background:var(--pr-grad);color:#fff;}
+
+/* CARDS */
+.card{background:#fff;border-radius:14px;padding:1.1rem;margin-bottom:0.85rem;box-shadow:0 6px 20px rgba(45,47,49,0.06);}
+.card-title{font-size:0.85rem;font-weight:700;color:var(--txt);margin-bottom:0.15rem;}
+.card-desc{font-size:0.73rem;color:var(--txt2);margin-bottom:0.85rem;line-height:1.5;}
+.lbl{font-size:0.72rem;font-weight:600;color:var(--txt2);display:block;margin-bottom:0.22rem;}
+.inp{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.52rem 0.75rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.83rem;color:var(--txt);margin-bottom:0.75rem;}
+.inp:focus{outline:none;border-color:var(--or);}
+.inp-mono{font-family:'Courier New',monospace;font-size:0.78rem;letter-spacing:0.5px;}
+.inp-row{display:grid;grid-template-columns:1fr auto;gap:0.5rem;align-items:end;margin-bottom:0.75rem;}
+.inp-row .inp{margin-bottom:0;}
+.show-btn{background:#F9FAFB;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.52rem 0.65rem;font-size:0.72rem;font-weight:600;color:var(--txt2);cursor:pointer;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;}
+.inp-sel{width:100%;border:1.5px solid #E7E5E4;border-radius:9px;padding:0.52rem 0.75rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.83rem;background:#fff;color:var(--txt);margin-bottom:0.75rem;}
+.inp-sel:focus{outline:none;border-color:var(--or);}
+
+/* BOTÕES */
+.btn-or{background:var(--pr-grad);color:#fff;border:none;border-radius:10px;padding:0.62rem 1.25rem;font-size:0.83rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:opacity 0.15s;}
+.btn-or:hover{opacity:0.9;}
+.btn-or:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-or.full{width:100%;}
+.btn-test{background:#EFF6FF;color:var(--blue);border:1.5px solid #BFDBFE;border-radius:10px;padding:0.58rem 1.1rem;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+.btn-row{display:flex;gap:0.65rem;margin-top:0.5rem;flex-wrap:wrap;}
+
+/* TOGGLE */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:0.65rem 0;border-bottom:1px solid #F9FAFB;}
+.toggle-row:last-child{border:none;}
+.tgl-info{flex:1;}
+.tgl-lbl{font-size:0.83rem;color:var(--txt);font-weight:500;}
+.tgl-sub{font-size:0.71rem;color:var(--txt3);margin-top:0.1rem;}
+.toggle{width:40px;height:22px;background:#E7E5E4;border-radius:20px;position:relative;cursor:pointer;transition:background 0.2s;border:none;flex-shrink:0;}
+.toggle.on{background:var(--green);}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.15);}
+.toggle.on::after{left:20px;}
+
+/* INFO */
+.info{border-radius:10px;padding:0.8rem 0.9rem;margin-bottom:0.85rem;font-size:0.77rem;line-height:1.6;}
+.info.blue{background:#EFF6FF;border:1px solid #BFDBFE;color:#1D4ED8;}
+.info.orange{background:#FFF7ED;border:1px solid #FED7AA;color:#C2410C;}
+.info.green{background:#F0FDF4;border:1px solid #BBF7D0;color:#15803D;}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:0.7rem;}
+.step{display:flex;gap:0.7rem;align-items:flex-start;}
+.step-n{width:22px;height:22px;border-radius:50%;background:var(--bg3);border:2px solid var(--or);color:#C2410C;font-size:0.68rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:0.1rem;}
+.step-body{flex:1;}
+.step-t{font-size:0.82rem;font-weight:700;color:var(--txt);}
+.step-d{font-size:0.73rem;color:var(--txt2);line-height:1.5;margin-top:0.1rem;}
+.step-code{font-family:'Courier New',monospace;font-size:0.72rem;background:#F9FAFB;border:1px solid #F3F4F6;border-radius:6px;padding:0.2rem 0.5rem;color:#C2410C;display:inline-block;margin-top:0.25rem;}
+.step-link{font-size:0.73rem;color:var(--blue);font-weight:600;text-decoration:none;}
+
+/* TAXAS */
+.taxa-row{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid #F9FAFB;font-size:0.81rem;}
+.taxa-row:last-child{border:none;}
+.taxa-val{font-weight:700;color:var(--or);}
+
+/* PREVIEW MÉTODOS */
+.metodo-preview{display:flex;align-items:center;gap:0.65rem;padding:0.6rem;background:#fff;border-radius:10px;border:1.5px solid #F3F4F6;margin-bottom:0.45rem;cursor:pointer;transition:border-color 0.15s;}
+.metodo-preview:hover{border-color:#FED7AA;}
+.mp-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.mp-name{font-size:0.83rem;font-weight:700;color:var(--txt);}
+.mp-sub{font-size:0.7rem;color:var(--txt2);}
+.mp-radio{margin-left:auto;width:16px;height:16px;border-radius:50%;border:2px solid #E7E5E4;flex-shrink:0;}
+
+/* SIMULADOR */
+.sim-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-top:0.75rem;}
+.sim-card{border-radius:10px;padding:0.7rem;text-align:center;}
+.sim-lbl{font-size:0.65rem;font-weight:600;margin-bottom:0.2rem;}
+.sim-val{font-size:1rem;font-weight:800;}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1C1917;color:#fff;border-radius:12px;padding:0.72rem 1.2rem;font-size:0.8rem;font-weight:600;z-index:200;transition:transform 0.3s;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* DESTAQUE GATEWAY SELECIONADO */
+.gw-selected-bar{background:var(--bg2);border:1.5px solid #FED7AA;border-radius:12px;padding:0.75rem 1rem;margin-bottom:1rem;display:none;align-items:center;gap:0.75rem;}
+.gw-selected-bar.show{display:flex;}
+.gw-sel-icon{font-size:1.5rem;}
+.gw-sel-info{flex:1;}
+.gw-sel-name{font-size:0.85rem;font-weight:700;color:var(--txt);}
+.gw-sel-sub{font-size:0.72rem;color:var(--txt2);}
+.gw-trocar{background:none;border:1.5px solid #FED7AA;border-radius:8px;padding:0.3rem 0.65rem;font-size:0.72rem;font-weight:600;color:#C2410C;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
