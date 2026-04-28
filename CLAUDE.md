@@ -26,9 +26,16 @@ SaaS de cardápio digital + delivery para lanchonetes, pizzarias, açaiterias, h
 
 ```
 deliveryapp/
-├── index.html              ← cardápio do cliente (609 linhas)
-├── cardapio-style.css      ← CSS do cardápio (separado para economia)
-├── painel.html             ← painel do proprietário
+├── index.html              ← cardápio do cliente
+├── cardapio-style.css      ← CSS do cardápio
+├── painel.html             ← painel do proprietário (HTML apenas)
+├── painel-style.css        ← CSS do painel
+├── admin.html              ← painel administrativo (HTML apenas)
+├── admin-style.css         ← CSS do admin
+├── admin.js                ← lógica do admin (ES module)
+├── pagamento.html          ← configuração de gateways (HTML apenas)
+├── pagamento-style.css     ← CSS da tela de pagamento
+├── pagamento.js            ← lógica de gateways de pagamento
 ├── login.html
 ├── home.html
 ├── vercel.json
@@ -180,6 +187,54 @@ Concorrentes: Anota AI (R$280-399/mês), CardapioWeb (R$135-300/mês)
 
 ---
 
+# COMO TRABALHAR COM O CLAUDE NESTE PROJETO
+
+## Perfil do desenvolvedor
+David Lucas é analista de sistemas (não desenvolvedor) que usa o Claude Code como ferramenta principal de desenvolvimento. Tem visão de produto e negócio, mas não escreve código manualmente. Quer projetos escaláveis e profissionais. Prefere entender o "porquê" além do "como".
+
+## Idioma e estilo de resposta
+- **Sempre em português** — perguntas, respostas, confirmações, tudo
+- **Modo direto:** resultado primeiro, sem rodeios, sem narração do processo
+- Expandir explicações só se pedido explicitamente
+
+## Workflow obrigatório ao finalizar qualquer tarefa
+1. `node --check arquivo.js` em todos os JS modificados
+2. Confirmar com David que está tudo ok
+3. `git commit` com mensagem descritiva
+4. `git push origin main` — **obrigatório**, a Vercel só deploya com push
+
+## Templates de prompt prontos (use para pedir tarefas ao Claude)
+
+**Bug / ajuste visual:**
+```
+CONTEXTO: [arquivo ou tela]
+PROBLEMA: [o que está errado]
+COMPORTAMENTO ATUAL: [o que acontece]
+COMPORTAMENTO ESPERADO: [como deveria ser]
+RESTRIÇÃO: [o que NÃO pode mudar]
+```
+
+**Nova funcionalidade:**
+```
+FUNCIONALIDADE: [nome curto]
+OBJETIVO: [por que é importante]
+QUEM USA: [cliente / dono / admin]
+FLUXO ESPERADO: [passo a passo]
+ONDE APARECE: [tela, modal, painel]
+```
+
+**Retomar sessão anterior:**
+```
+Leia o CLAUDE.md e me diga: o que foi feito, o que está pendente e qual o próximo passo.
+```
+
+**Commit e deploy:**
+```
+Revise o que foi alterado, crie um commit com mensagem clara e faça o push para a Vercel.
+```
+
+---
+
 # REGRAS IMPORTANTES PARA O CLAUDE CODE
 
 1. **Sempre verificar sintaxe** antes de commitar: `node --check arquivo.js`
@@ -191,12 +246,14 @@ Concorrentes: Anota AI (R$280-399/mês), CardapioWeb (R$135-300/mês)
 7. **Supabase anon key é pública** — segurança é via RLS, não por esconder a key
 8. **vercel.json:** padrões `source` usam path-to-regexp, não regex puro — `(?:...)` é inválido, usar entradas separadas por extensão
 9. **Deploy quebrado na Vercel?** Criar novo projeto importando o mesmo repo — a tela de criação mostra o erro real do vercel.json
+10. **Arquivos max 400 linhas** — ao ultrapassar, separar CSS em `-style.css` e JS em arquivo próprio
+11. **Ao finalizar sessão** — sempre atualizar a seção PROGRESSO DAS SESSÕES no CLAUDE.md
 
 ---
 
 # PROGRESSO DAS SESSÕES
 
-## 2026-04-27
+## 2026-04-27 (sessão 1)
 
 ### ✅ Feito
 - Header expandido no cardápio (nome grande, status aberto/fechado, tempo, cidade)
@@ -209,6 +266,17 @@ Concorrentes: Anota AI (R$280-399/mês), CardapioWeb (R$135-300/mês)
 - GitHub Action para auto-deploy via deploy hook (`.github/workflows/deploy.yml`)
 - `package.json` mínimo adicionado para Vercel reconhecer projeto
 
+## 2026-04-27 (sessão 2)
+
+### ✅ Feito
+- Auditoria de linhas em todos os arquivos — identificados 3 acima de 400 linhas
+- `painel.html` (440→181): CSS extraído para `painel-style.css`
+- `pagamento.html` (643→56): CSS → `pagamento-style.css`, JS → `pagamento.js`
+- `admin.html` (569→98): CSS → `admin-style.css`, JS → `admin.js`
+- Hook automático configurado em `.claude/settings.json`: avisa no terminal quando arquivo editado ultrapassa 400 linhas
+- Memórias locais movidas para o `CLAUDE.md` — contexto agora 100% portátil via git
+
 ### 🔜 Próximos passos
 - Verificar se o cardápio está exibindo o novo header corretamente no mobile
 - Checar se campo "cidade" está salvando e exibindo (coluna `cidade` precisa existir na tabela `lojas`)
+- Melhorias técnicas rápidas (ver seção Alta Prioridade acima)

@@ -7,7 +7,14 @@
       "Bash(node --check js/painel/painel-cardapio.js)",
       "Bash(node --check js/painel/painel-core.js)",
       "Bash(netstat -ano)",
-      "PowerShell(netstat *)"
+      "PowerShell(netstat *)",
+      "Bash(curl *)",
+      "WebFetch(domain:deliveryapp-git-main-davidlucasnfts-projects.vercel.app)",
+      "Bash(node --check login.html)",
+      "Skill(update-config)",
+      "Bash(bash -c 'FILE=$\\(echo \"$STDIN\" | jq -r \".tool_input.file_path // empty\" 2>/dev/null\\); if [ -n \"$FILE\" ] && [ -f \"$FILE\" ]; then LINES=$\\(wc -l < \"$FILE\"\\); if [ \"$LINES\" -gt 400 ]; then echo \"AVISO: $FILE tem $LINES linhas \\(limite: 400\\). Considere separar o arquivo.\"; fi; fi')",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\);process.stdin.on\\('end',\\(\\)=>{try{const f=JSON.parse\\(d\\).tool_input.file_path;if\\(f\\){const{execSync}=require\\('child_process'\\);const n=parseInt\\(execSync\\('wc -l < \\\\\"'+f+'\\\\\"',{shell:true}\\).toString\\(\\).trim\\(\\)\\);if\\(n>400\\)console.log\\('AVISO: '+f+' tem '+n+' linhas \\(limite: 400\\). Considere separar o arquivo.'\\);}}catch\\(e\\){}}\\)\")",
+      "Bash(node *)"
     ]
   }
 }
