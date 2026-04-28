@@ -41,12 +41,7 @@
     </div>
 
     <div style="text-align:center">
-      <span class="badge" id="badgeText">Acesso do estabelecimento</span>
-    </div>
-
-    <div class="tab-row">
-      <button class="tab active" onclick="setTipo('dono')">Sou dono de loja</button>
-      <button class="tab" onclick="setTipo('admin')">Admin</button>
+      <span class="badge">Acesso do estabelecimento</span>
     </div>
 
     <div class="error" id="errorMsg"></div>
@@ -67,23 +62,6 @@
 
   <script type="module">
     import { supabase } from './js/supabase.js'
-
-    let tipoUsuario = 'dono'
-
-    window.setTipo = function(tipo) {
-      tipoUsuario = tipo
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
-      event.target.classList.add('active')
-      const badge = document.getElementById('badgeText')
-      const hint  = document.getElementById('hintText')
-      if (tipo === 'admin') {
-        badge.textContent = 'Acesso administrativo'
-        hint.textContent  = 'Acesso restrito — somente administradores'
-      } else {
-        badge.textContent = 'Acesso do estabelecimento'
-        hint.textContent  = 'Acesso exclusivo para donos de estabelecimento'
-      }
-    }
 
     window.fazerLogin = async function() {
       const email = document.getElementById('email').value.trim()
@@ -111,18 +89,7 @@
 
         if (error) throw error
 
-        // Busca perfil do usuário
-        const { data: perfil } = await supabase
-          .from('usuarios')
-          .select('perfil')
-          .eq('email', email)
-          .single()
-
-        if (perfil?.perfil === 'admin') {
-          window.location.href = 'admin.html'
-        } else {
-          window.location.href = 'painel.html'
-        }
+        window.location.href = 'painel.html'
 
       } catch (e) {
         err.textContent = 'E-mail ou senha incorretos. Tente novamente.'
