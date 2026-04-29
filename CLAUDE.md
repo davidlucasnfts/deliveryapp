@@ -141,11 +141,10 @@ Concorrentes: Anota AI (R$280-399/mês), CardapioWeb (R$135-300/mês)
 
 ## Alta Prioridade (fazer agora)
 
-### 1. Melhorias técnicas rápidas
-- **getTaxaEntrega:** trocar `.find()` local por `.ilike('bairro', '%termo%')` no Supabase (economiza dados)
-  - Arquivo: `js/cardapio.js` função `getTaxaEntrega`
-- **Cache HTTP:** adicionar Cache-Control no `vercel.json` para CSS, JS e imagens
-- **Toast em vez de console.error:** substituir `console.error` nos catch() por `window.showToast('⚠️ Verifique sua conexão')` nos 3 módulos
+### 1. Melhorias técnicas rápidas ✅ concluído em 2026-04-29
+- ✅ **getTaxaEntrega:** já usava `.ilike()` — confirmado
+- ✅ **Cache HTTP:** `vercel.json` já tinha Cache-Control — confirmado
+- ✅ **Toast em vez de console.error:** `pedidos.js` e `admin.js` corrigidos
 
 ## Média Prioridade (próximo mês)
 
@@ -248,6 +247,7 @@ Revise o que foi alterado, crie um commit com mensagem clara e faça o push para
 9. **Deploy quebrado na Vercel?** Criar novo projeto importando o mesmo repo — a tela de criação mostra o erro real do vercel.json
 10. **Arquivos max 400 linhas** — ao ultrapassar, separar CSS em `-style.css` e JS em arquivo próprio
 11. **Ao finalizar sessão** — sempre atualizar a seção PROGRESSO DAS SESSÕES no CLAUDE.md
+12. **Indicar ferramentas disponíveis** — sempre avisar quando um slash command (`/qa`, `/verificar-seguranca`, `/gerar-diagrama`, `/revisar-codigo`, `/gerar-user-stories`, `/das`, `/adr`, `/gerar-changelog`, `/documentar-requisitos`, `/gerar-casos-de-uso`) ou agente (`arquiteto-solucoes`, `arquiteto-postgresql`, `engenheiro-dba`, `analista-de-negocio`, `technical-writer`, `engenheiro-react-frontend`) se aplica à situação — deixar o usuário decidir se usa
 
 ---
 
@@ -276,7 +276,9 @@ Revise o que foi alterado, crie um commit com mensagem clara e faça o push para
 - Hook automático configurado em `.claude/settings.json`: avisa no terminal quando arquivo editado ultrapassa 400 linhas
 - Memórias locais movidas para o `CLAUDE.md` — contexto agora 100% portátil via git
 
+### ✅ Verificado em 2026-04-29
+- Header mobile confirmado OK — CSS correto, mobile-first, flex-wrap funcionando
+- Coluna `cidade` confirmada na tabela `lojas` — salva e exibe no header
+
 ### 🔜 Próximos passos
-- Verificar se o cardápio está exibindo o novo header corretamente no mobile
-- Checar se campo "cidade" está salvando e exibindo (coluna `cidade` precisa existir na tabela `lojas`)
-- Melhorias técnicas rápidas (ver seção Alta Prioridade acima)
+- Melhorias técnicas rápidas (Alta Prioridade): getTaxaEntrega, Cache HTTP, console.error → showToast

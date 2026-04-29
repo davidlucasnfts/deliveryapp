@@ -169,7 +169,6 @@ export async function criarPedido(lojaId, cliente, itens, cupomId = null, descon
     .insert(dadosPedido).select().single()
 
   if (error) {
-    console.error('Erro ao criar pedido:', error)
     throw new Error(error.message || 'Erro ao salvar pedido no banco')
   }
 
@@ -187,8 +186,7 @@ export async function criarPedido(lojaId, cliente, itens, cupomId = null, descon
     .from('itens_pedido').insert(itensBanco).select()
 
   if (erroItens) {
-    console.error('Erro ao salvar itens:', erroItens)
-    // Não lança erro — pedido já foi criado
+    window.showToast('⚠️ Verifique sua conexão')
   }
 
   // Salva adicionais (só se tabela existir — update_fase1.sql rodado)

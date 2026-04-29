@@ -273,7 +273,6 @@ window.salvarLoja = async function() {
     fecharModal()
     renderLojas()
   } catch(e) {
-    console.error(e)
     toast('❌ Erro: ' + (e.message || 'tente novamente'))
   } finally {
     btn.disabled = false
