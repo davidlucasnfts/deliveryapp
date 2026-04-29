@@ -264,6 +264,7 @@ export async function finalizarPedido(formaPagamento) {
       <div class="cs-success">
         <div class="cs-success-icon">🎉</div>
         <div class="cs-success-title">Pedido confirmado!</div>
+        ${window.APP.pedidoAtual.numero ? `<div class="cs-success-num">#${window.APP.pedidoAtual.numero}</div>` : ''}
         <div class="cs-success-sub">
           Pedido enviado pelo WhatsApp com sucesso!<br><br>
           <strong>Pagamento:</strong> ${pgtoLabel[window.APP.pgtoSelecionado]}<br><br>
