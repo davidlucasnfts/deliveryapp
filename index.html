@@ -20,9 +20,12 @@
   </div>
 
   <div id="app" style="display:none;">
-    <header class="header">
+    <header class="header" id="mainHeader">
       <div class="header-top">
-        <div class="header-nome" id="storeName">DeliveryApp</div>
+        <div style="display:flex;align-items:center;gap:0.6rem;flex:1;min-width:0;">
+          <img class="header-logo-img" id="headerLogoImg" alt="" style="display:none;" onerror="this.style.display='none'">
+          <div class="header-nome" id="storeName">DeliveryApp</div>
+        </div>
         <button class="header-perfil-btn" onclick="window.showToast('Perfil em breve')">PERFIL DA LOJA</button>
       </div>
       <div class="header-desc" id="storeDesc" style="display:none;"></div>

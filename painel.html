@@ -16,7 +16,7 @@
       <span class="hd-loja" id="hdLoja">Carregando...</span>
       <span class="hd-data" id="hdData"></span>
     </div>
-    <div class="hd-status">
+    <div class="hd-status" onclick="toggleLoja()" title="Clique para abrir/fechar a loja" style="cursor:pointer;">
       <div class="status-dot" id="statusDot"></div>
       <span class="status-txt" id="statusTxt">Aberta</span>
     </div>
@@ -26,15 +26,17 @@
     </div>
   </div>
 
-  <div class="tabs" id="tabsEl">
-    <div class="tab on" onclick="trocarTab('pedidos',this)">🛎️ Pedidos <span id="badgeNovos" class="tab-badge"></span></div>
-    <div class="tab" onclick="trocarTab('cardapio',this)">🍕 Cardápio</div>
-    <div class="tab" onclick="trocarTab('relatorios',this)">📊 Relatórios</div>
-    <div class="tab" onclick="trocarTab('fidelidade',this)">⭐ Fidelidade</div>
-    <div class="tab" onclick="trocarTab('config',this)">⚙️ Config</div>
-  </div>
+  <div class="layout">
+    <div class="tabs" id="tabsEl">
+      <div class="tab on" onclick="trocarTab('pedidos',this)">🛎️ Pedidos <span id="badgeNovos" class="tab-badge"></span></div>
+      <div class="tab" onclick="trocarTab('cardapio',this)">🍕 Cardápio</div>
+      <div class="tab" onclick="trocarTab('relatorios',this)">📊 Relatórios</div>
+      <div class="tab" onclick="trocarTab('fidelidade',this)">⭐ Fidelidade</div>
+      <div class="tab" onclick="trocarTab('config',this)">⚙️ Config</div>
+    </div>
 
-  <div class="body" id="mainBody"></div>
+    <div class="body" id="mainBody"></div>
+  </div>
 
   <div class="notif" id="notif">🛎️ Novo pedido!</div>
   <div class="toast" id="toast"></div>

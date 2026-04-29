@@ -20,7 +20,7 @@ import { renderCardapio, setDados as setDadosCardapio,
   adicionarBanner, removerBanner
 } from './painel-cardapio.js'
 import { renderFidelidade, setLoja as setLojaFid, mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade, salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao } from './painel-fidelidade.js'
-import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa, carregarTaxas } from './painel-config.js'
+import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa, carregarTaxas, salvarIdentidade, uploadLogo, uploadCapa, removerLogo, removerCapa } from './painel-config.js'
 import { renderRelatorios, setLojaRel, trocarPeriodoRel } from './painel-relatorios.js'
 
 let loja  = null
@@ -50,6 +50,7 @@ exp({
   trocarPeriodoRel,
   // config
   mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa,
+  salvarIdentidade, uploadLogo, uploadCapa, removerLogo, removerCapa,
   // destaques + upsell
   adicionarDestaque, removerDestaque,
   adicionarUpsell, removerUpsell,
@@ -169,5 +170,11 @@ function trocarTab(tab, el) {
   else if (tab === 'fidelidade') renderFidelidade()
   else                           renderConfig()
 }
+
+let _resizeTimer = null
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer)
+  _resizeTimer = setTimeout(() => { if (tabAtual === 'pedidos') renderPedidos() }, 200)
+})
 
 init()

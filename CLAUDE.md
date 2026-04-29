@@ -116,37 +116,127 @@ Concorrentes: Anota AI (R$280-399/mês), CardapioWeb (R$135-300/mês)
 
 ---
 
-# PRÓXIMAS FUNCIONALIDADES
+# BACKLOG DE MELHORIAS (priorizado por impacto)
 
-## Média Prioridade (próximas sessões)
+> Baseado em análise completa de: Cardapio.ai (R$49,90–R$99,90), Anota AI (R$280–399), CardapioWeb (R$135–300), Saipos (R$219), Deeliv. Última análise: 2026-04-29.
 
-### 1. Dashboard do painel com métricas do dia
-- **O que:** 3 cards no topo do painel — pedidos do dia, ganhos (R$), entregas concluídas. Cards de pedidos por status: 🔴 Novo → 🟠 Preparando → 🟡 Pronto → entregue
-- **Onde:** `painel.html` + `js/painel/painel-pedidos.js`
-- **Referência:** `.claude/skills/deliveryapp-uxui/SKILL.md` (Fluxo 3)
+## ✅ Entregues
 
-### 2. Número do pedido formatado
-- **O que:** pedidos com ID legível tipo `PD-20260429-00123` em vez de UUID
-- **Onde:** trigger no Supabase + tabela `pedidos` + exibição no painel e confirmação
-- **Referência:** `.claude/skills/deliveryapp-database/SKILL.md`
+- [x] Dashboard de pedidos com métricas do dia (faturamento, em aberto, ticket médio, mais vendido)
+- [x] Pedidos agrupados por status com seção colapsável de concluídos
+- [x] Número de pedido formatado `PD-YYYYMMDD-NNNNN` via trigger Supabase
+- [x] Relatórios (hoje / 7 dias / 30 dias): faturamento, top produtos, bairros, horários de pico
+- [x] Botão avaliação pós-entrega (WhatsApp)
+- [x] Banners promocionais por loja
+- [x] Destaques e upsell ("peça também")
+- [x] Programa de fidelidade + cupons + transmissão WhatsApp
+- [x] Taxas de entrega por bairro
+- [x] Adicionais por grupo (obrigatório, min/max) com drag
 
-## Futuro (quando tiver 5+ lojas)
+---
 
-### 3. Repetir pedido anterior
-- **O que:** cliente reconhecido vê botão "Repetir último pedido" que já monta o carrinho
-- **Onde:** `index.html` + `js/pedidos.js` (nova função `buscarUltimoPedido`)
+## 🔥 Alta Prioridade (próximas sessões)
 
-### 4. Acompanhamento do pedido em tempo real
-- **O que:** link único após pedido. Timeline animada: recebido → em preparo → saiu → entregue
-- **Onde:** nova página `acompanhar.html` + `painel-pedidos.js`
+### 1. Painel responsivo para desktop
+- **Por que:** Cardapio.ai e todos os concorrentes têm painel desktop com sidebar + kanban. Donos que gerenciam no computador vão preferir o concorrente.
+- **O que:** `painel-style.css` com breakpoint `@media (min-width: 768px)` — sidebar fixa lateral, conteúdo ocupa 100% da tela, kanban de pedidos em colunas lado a lado
+- **Cardápio do cliente:** NÃO precisa — 95%+ dos pedidos vêm de celular, mobile-first está correto
+- **Onde:** `painel-style.css` + `painel.html` (estrutura sidebar)
 
-### 5. QR Code para mesas (modo salão)
-- **O que:** dono gera QR Code por mesa. Cliente escaneia, faz pedido com número da mesa
-- **Onde:** painel + `index.html` (parâmetro `?mesa=5`)
+### 2. Kanban de pedidos (visão desktop)
+- **Por que:** Cardapio.ai mostra 4 colunas simultâneas (Novo | Em preparo | Saiu | Concluído). Muito mais produtivo que scroll linear.
+- **O que:** no desktop, renderizar `renderPedidos()` em layout kanban 4 colunas; no mobile mantém layout atual
+- **Onde:** `painel-pedidos.js` + `painel-style.css`
 
-### 6. Robô WhatsApp com IA (Evolution API)
-- **O que:** 1 instância para N lojas. Atendimento automatizado via WhatsApp
+### 3. Acompanhamento do pedido em tempo real
+- **Por que:** Feature chave de retenção — cliente não precisa ligar para saber o status
+- **O que:** Link único `acompanhar.html?id=PD-20260429-00123`. Timeline animada: recebido → em preparo → saiu → entregue. Atualiza via Supabase Realtime.
+- **Onde:** nova página `acompanhar.html` + `acompanhar-style.css` + `js/acompanhar.js`
+
+### 4. Controle de estoque com gatilho de urgência
+- **Por que:** Cardapio.ai exibe "Últimas unidades!" e desativa produto automaticamente quando zera
+- **O que:** campo `estoque INTEGER` em `produtos`. Quando vende, decrementa. Badge "Últimas unidades!" quando ≤5. Desativa automaticamente quando =0.
+- **Onde:** `produtos` table + `painel-cardapio.js` (campo no modal) + `index.html` (badge)
+
+### 5. Central de alertas WhatsApp (notificação de novo pedido)
+- **Por que:** Cardapio.ai envia mensagem completa (número, horário, cliente, produtos, total, pagamento) num grupo WhatsApp. Donos recebem sem abrir o painel.
+- **O que:** Ao criar pedido, Vercel Function monta mensagem e chama API WhatsApp (Evolution API ou Z-API)
+- **Onde:** `api/notificar-pedido.js` (Vercel Function) + campo `whatsapp_notif` em `lojas`
+
+---
+
+## ⚡ Média Prioridade
+
+### 6. Preço promocional no cardápio
+- **Por que:** Cardapio.ai mostra "R$49,99 ~~R$69,89~~" — aumenta conversão visualmente
+- **O que:** campo `preco_original NUMERIC` em `produtos`. Quando preenchido, mostra tachado.
+- **Onde:** `produtos` table + `painel-cardapio.js` + `index.html` + `cardapio-style.css`
+
+### 7. Repetir pedido anterior
+- **O que:** Cliente reconhecido (mesmo celular) vê botão "Repetir último pedido" que monta o carrinho automaticamente
+- **Onde:** `index.html` + `js/pedidos.js` (função `buscarUltimoPedido`)
+
+### 8. Previsão de entrega no pedido
+- **Por que:** Cardapio.ai mostra "Previsão: 12:27" na notificação e no acompanhamento
+- **O que:** campo `tempo_entrega_min INTEGER` em `lojas`. Ao fazer pedido, calcula `criado_em + tempo_entrega_min` e exibe na confirmação e no acompanhamento
+- **Onde:** `lojas` table + `painel-config.js` + `js/checkout.js` + `acompanhar.html`
+
+### 9. Tipo de pedido: Entrega / Retirada
+- **Por que:** Muitos clientes querem retirar no local e pagar menos (sem taxa)
+- **O que:** seletor na tela de checkout. Se "Retirada", zera taxa de entrega e não exige endereço.
+- **Onde:** `pedidos` table (campo `tipo_pedido`) + `js/checkout.js` + `painel-pedidos.js`
+
+### 10. Pixel Google + Meta (rastreamento)
+- **Por que:** Donos que investem em anúncios precisam rastrear conversões
+- **O que:** campos `pixel_google TEXT`, `pixel_meta TEXT` em `lojas`. Injeta o script de tracking no `index.html` dinamicamente.
+- **Onde:** `lojas` table + `painel-config.js` + `js/cardapio.js` (init)
+
+### 11. Impressão automática (PDV)
+- **Por que:** Cardapio.ai tem integração com impressora térmica — grande diferencial operacional
+- **O que:** ao receber novo pedido no painel, abre `window.print()` com layout de cupom fiscal
+- **Onde:** `painel-pedidos.js` + `painel-style.css` (`@media print`)
+
+### 12. Domínio personalizado
+- **Por que:** Cardapio.ai oferece `cardapio.ai/seurestaurante`. Nós já temos `?loja=ID`, mas URL amigável passa profissionalismo.
+- **O que:** campo `slug TEXT UNIQUE` em `lojas`. Vercel rewrite: `/r/melinda → index.html?loja=ID`
+- **Onde:** `lojas` table + `vercel.json` + `js/cardapio.js`
+
+### 13. "Serve X pessoas" e informações no card
+- **Por que:** Cardapio.ai mostra "Serve 4 pessoas · 500ml" — aumenta percepção de valor
+- **O que:** campo `serve_pessoas TEXT` em `produtos`. Exibe abaixo da descrição no cardápio.
+- **Onde:** `produtos` table + `painel-cardapio.js` + `index.html`
+
+---
+
+## 🔮 Baixa Prioridade (quando tiver 5+ lojas)
+
+### 14. QR Code para mesas (modo salão)
+- **O que:** Dono gera QR Code por mesa. Cliente escaneia, faz pedido com número da mesa visível no painel.
+- **Onde:** painel + `index.html` (parâmetro `?mesa=5`) + `pedidos` table (campo `numero_mesa`)
+
+### 15. Robô WhatsApp com IA (Evolution API)
+- **O que:** 1 instância para N lojas. Saudação automática, confirmação de pedido, atualizações de status via WhatsApp.
 - **Onde:** servidor dedicado + Evolution API + webhook Supabase
+
+### 16. Recuperador de carrinho
+- **O que:** Se cliente montou carrinho e não finalizou, recebe mensagem WhatsApp 30min depois com link direto
+- **Onde:** Supabase Edge Function com cron + Evolution API
+
+### 17. Árvore de links (link de bio)
+- **O que:** Cardapio.ai oferece página `cardapio.ai/seurestaurante` com todos os links (cardápio, WhatsApp, Instagram, Google Maps)
+- **Onde:** nova página `links.html` ou integrada ao `home.html`
+
+### 18. Controle de acesso de funcionários
+- **O que:** Dono cria login para funcionário (caixa, atendente) com permissões limitadas — sem acesso a financeiro/config
+- **Onde:** `usuarios` table (campo `role: dono|funcionario`) + RLS por role
+
+### 19. Áreas de entrega por raio (km)
+- **O que:** Alternativa às taxas por bairro. Define raio máximo em km a partir do endereço da loja.
+- **Onde:** `lojas` table (lat/lng, raio_max) + Google Maps Distance Matrix API
+
+### 20. Múltiplas bandeiras de cartão (Asaas/Stripe)
+- **O que:** Além do Mercado Pago, integrar Asaas para parcelamento e mais bandeiras
+- **Onde:** nova Vercel Function + `painel-config.js`
 
 ---
 
@@ -154,12 +244,13 @@ Concorrentes: Anota AI (R$280-399/mês), CardapioWeb (R$135-300/mês)
 
 | Concorrente | Preço | Pontos fortes |
 |---|---|---|
-| **Anota AI** | R$280-399/mês | Adicionais completos, "Peça também", banners, destaques, PIX dinâmico, acompanhamento pedido |
-| **CardapioWeb** | R$135-300/mês | Bom design, muitos planos, taxa por raio/km |
-| **Pedidu** | R$99-199/mês | Simples, foco em delivery |
-| **Consumer** | Variável | Robusto, muitas integrações |
+| **Cardapio.ai** | R$49,90–R$99,90/mês | Painel desktop kanban, robô WhatsApp, estoque, impressão, pixel, recuperador carrinho |
+| **Anota AI** | R$280–399/mês | Adicionais completos, "Peça também", banners, destaques, PIX dinâmico, acompanhamento pedido |
+| **CardapioWeb** | R$135–300/mês | Bom design, muitos planos, taxa por raio/km |
+| **Saipos** | R$219/mês | PDV completo, KDS (tela cozinha), motoboy, integração iFood |
+| **Deeliv** | — | Mobile-first moderno |
 
-**Nosso diferencial:** preço 3x menor, design superior, dinheiro direto ao dono (sem intermediário), fidelidade integrada
+**Nosso diferencial:** preço 3x menor que a maioria, design superior, dinheiro direto ao dono (sem intermediário), fidelidade integrada, sem taxa por transação
 
 ---
 
@@ -230,6 +321,16 @@ Revise o que foi alterado, crie um commit com mensagem clara e faça o push para
 
 # PROGRESSO DA SESSÃO ATUAL
 
-### 🔜 Próximos passos
-- Ver `CHANGELOG.md` para histórico completo de funcionalidades entregues
-- Próximas features: repetir pedido, acompanhamento em tempo real, QR Code mesas, robô WhatsApp
+### ✅ Entregue em 2026-04-29
+- Trigger Supabase para número de pedido `PD-YYYYMMDD-NNNNN` (`gerar_numero_pedido.sql`)
+- Módulo `painel-relatorios.js` com período hoje/7/30 dias, top produtos, bairros, horários
+- Aba Relatórios no painel
+- Botão "⭐ Avaliar" pós-entrega (WhatsApp) no card do pedido
+- Backlog completo de 20 melhorias baseado em análise de 5 concorrentes
+
+### 🔜 Próximos passos sugeridos
+1. Painel responsivo para desktop + Kanban de pedidos (#1 e #2 do backlog)
+2. Acompanhamento do pedido em tempo real (#3)
+3. Controle de estoque com urgência (#4)
+
+- Ver `CHANGELOG.md` para histórico completo

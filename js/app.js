@@ -107,9 +107,35 @@ async function init() {
   }
 }
 
+function aplicarIdentidade() {
+  const cor = loja.cor_primaria || '#E85000'
+  document.documentElement.style.setProperty('--or', cor)
+  const n = parseInt(cor.replace('#',''), 16)
+  const r = Math.min(255, (n >> 16) + 40), g = Math.min(255, ((n >> 8) & 0xFF) + 25), b = Math.min(255, (n & 0xFF) + 15)
+  const light = '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('')
+  document.documentElement.style.setProperty('--pr-grad', `linear-gradient(135deg,${cor},${light})`)
+
+  const logoImg = document.getElementById('headerLogoImg')
+  if (logoImg) { logoImg.src = loja.logo_url || ''; logoImg.style.display = loja.logo_url ? 'block' : 'none' }
+
+  const hdr = document.getElementById('mainHeader')
+  if (hdr) {
+    if (loja.foto_capa_url) {
+      hdr.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.52),rgba(0,0,0,0.42)),url(${loja.foto_capa_url})`
+      hdr.style.backgroundSize = 'cover'
+      hdr.style.backgroundPosition = 'center'
+      hdr.classList.add('tem-capa')
+    } else {
+      hdr.style.backgroundImage = ''
+      hdr.classList.remove('tem-capa')
+    }
+  }
+}
+
 function renderHero() {
   document.getElementById('storeName').textContent = loja.nome
   document.title = loja.nome + ' — Cardápio'
+  aplicarIdentidade()
   const aberta = loja.aberta !== false
 
   const storeDesc = document.getElementById('storeDesc')

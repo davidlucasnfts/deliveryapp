@@ -54,12 +54,40 @@ export function renderPedidos() {
   const preparo  = emAberto.filter(p => p.status === 'prep')
   const saiu     = emAberto.filter(p => p.status === 'saiu')
 
+  h += window.innerWidth >= 768
+    ? renderKanban(novos, preparo, saiu, concluidos)
+    : renderLinear(novos, preparo, saiu, concluidos)
+
+  document.getElementById('mainBody').innerHTML = h
+}
+
+function renderKanban(novos, preparo, saiu, concluidos) {
+  return `<div class="kanban">
+    ${kanbanCol('novo', '🔴 Novos', novos)}
+    ${kanbanCol('prep', '🟠 Em preparo', preparo)}
+    ${kanbanCol('saiu', '🟡 Saiu', saiu)}
+    ${kanbanCol('done', '✅ Concluídos', concluidos)}
+  </div>`
+}
+
+function kanbanCol(tipo, label, lista) {
+  const vazio = lista.length === 0 ? `<div class="kanban-vazio">Nenhum pedido</div>` : ''
+  return `<div class="kanban-col kanban-col--${tipo}">
+    <div class="kanban-col-hd">
+      <span class="kanban-col-lbl">${label}</span>
+      <span class="kanban-col-count">${lista.length}</span>
+    </div>
+    ${lista.map(p => cardPedido(p)).join('')}${vazio}
+  </div>`
+}
+
+function renderLinear(novos, preparo, saiu, concluidos) {
   const secoes = [
     { label: '🔴 Novo',            lista: novos,   tipo: 'novo' },
     { label: '🟠 Em preparo',      lista: preparo, tipo: 'prep' },
     { label: '🟡 Saiu p/ entrega', lista: saiu,    tipo: 'saiu' },
   ]
-
+  let h = ''
   let temAlgum = false
   secoes.forEach(({ label, lista, tipo }) => {
     if (!lista.length) return
@@ -67,21 +95,16 @@ export function renderPedidos() {
     h += `<div class="sec-title sec-${tipo}">${label} <span class="sec-count">${lista.length}</span></div>`
     lista.forEach(p => { h += cardPedido(p) })
   })
-
   if (concluidos.length) {
     temAlgum = true
     const seta = _concluidos_aberto ? '▼' : '▶'
     h += `<div class="sec-title sec-concluido sec-title--toggle" onclick="toggleConcluidos()">✅ Concluídos hoje <span class="sec-count">${concluidos.length}</span> <span class="sec-seta">${seta}</span></div>`
-    if (_concluidos_aberto) {
-      concluidos.forEach(p => { h += cardPedido(p) })
-    }
+    if (_concluidos_aberto) concluidos.forEach(p => { h += cardPedido(p) })
   }
-
   if (!temAlgum) {
     h += `<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Nenhum pedido ainda.<br>Aparecerá aqui automaticamente.</div></div>`
   }
-
-  document.getElementById('mainBody').innerHTML = h
+  return h
 }
 
 function cardPedido(p) {

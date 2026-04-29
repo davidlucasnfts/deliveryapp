@@ -9,6 +9,47 @@ export function setLoja(loja) { _loja = loja }
 export function renderConfig() {
   const link = `${window.location.origin}/index.html?loja=${_loja.id}`
   document.getElementById('mainBody').innerHTML = `
+
+    <div class="cfg-card">
+      <div class="cfg-title">🎨 Identidade Visual</div>
+
+      <label class="cfg-lbl">Cor principal</label>
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.85rem;">
+        <input type="color" id="cfgCor" value="${_loja.cor_primaria||'#E85000'}"
+          style="width:48px;height:48px;border:none;border-radius:10px;cursor:pointer;padding:3px;background:var(--bg3);">
+        <div>
+          <div style="font-size:0.82rem;font-weight:700;color:var(--txt);">Cor dos botões e destaques</div>
+          <div style="font-size:0.7rem;color:var(--txt3);">Aplicada em todo o cardápio do cliente</div>
+        </div>
+      </div>
+      <button class="cfg-save" style="margin-bottom:1.1rem;" onclick="salvarIdentidade()">Salvar cor</button>
+
+      <label class="cfg-lbl">Logo da loja</label>
+      <div class="id-upload-area">
+        ${_loja.logo_url
+          ? `<img src="${_loja.logo_url}" class="id-logo-preview" id="idLogoImg" onerror="this.style.display='none'">`
+          : `<div class="id-logo-ph" id="idLogoImg">🏪</div>`}
+        <div style="flex:1;">
+          <input type="file" id="logoFileInput" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="uploadLogo(this)">
+          <button class="cfg-save" style="width:100%;margin-bottom:0.3rem;" onclick="document.getElementById('logoFileInput').click()">
+            📷 ${_loja.logo_url ? 'Trocar logo' : 'Enviar logo'}
+          </button>
+          <div style="font-size:0.68rem;color:var(--txt3);margin-bottom:0.3rem;">Imagem quadrada · JPG/PNG · até 5MB</div>
+          ${_loja.logo_url ? `<button onclick="removerLogo()" class="btn-excluir" style="margin-top:0;padding:0.3rem 0.75rem;font-size:0.72rem;">🗑️ Remover</button>` : ''}
+        </div>
+      </div>
+
+      <label class="cfg-lbl">Foto de capa</label>
+      ${_loja.foto_capa_url
+        ? `<img src="${_loja.foto_capa_url}" class="id-capa-preview" onerror="this.style.display='none'">`
+        : `<div class="id-capa-ph">📸 Aparece como fundo do header no cardápio</div>`}
+      <input type="file" id="capaFileInput" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="uploadCapa(this)">
+      <button class="cfg-save" style="margin-top:0.5rem;margin-bottom:0.35rem;" onclick="document.getElementById('capaFileInput').click()">
+        🖼️ ${_loja.foto_capa_url ? 'Trocar foto de capa' : 'Enviar foto de capa'}
+      </button>
+      ${_loja.foto_capa_url ? `<button onclick="removerCapa()" class="btn-excluir" style="margin-top:0;padding:0.3rem 0.75rem;font-size:0.72rem;">🗑️ Remover capa</button>` : ''}
+    </div>
+
     <div class="cfg-card" style="border-color:var(--or);">
       <div class="cfg-title">Formas de pagamento</div>
       <p style="font-size:0.78rem;color:var(--txt2);margin-bottom:0.85rem;">Configure o que aparece para o cliente na hora de pagar</p>
@@ -208,6 +249,56 @@ export async function salvarHorario() {
   await supabase.from('lojas').update({ hora_abre: abre||null, hora_fecha: fecha||null }).eq('id', _loja.id)
   Object.assign(_loja, { hora_abre: abre, hora_fecha: fecha })
   toast(abre && fecha ? `✅ Horário salvo — abre ${abre}, fecha ${fecha}` : '✅ Horário automático removido')
+}
+
+export async function salvarIdentidade() {
+  const cor = document.getElementById('cfgCor')?.value || '#E85000'
+  await supabase.from('lojas').update({ cor_primaria: cor }).eq('id', _loja.id)
+  _loja.cor_primaria = cor
+  toast('✅ Cor salva!')
+}
+
+async function _uploadImagem(file, path, maxMB) {
+  if (!file) return null
+  if (file.size > maxMB * 1024 * 1024) { toast(`⚠️ Máximo ${maxMB}MB`); return null }
+  const { error } = await supabase.storage.from('logos').upload(path, file, { upsert: true })
+  if (error) { toast('❌ Erro ao enviar imagem'); return null }
+  const { data: { publicUrl } } = supabase.storage.from('logos').getPublicUrl(path)
+  return publicUrl
+}
+
+export async function uploadLogo(input) {
+  const file = input.files[0]; if (!file) return
+  toast('⏳ Enviando logo...')
+  const ext = file.name.split('.').pop()
+  const url = await _uploadImagem(file, `logos/${_loja.id}/logo.${ext}`, 5)
+  if (!url) return
+  await supabase.from('lojas').update({ logo_url: url }).eq('id', _loja.id)
+  _loja.logo_url = url
+  renderConfig()
+  toast('✅ Logo salvo!')
+}
+
+export async function uploadCapa(input) {
+  const file = input.files[0]; if (!file) return
+  toast('⏳ Enviando capa...')
+  const ext = file.name.split('.').pop()
+  const url = await _uploadImagem(file, `capas/${_loja.id}/capa.${ext}`, 10)
+  if (!url) return
+  await supabase.from('lojas').update({ foto_capa_url: url }).eq('id', _loja.id)
+  _loja.foto_capa_url = url
+  renderConfig()
+  toast('✅ Foto de capa salva!')
+}
+
+export async function removerLogo() {
+  await supabase.from('lojas').update({ logo_url: null }).eq('id', _loja.id)
+  _loja.logo_url = null; renderConfig(); toast('🗑️ Logo removido')
+}
+
+export async function removerCapa() {
+  await supabase.from('lojas').update({ foto_capa_url: null }).eq('id', _loja.id)
+  _loja.foto_capa_url = null; renderConfig(); toast('🗑️ Capa removida')
 }
 
 export async function salvarConfig() {
