@@ -4,7 +4,7 @@ import { supabase }      from '../supabase.js'
 import { escutarPedidos } from '../pedidos.js'
 import { getTodosProdutos, getTodasCategorias } from '../cardapio.js'
 import { atualizarData, toast }  from './utils.js'
-import { renderPedidos, setPedidos, getPedidos, abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp, notificarCliente } from './painel-pedidos.js'
+import { renderPedidos, setPedidos, getPedidos, abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp, notificarCliente, toggleConcluidos } from './painel-pedidos.js'
 import { renderCardapio, setDados as setDadosCardapio,
   toggleCat, toggleCatAtiva, moverCat, toggleProd, confirmarDelProd,
   abrirNovoEp, abrirNovoEpNaCat, openEp, closeEp, deletarProduto,
@@ -31,7 +31,7 @@ const exp = obj => Object.entries(obj).forEach(([k, v]) => { window[k] = v })
 
 exp({
   // pedidos
-  abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp, notificarCliente,
+  abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp, notificarCliente, toggleConcluidos,
   fecharDetalhes: () => document.getElementById('modalDetalhes').classList.remove('open'),
   // cardápio
   toggleCat, toggleNovaCatForm, toggleCatAtiva, moverCat,

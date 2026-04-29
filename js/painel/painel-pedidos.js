@@ -10,17 +10,19 @@ const statusNextLabel = { novo:'Iniciar preparo', prep:'Saiu p/ entrega', saiu:'
 
 // Referência ao array de pedidos (injetada pelo core)
 let _pedidos = []
+let _concluidos_aberto = false
 export function setPedidos(arr) { _pedidos = arr }
 export function getPedidos()    { return _pedidos }
+export function toggleConcluidos() { _concluidos_aberto = !_concluidos_aberto; renderPedidos() }
 
 export function renderPedidos() {
   const emAberto  = _pedidos.filter(p => p.status !== 'entregue')
   const concluidos = _pedidos.filter(p => p.status === 'entregue')
   const totalHoje = _pedidos.reduce((s, p) => s + Number(p.total || 0), 0)
-  const novos = emAberto.filter(p => p.status === 'novo').length
+  const qtdNovos = emAberto.filter(p => p.status === 'novo').length
 
   const badge = document.getElementById('badgeNovos')
-  if (badge) { badge.textContent = novos; badge.className = novos > 0 ? 'tab-badge show' : 'tab-badge' }
+  if (badge) { badge.textContent = qtdNovos; badge.className = qtdNovos > 0 ? 'tab-badge show' : 'tab-badge' }
 
   // Produto mais vendido hoje
   const contagem = {}
@@ -48,15 +50,34 @@ export function renderPedidos() {
     </div>
   </div>` : ''}`
 
-  if (emAberto.length) {
-    h += `<div class="sec-title">Em aberto (${emAberto.length})</div>`
-    emAberto.forEach(p => { h += cardPedido(p) })
-  }
+  const novos    = emAberto.filter(p => p.status === 'novo')
+  const preparo  = emAberto.filter(p => p.status === 'prep')
+  const saiu     = emAberto.filter(p => p.status === 'saiu')
+
+  const secoes = [
+    { label: '🔴 Novo',            lista: novos,   tipo: 'novo' },
+    { label: '🟠 Em preparo',      lista: preparo, tipo: 'prep' },
+    { label: '🟡 Saiu p/ entrega', lista: saiu,    tipo: 'saiu' },
+  ]
+
+  let temAlgum = false
+  secoes.forEach(({ label, lista, tipo }) => {
+    if (!lista.length) return
+    temAlgum = true
+    h += `<div class="sec-title sec-${tipo}">${label} <span class="sec-count">${lista.length}</span></div>`
+    lista.forEach(p => { h += cardPedido(p) })
+  })
+
   if (concluidos.length) {
-    h += `<div class="sec-title">Concluídos hoje (${concluidos.length})</div>`
-    concluidos.forEach(p => { h += cardPedido(p) })
+    temAlgum = true
+    const seta = _concluidos_aberto ? '▼' : '▶'
+    h += `<div class="sec-title sec-concluido sec-title--toggle" onclick="toggleConcluidos()">✅ Concluídos hoje <span class="sec-count">${concluidos.length}</span> <span class="sec-seta">${seta}</span></div>`
+    if (_concluidos_aberto) {
+      concluidos.forEach(p => { h += cardPedido(p) })
+    }
   }
-  if (!_pedidos.length) {
+
+  if (!temAlgum) {
     h += `<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Nenhum pedido ainda.<br>Aparecerá aqui automaticamente.</div></div>`
   }
 
