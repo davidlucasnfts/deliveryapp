@@ -4,7 +4,7 @@ import { supabase }      from '../supabase.js'
 import { escutarPedidos } from '../pedidos.js'
 import { getTodosProdutos, getTodasCategorias } from '../cardapio.js'
 import { atualizarData, toast }  from './utils.js'
-import { renderPedidos, setPedidos, getPedidos, abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp, notificarCliente, toggleConcluidos } from './painel-pedidos.js'
+import { renderPedidos, setPedidos, getPedidos, abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp, notificarCliente, pedirAvaliacao, toggleConcluidos } from './painel-pedidos.js'
 import { renderCardapio, setDados as setDadosCardapio,
   toggleCat, toggleCatAtiva, moverCat, toggleProd, confirmarDelProd,
   abrirNovoEp, abrirNovoEpNaCat, openEp, closeEp, deletarProduto,
@@ -21,6 +21,7 @@ import { renderCardapio, setDados as setDadosCardapio,
 } from './painel-cardapio.js'
 import { renderFidelidade, setLoja as setLojaFid, mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade, salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao } from './painel-fidelidade.js'
 import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa, carregarTaxas } from './painel-config.js'
+import { renderRelatorios, setLojaRel, trocarPeriodoRel } from './painel-relatorios.js'
 
 let loja  = null
 let canal = null
@@ -31,7 +32,7 @@ const exp = obj => Object.entries(obj).forEach(([k, v]) => { window[k] = v })
 
 exp({
   // pedidos
-  abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp, notificarCliente, toggleConcluidos,
+  abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp, notificarCliente, pedirAvaliacao, toggleConcluidos,
   fecharDetalhes: () => document.getElementById('modalDetalhes').classList.remove('open'),
   // cardápio
   toggleCat, toggleNovaCatForm, toggleCatAtiva, moverCat,
@@ -45,6 +46,8 @@ exp({
   // fidelidade
   mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade,
   salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao,
+  // relatorios
+  trocarPeriodoRel,
   // config
   mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa,
   // destaques + upsell
@@ -106,6 +109,7 @@ async function carregarDados() {
   setDadosCardapio(loja, p || [], c || [])
   setLojaFid(loja)
   setLojaCfg(loja)
+  setLojaRel(loja.id)
 }
 
 function iniciarRealtime() {
@@ -161,6 +165,7 @@ function trocarTab(tab, el) {
   el.classList.add('on')
   if      (tab === 'pedidos')    renderPedidos()
   else if (tab === 'cardapio')   { renderCardapio(); setTimeout(initBtnNovoGrupo, 50) }
+  else if (tab === 'relatorios') renderRelatorios()
   else if (tab === 'fidelidade') renderFidelidade()
   else                           renderConfig()
 }

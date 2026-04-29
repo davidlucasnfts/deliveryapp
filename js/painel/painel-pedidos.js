@@ -111,8 +111,9 @@ function cardPedido(p) {
     <div class="oc-footer">
       <span class="oc-total">${fmt(p.total)}</span>
       <div class="oc-actions">
-        ${p.telefone_cliente && p.status !== 'novo' ? `<button class="oc-btn btn-wpp" onclick="event.stopPropagation();notificarCliente('${p.id}')">WhatsApp</button>` : ''}
+        ${p.telefone_cliente && p.status !== 'novo' && p.status !== 'entregue' ? `<button class="oc-btn btn-wpp" onclick="event.stopPropagation();notificarCliente('${p.id}')">WhatsApp</button>` : ''}
         ${p.telefone_cliente && p.status === 'novo' ? `<button class="oc-btn btn-wpp" onclick="event.stopPropagation();chamarWpp('${p.telefone_cliente}','${p.nome_cliente}')">WhatsApp</button>` : ''}
+        ${p.telefone_cliente && p.status === 'entregue' ? `<button class="oc-btn btn-aval" onclick="event.stopPropagation();pedirAvaliacao('${p.id}')">⭐ Avaliar</button>` : ''}
         ${prox ? `<button class="oc-btn btn-avancar" onclick="event.stopPropagation();avancarPedido('${p.id}','${prox}')">→ ${statusNextLabel[p.status]}</button>` : ''}
       </div>
     </div>
@@ -157,6 +158,14 @@ export async function avancarModalPedido(id, novo) {
 
 export function chamarWpp(tel, nome) {
   window.open(`https://wa.me/55${tel.replace(/\D/g, '')}?text=${encodeURIComponent(`Olá ${nome}, tudo bem com seu pedido?`)}`, '_blank')
+}
+
+export function pedirAvaliacao(id) {
+  const p = _pedidos.find(x => x.id === id)
+  if (!p || !p.telefone_cliente) return
+  const num = p.numero || p.id.slice(0, 6).toUpperCase()
+  const msg = `Olá ${p.nome_cliente}! 😊 Seu pedido #${num} foi entregue!\nComo foi sua experiência conosco? Responda com uma nota de 1️⃣ a 5️⃣ ⭐\nSua opinião é muito importante pra nós! 🙏`
+  window.open(`https://wa.me/55${p.telefone_cliente.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`, '_blank')
 }
 
 export function notificarCliente(id) {
