@@ -116,44 +116,7 @@ Concorrentes: Anota AI (R$280-399/mês), CardapioWeb (R$135-300/mês)
 
 ---
 
-# FUNCIONALIDADES CONCLUÍDAS
-
-1. ✅ Cardápio digital do cliente (hero, categorias, busca, carrinho persistente)
-2. ✅ Painel do dono com 3 modais separados (categoria, produto, adicionais)
-3. ✅ Adicionais e complementos por produto (obrigatório/opcional, radio/contador)
-4. ✅ Taxa de entrega por bairro (cadastra no painel, calcula pelo CEP)
-5. ✅ Reconhecimento do cliente pelo CEP (celular só busca pontos)
-6. ✅ Pagamentos — PIX, Cartão (MP), Dinheiro (configurável por loja)
-7. ✅ Fidelidade + cupons + transmissão WhatsApp em massa
-8. ✅ Horário automático abre/fecha loja
-9. ✅ Badge ABERTO em verde no cardápio
-10. ✅ Segurança: valor recalculado no servidor, idempotency-key, logs, validações
-11. ✅ "Peça também" no carrinho (upsell — sugere bebidas/sobremesas)
-12. ✅ Modal de confirmação após adicionais (quantidade + observações + continuar/carrinho)
-13. ✅ Separação do index.html em módulos (carrinho.js, adicionais.js, checkout.js, cardapio-style.css)
-14. ✅ Banners promocionais no cardápio (carrossel até 3, troca a cada 4s, upload no painel)
-15. ✅ Seção "Destaques" no cardápio (produtos com destaque=true, carrossel horizontal)
-16. ✅ Barra de navegação inferior (Início / Carrinho com badge)
-
----
-
-# MELHORIAS PENDENTES — POR ORDEM DE PRIORIDADE
-
-## Alta Prioridade (fazer agora)
-
-### 1. Melhorias técnicas rápidas ✅ concluído em 2026-04-29
-- ✅ **getTaxaEntrega:** já usava `.ilike()` — confirmado
-- ✅ **Cache HTTP:** `vercel.json` já tinha Cache-Control — confirmado
-- ✅ **Toast em vez de console.error:** `pedidos.js` e `admin.js` corrigidos
-
-## Média Prioridade (próximo mês)
-
-### 4. Selos nos produtos (vegano, sem glúten, novo, destaque)
-- **O que:** ícones visuais no card do produto no cardápio. Dono marca no painel ao editar produto
-- **Onde:** index.html (card do produto) + painel-cardapio.js (checkboxes no modal de produto) + coluna `selos` jsonb na tabela `produtos`
-- **Referência:** concorrentes têm, especialmente para público fitness
-
-## Futuro (quando tiver 5+ lojas)
+# PRÓXIMAS FUNCIONALIDADES (quando tiver 5+ lojas)
 
 ### 6. Repetir pedido anterior
 - **O que:** cliente reconhecido vê botão "Repetir último pedido" que já monta o carrinho com os mesmos itens
@@ -251,34 +214,8 @@ Revise o que foi alterado, crie um commit com mensagem clara e faça o push para
 
 ---
 
-# PROGRESSO DAS SESSÕES
-
-## 2026-04-27 (sessão 1)
-
-### ✅ Feito
-- Header expandido no cardápio (nome grande, status aberto/fechado, tempo, cidade)
-- Emoji automático por tipo de produto quando sem foto
-- Campo "Cidade" no painel de configurações
-- CSS compactado (cards e espaçamentos menores)
-- Separação do `painel-cardapio.js` em módulos menores
-- Correção do bug que quebrava todos os deploys na Vercel (`(?:...)` inválido no `vercel.json`)
-- Recriação do projeto na Vercel com integração GitHub funcionando
-- GitHub Action para auto-deploy via deploy hook (`.github/workflows/deploy.yml`)
-- `package.json` mínimo adicionado para Vercel reconhecer projeto
-
-## 2026-04-27 (sessão 2)
-
-### ✅ Feito
-- Auditoria de linhas em todos os arquivos — identificados 3 acima de 400 linhas
-- `painel.html` (440→181): CSS extraído para `painel-style.css`
-- `pagamento.html` (643→56): CSS → `pagamento-style.css`, JS → `pagamento.js`
-- `admin.html` (569→98): CSS → `admin-style.css`, JS → `admin.js`
-- Hook automático configurado em `.claude/settings.json`: avisa no terminal quando arquivo editado ultrapassa 400 linhas
-- Memórias locais movidas para o `CLAUDE.md` — contexto agora 100% portátil via git
-
-### ✅ Verificado em 2026-04-29
-- Header mobile confirmado OK — CSS correto, mobile-first, flex-wrap funcionando
-- Coluna `cidade` confirmada na tabela `lojas` — salva e exibe no header
+# PROGRESSO DA SESSÃO ATUAL
 
 ### 🔜 Próximos passos
-- Melhorias técnicas rápidas (Alta Prioridade): getTaxaEntrega, Cache HTTP, console.error → showToast
+- Ver `CHANGELOG.md` para histórico completo de funcionalidades entregues
+- Próximas features: repetir pedido, acompanhamento em tempo real, QR Code mesas, robô WhatsApp
