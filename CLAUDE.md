@@ -116,23 +116,37 @@ Concorrentes: Anota AI (R$280-399/mês), CardapioWeb (R$135-300/mês)
 
 ---
 
-# PRÓXIMAS FUNCIONALIDADES (quando tiver 5+ lojas)
+# PRÓXIMAS FUNCIONALIDADES
 
-### 6. Repetir pedido anterior
-- **O que:** cliente reconhecido vê botão "Repetir último pedido" que já monta o carrinho com os mesmos itens
-- **Onde:** index.html + js/pedidos.js (nova função buscarUltimoPedido)
+## Média Prioridade (próximas sessões)
 
-### 7. Acompanhamento do pedido em tempo real
-- **O que:** link único após pedido. Timeline animada: recebido → em preparo → saiu → entregue. Realtime via Supabase
-- **Onde:** nova página `acompanhar.html` + painel-pedidos.js (botão de atualizar status envia pro realtime)
+### 1. Dashboard do painel com métricas do dia
+- **O que:** 3 cards no topo do painel — pedidos do dia, ganhos (R$), entregas concluídas. Cards de pedidos por status: 🔴 Novo → 🟠 Preparando → 🟡 Pronto → entregue
+- **Onde:** `painel.html` + `js/painel/painel-pedidos.js`
+- **Referência:** `.claude/skills/deliveryapp-uxui/SKILL.md` (Fluxo 3)
 
-### 8. QR Code para mesas (modo salão)
-- **O que:** dono gera QR Code por mesa no painel. Cliente escaneia, faz pedido pelo celular com número da mesa
-- **Onde:** painel + index.html (detecta parâmetro `?mesa=5` na URL)
+### 2. Número do pedido formatado
+- **O que:** pedidos com ID legível tipo `PD-20260429-00123` em vez de UUID
+- **Onde:** trigger no Supabase + tabela `pedidos` + exibição no painel e confirmação
+- **Referência:** `.claude/skills/deliveryapp-database/SKILL.md`
 
-### 9. Robô WhatsApp com IA (Evolution API)
-- **O que:** 1 instância para N lojas. Atendimento automatizado, recebe pedidos por WhatsApp
-- **Onde:** servidor dedicado + Evolution API + webhook para Supabase
+## Futuro (quando tiver 5+ lojas)
+
+### 3. Repetir pedido anterior
+- **O que:** cliente reconhecido vê botão "Repetir último pedido" que já monta o carrinho
+- **Onde:** `index.html` + `js/pedidos.js` (nova função `buscarUltimoPedido`)
+
+### 4. Acompanhamento do pedido em tempo real
+- **O que:** link único após pedido. Timeline animada: recebido → em preparo → saiu → entregue
+- **Onde:** nova página `acompanhar.html` + `painel-pedidos.js`
+
+### 5. QR Code para mesas (modo salão)
+- **O que:** dono gera QR Code por mesa. Cliente escaneia, faz pedido com número da mesa
+- **Onde:** painel + `index.html` (parâmetro `?mesa=5`)
+
+### 6. Robô WhatsApp com IA (Evolution API)
+- **O que:** 1 instância para N lojas. Atendimento automatizado via WhatsApp
+- **Onde:** servidor dedicado + Evolution API + webhook Supabase
 
 ---
 
