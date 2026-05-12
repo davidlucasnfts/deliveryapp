@@ -22,6 +22,7 @@ import { renderCardapio, setDados as setDadosCardapio,
 import { renderFidelidade, setLoja as setLojaFid, mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade, salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao } from './painel-fidelidade.js'
 import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa, carregarTaxas, salvarIdentidade, uploadLogo, uploadCapa, removerLogo, removerCapa } from './painel-config.js'
 import { renderRelatorios, setLojaRel, trocarPeriodoRel } from './painel-relatorios.js'
+import { setLojaLGPD, buscarClienteLGPD, anonimizarClienteLGPD } from './painel-lgpd.js'
 
 let loja  = null
 let canal = null
@@ -51,6 +52,8 @@ exp({
   // config
   mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa,
   salvarIdentidade, uploadLogo, uploadCapa, removerLogo, removerCapa,
+  // lgpd
+  buscarClienteLGPD, anonimizarClienteLGPD,
   // destaques + upsell
   adicionarDestaque, removerDestaque,
   adicionarUpsell, removerUpsell,
@@ -111,6 +114,7 @@ async function carregarDados() {
   setLojaFid(loja)
   setLojaCfg(loja)
   setLojaRel(loja.id)
+  setLojaLGPD(loja.id)
 }
 
 function iniciarRealtime() {

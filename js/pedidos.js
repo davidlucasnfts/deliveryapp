@@ -16,7 +16,7 @@ async function salvarCliente(lojaId, cliente) {
         .update({ nome: cliente.nome })
         .eq('id', existente.id)
       
-      // Tenta atualizar endereço se as colunas existirem
+      // Tenta atualizar endereço e consentimento se as colunas existirem
       try {
         await supabase.from('clientes').update({
           endereco_rua:    cliente.rua    || null,
@@ -25,6 +25,7 @@ async function salvarCliente(lojaId, cliente) {
           endereco_bairro: cliente.bairro || null,
           endereco_cidade: cliente.cidade || null,
           endereco_cep:    cliente.cep    || null,
+          lgpd_consent_em: new Date().toISOString(),
         }).eq('id', existente.id)
       } catch(e) {} // silencia se colunas não existirem
 
@@ -40,7 +41,7 @@ async function salvarCliente(lojaId, cliente) {
 
     if (error || !novo) return null
 
-    // Tenta salvar endereço separadamente
+    // Tenta salvar endereço e consentimento separadamente
     try {
       await supabase.from('clientes').update({
         endereco_rua:    cliente.rua    || null,
@@ -49,6 +50,7 @@ async function salvarCliente(lojaId, cliente) {
         endereco_bairro: cliente.bairro || null,
         endereco_cidade: cliente.cidade || null,
         endereco_cep:    cliente.cep    || null,
+        lgpd_consent_em: new Date().toISOString(),
       }).eq('id', novo.id)
     } catch(e) {}
 

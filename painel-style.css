@@ -280,6 +280,13 @@ body{background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(-
 .copy-link{background:var(--or);color:#fff;border:none;border-radius:8px;padding:0.4rem 0.85rem;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
 .ce-del{background:#FEE2E2;color:var(--red);border:none;border-radius:7px;padding:0.2rem 0.5rem;font-size:0.68rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
 
+/* ── LGPD ── */
+.lgpd-card{background:var(--bg3);border-radius:10px;padding:0.85rem;font-size:0.8rem;}
+.lgpd-row{color:var(--txt2);margin-bottom:0.3rem;}
+.lgpd-meta{font-size:0.7rem;color:var(--txt3);margin-top:0.15rem;margin-bottom:0.75rem;}
+.lgpd-del-btn{background:#FEE2E2;color:#B91C1C;border:none;border-radius:9px;padding:0.5rem 0.85rem;font-size:0.78rem;font-weight:700;cursor:pointer;width:100%;font-family:'Plus Jakarta Sans',sans-serif;}
+.lgpd-ok{background:#DCFCE7;border-radius:10px;padding:0.75rem;font-size:0.78rem;color:#166534;}
+
 /* ── IDENTIDADE VISUAL ── */
 /* Capa — área clicável */
 .id-capa-area{display:block;width:100%;border-radius:12px;overflow:hidden;cursor:pointer;position:relative;margin-bottom:0.5rem;border:2px dashed #E7E5E4;background:var(--bg3);transition:border-color 0.15s;}

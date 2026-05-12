@@ -161,6 +161,16 @@ export function renderConfig() {
         <p style="font-size:0.7rem;color:var(--txt3);">Se preenchido, a loja abre e fecha automaticamente nestes horários.</p>
       </div>
       <button class="cfg-save" onclick="salvarHorario()">Salvar horário</button>
+    </div>
+    <div class="cfg-card" style="border-color:#3B82F6;">
+      <div class="cfg-title">🔒 Privacidade / LGPD</div>
+      <p style="font-size:0.78rem;color:var(--txt2);margin-bottom:0.85rem;">Atenda solicitações de exclusão de dados dos seus clientes (LGPD art. 18).</p>
+      <label class="cfg-lbl">Buscar cliente por telefone</label>
+      <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
+        <input class="cfg-inp" id="lgpdTel" type="tel" placeholder="(99) 99999-9999" style="margin-bottom:0;flex:1;">
+        <button class="cfg-save" style="flex-shrink:0;margin-bottom:0;white-space:nowrap;" onclick="buscarClienteLGPD()">Buscar</button>
+      </div>
+      <div id="lgpdResultado"></div>
     </div>`
 }
 
