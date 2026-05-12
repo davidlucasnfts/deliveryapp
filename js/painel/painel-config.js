@@ -171,6 +171,30 @@ export function renderConfig() {
         <button class="cfg-save" style="flex-shrink:0;margin-bottom:0;white-space:nowrap;" onclick="buscarClienteLGPD()">Buscar</button>
       </div>
       <div id="lgpdResultado"></div>
+    </div>
+    <div class="cfg-card" style="border-color:#25D366;">
+      <div class="cfg-title">💬 Notificações WhatsApp (WAHA)</div>
+      <p style="font-size:0.78rem;color:var(--txt2);margin-bottom:0.85rem;">
+        Envie mensagens automáticas ao cliente quando o status do pedido mudar.<br>
+        <span style="color:var(--txt3);font-size:0.72rem;">Requer servidor WAHA rodando (self-hosted · gratuito). <a href="https://waha.devlike.pro" target="_blank" style="color:var(--or);">Saiba mais</a></span>
+      </p>
+      <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;">
+        <label class="cfg-toggle" style="margin:0;">
+          <input type="checkbox" id="wahaAtivo" ${_loja.waha_ativo ? 'checked' : ''} style="display:none;" onchange="document.getElementById('wahaTrack').classList.toggle('on',this.checked)">
+          <span class="cfg-toggle-track ${_loja.waha_ativo ? 'on' : ''}" id="wahaTrack"></span>
+        </label>
+        <span style="font-size:0.82rem;color:var(--txt);">Ativar notificações automáticas</span>
+      </div>
+      <label class="cfg-lbl">URL do servidor WAHA</label>
+      <input class="cfg-inp" id="wahaUrl" type="url" placeholder="http://IP-DO-SERVIDOR:3000" value="${_loja.waha_url || ''}">
+      <label class="cfg-lbl">Nome da sessão</label>
+      <input class="cfg-inp" id="wahaSession" type="text" placeholder="default" value="${_loja.waha_session || 'default'}">
+      <label class="cfg-lbl">API Key <span style="font-weight:400;color:var(--txt3);">(opcional)</span></label>
+      <input class="cfg-inp" id="wahaApiKey" type="password" placeholder="Deixe em branco se não configurou" value="${_loja.waha_api_key || ''}">
+      <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
+        <button class="cfg-save" style="flex:1;" onclick="salvarWaha()">Salvar</button>
+        <button class="cfg-save" id="wahaTestBtn" style="flex:1;background:var(--card-bg);color:var(--txt);border:1.5px solid #25D366;" onclick="testarWaha()">🔍 Testar conexão</button>
+      </div>
     </div>`
 }
 

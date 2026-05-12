@@ -168,15 +168,25 @@ export function abrirDetalhes(id) {
   document.getElementById('modalDetalhes').classList.add('open')
 }
 
+async function _notificarWAHA(id, novoStatus) {
+  fetch('/api/notificar-whatsapp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pedidoId: id, novoStatus }),
+  }).catch(() => {})
+}
+
 export async function avancarPedido(id, novo) {
   await atualizarStatus(id, novo)
   const p = _pedidos.find(x => x.id === id); if (p) p.status = novo
+  _notificarWAHA(id, novo)
   renderPedidos(); toast(`✅ ${statusLabel[novo]}`)
 }
 
 export async function avancarModalPedido(id, novo) {
   await atualizarStatus(id, novo)
   const p = _pedidos.find(x => x.id === id); if (p) p.status = novo
+  _notificarWAHA(id, novo)
   document.getElementById('modalDetalhes').classList.remove('open')
   renderPedidos(); toast(`✅ ${statusLabel[novo]}`)
 }

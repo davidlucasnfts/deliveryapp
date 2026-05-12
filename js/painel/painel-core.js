@@ -23,6 +23,7 @@ import { renderFidelidade, setLoja as setLojaFid, mostrarCamposPontuacao, mostra
 import { renderConfig, setLoja as setLojaCfg, mascaraTelCfg, copiarLink, salvarConfig, salvarHorario, togglePgto, salvarPagamento, adicionarTaxa, excluirTaxa, carregarTaxas, salvarIdentidade, uploadLogo, uploadCapa, removerLogo, removerCapa } from './painel-config.js'
 import { renderRelatorios, setLojaRel, trocarPeriodoRel } from './painel-relatorios.js'
 import { setLojaLGPD, buscarClienteLGPD, anonimizarClienteLGPD } from './painel-lgpd.js'
+import { setLojaWaha, salvarWaha, testarWaha } from './painel-waha.js'
 
 let loja  = null
 let canal = null
@@ -54,6 +55,8 @@ exp({
   salvarIdentidade, uploadLogo, uploadCapa, removerLogo, removerCapa,
   // lgpd
   buscarClienteLGPD, anonimizarClienteLGPD,
+  // waha
+  salvarWaha, testarWaha,
   // destaques + upsell
   adicionarDestaque, removerDestaque,
   adicionarUpsell, removerUpsell,
@@ -115,6 +118,7 @@ async function carregarDados() {
   setLojaCfg(loja)
   setLojaRel(loja.id)
   setLojaLGPD(loja.id)
+  setLojaWaha(loja)
 }
 
 function iniciarRealtime() {

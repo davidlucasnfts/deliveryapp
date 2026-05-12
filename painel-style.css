@@ -176,6 +176,13 @@ body{background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(-
 .cfg-save{background:var(--or);color:#fff;border:none;border-radius:9px;padding:0.5rem 1.25rem;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
 .cfg-row{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #F9FAFB;}
 .cfg-row:last-child{border:none;}
+.cfg-toggle{display:inline-flex;align-items:center;cursor:pointer;}
+.cfg-toggle-track{display:inline-block;width:40px;height:22px;border-radius:11px;background:#D1D5DB;transition:background .2s;position:relative;}
+.cfg-toggle-track::after{content:'';position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s;}
+.cfg-toggle-track.on{background:#25D366;}
+.cfg-toggle-track.on::after{transform:translateX(18px);}
+.cfg-toggle input:checked + .cfg-toggle-track{background:#25D366;}
+.cfg-toggle input:checked + .cfg-toggle-track::after{transform:translateX(18px);}
 .cfg-lbl{font-size:0.82rem;color:var(--txt);}
 .add-cat-btn{background:var(--or);color:#fff;border:none;border-radius:8px;padding:0.4rem 0.85rem;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
 .new-cat-form{background:var(--bg3);border-radius:10px;padding:0.75rem;margin-bottom:0.75rem;display:none;}

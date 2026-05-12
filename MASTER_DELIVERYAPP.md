@@ -75,9 +75,11 @@ deliveryapp/
 │   ├── 003_logos_bucket_policies.sql     ← RLS do bucket 'logos' (legado — já executado)
 │   ├── 004_lgpd_compliance.sql           ← lgpd_consent_em, anonimizado_em em clientes
 │   ├── 005_produtos_bucket_policies.sql  ← RLS do bucket 'produtos' (upload por loja_id)
-│   └── 006_banners_bucket_policies.sql   ← RLS do bucket 'banners' (upload por loja_id)
+│   ├── 006_banners_bucket_policies.sql   ← RLS do bucket 'banners' (upload por loja_id)
+│   └── 007_waha_config.sql               ← waha_url, waha_session, waha_api_key, waha_ativo em lojas
 ├── api/
-│   └── processar-pagamento.js  ← Vercel Function (Mercado Pago)
+│   ├── processar-pagamento.js  ← Vercel Function (Mercado Pago)
+│   └── notificar-whatsapp.js   ← Vercel Function (WAHA — notificações de status do pedido)
 └── js/
     ├── supabase.js
     ├── auth.js
@@ -95,7 +97,9 @@ deliveryapp/
         ├── painel-extras.js      ← destaques, upsell, banners (199 linhas)
         ├── painel-fidelidade.js
         ├── painel-relatorios.js  ← relatórios hoje/7/30 dias
-        ├── painel-config.js      ← taxas, pagamento MP, horário
+        ├── painel-config.js      ← taxas, pagamento MP, horário, WAHA, LGPD
+        ├── painel-waha.js        ← configuração e teste da integração WAHA
+        ├── painel-lgpd.js        ← busca e anonimização LGPD
         └── utils.js
 ```
 
@@ -107,7 +111,7 @@ deliveryapp/
 
 | Tabela | Função principal |
 |---|---|
-| `lojas` | Config, pix_ativo, cartao_ativo, dinheiro_ativo, chave_pix, mp_*, hora_abre/fecha |
+| `lojas` | Config, pix_ativo, cartao_ativo, dinheiro_ativo, chave_pix, mp_*, hora_abre/fecha, waha_url/session/api_key/ativo |
 | `usuarios` | Donos e admin |
 | `categorias` | tipo: normal/combo, ordem, ativa |
 | `produtos` | img_offset_x/y, disponivel |
@@ -362,7 +366,46 @@ ARQUIVO
 
 ---
 
-## 16. Concorrentes Analisados (2026-04-29)
+## 16. Integração WhatsApp — WAHA Core (ativo) e Plus (upgrade path)
+
+### WAHA Core (atual — gratuito)
+- **O que é:** Servidor self-hosted que expõe API REST para WhatsApp Web
+- **Custo:** Gratuito (open source, imagem Docker pública)
+- **Hospedagem:** Oracle Cloud Free Tier — ARM Ampere A1 (4 CPU, 24 GB RAM, sempre free)
+- **Limitações Core:** 1 sessão WhatsApp, apenas texto, sem grupos/mídia/botões
+- **Risco de ban:** Baixo para mensagens transacionais de status de pedido (cliente optou por receber)
+- **Como subir:**
+  ```bash
+  docker run -d --name waha -p 3000:3000 devlikeapro/waha
+  ```
+- **Como conectar:** Acesse `http://IP:3000/dashboard` → criar sessão → escanear QR Code com o WhatsApp da loja
+
+### Fluxo de notificação (implementado)
+```
+avancarPedido() → _notificarWAHA() (fire-and-forget)
+  → POST /api/notificar-whatsapp (Vercel Function)
+    → busca pedido + config WAHA da loja no Supabase
+    → POST {waha_url}/api/sendText com chatId=55{tel}@c.us
+      → cliente recebe mensagem no WhatsApp
+```
+
+### Mensagens enviadas por status
+| Status | Mensagem |
+|---|---|
+| `prep` | 👨‍🍳 Seu pedido *PD-YYYYMMDD-NNNNN* está sendo preparado... |
+| `saiu` | 🛵 Seu pedido *PD-YYYYMMDD-NNNNN* saiu para entrega... |
+| `entregue` | ✅ Seu pedido *PD-YYYYMMDD-NNNNN* foi entregue. Bom apetite! |
+
+### WAHA Plus (upgrade quando tiver 5+ lojas)
+- **Custo:** US$19/mês (1 servidor para todas as lojas)
+- **Diferencial:** Múltiplas sessões simultâneas (1 por loja), envio de mídia (imagens, PDFs), botões interativos, suporte oficial
+- **Quando migrar:** Quando a arquitetura de 1 servidor WAHA Core por loja ficar cara ou complexa
+- **Como migrar:** Trocar imagem Docker `devlikeapro/waha` → `devlikeapro/waha-plus`, configurar licença, sem mudança de código no app
+- **Modelo multi-tenant futuro:** 1 instância WAHA Plus com N sessões → cada loja tem sua sessão identificada por `waha_session = ID_da_loja`
+
+---
+
+## 17. Concorrentes Analisados (2026-04-29)
 
 | Concorrente | Preço | Pontos fortes |
 |---|---|---|
@@ -440,7 +483,20 @@ Leia o MASTER_DELIVERYAPP.md e me diga: o que foi feito, o que está pendente e 
 - MASTER_NOVO_PROJETO.md criado (template genérico)
 - Análise completa do claude-spec-toolkit integrada
 
+### ✅ Entregue em 2026-05-12 (sessão 2)
+- Auditoria de segurança completa + correção de XSS em `painel-pedidos.js`
+- LGPD: consentimento no checkout, anonimização de dados, política de privacidade
+- Bucket RLS para `produtos` e `banners` (upload isolado por loja_id)
+- Organização dos arquivos SQL com prefixo NNN_
+- Integração WAHA Core para notificações WhatsApp automáticas de status de pedido
+  - `sql/007_waha_config.sql` — colunas WAHA em `lojas`
+  - `api/notificar-whatsapp.js` — Vercel Function
+  - `js/painel/painel-waha.js` — módulo de configuração
+  - Card WAHA na aba Configurações do painel
+  - `_notificarWAHA()` fire-and-forget em `avancarPedido` e `avancarModalPedido`
+- Documentação WAHA Plus (upgrade path para multi-store) no MASTER
+
 ### 🔜 Próxima sessão sugerida
-1. Acompanhamento do pedido em tempo real (`acompanhar.html`)
-2. Controle de estoque com urgência
-3. Central de alertas WhatsApp
+1. **Rodar `007_waha_config.sql` no Supabase** + configurar WAHA no servidor Oracle
+2. **Acompanhamento do pedido em tempo real** (`acompanhar.html?id=PD-...` com timeline via Realtime)
+3. **Controle de estoque com urgência** (campo `estoque` em `produtos`, badge "Últimas unidades!")
