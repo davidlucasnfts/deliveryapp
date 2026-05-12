@@ -249,6 +249,11 @@
     .cs-obs::placeholder{color:var(--txt3);}
     .field-msg{font-size:0.7rem;color:var(--red);padding:0 1rem 0.4rem;display:none;}
     .field-msg.show{display:block;}
+    .lgpd-consent{display:flex;align-items:flex-start;gap:0.6rem;margin-top:0.85rem;cursor:pointer;}
+    .lgpd-consent input[type=checkbox]{width:18px;height:18px;flex-shrink:0;margin-top:1px;accent-color:var(--pr);cursor:pointer;}
+    .lgpd-consent span{font-size:0.72rem;color:var(--txt3);line-height:1.45;}
+    .lgpd-link{color:var(--pr);font-weight:700;text-decoration:none;}
+    .lgpd-link:hover{text-decoration:underline;}
     .cs-send{width:100%;background:var(--pr);color:#fff;border:none;border-radius:16px;padding:1rem;font-size:0.95rem;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-top:0.75rem;box-shadow:0 4px 16px rgba(188,48,0,0.3);transition:transform 0.15s;}
     .cs-send:disabled{background:#FCA5A5;box-shadow:none;cursor:not-allowed;}
     .cs-empty{text-align:center;padding:3rem 1rem;color:var(--txt3);}

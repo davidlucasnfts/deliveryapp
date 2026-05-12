@@ -180,6 +180,7 @@ export async function enviarPedido() {
   if (!rua)    erros.push('Rua é obrigatória')
   if (!num)    erros.push('Número é obrigatório')
   if (!bairro) erros.push('Bairro é obrigatório')
+  if (!document.getElementById('consentLgpd')?.checked) erros.push('Você precisa aceitar a Política de Privacidade para continuar')
   if (erros.length) { alert('Por favor corrija:\n\n• ' + erros.join('\n• ')); return }
 
   const btn = document.getElementById('btnEnviar')
