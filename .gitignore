@@ -1,0 +1,30 @@
+# Ambiente local
+.env
+.env.local
+.env.dev
+.env.prod
+.env.*.local
+
+# Windows
+desktop.ini
+Thumbs.db
+
+# macOS
+.DS_Store
+
+# Node (só existe o package.json mínimo, mas por precaução)
+node_modules/
+npm-debug.log*
+
+# Build / cache
+dist/
+.cache/
+.vercel/
+
+# Editor
+.vscode/
+*.suo
+*.user
+
+# Logs
+*.log
