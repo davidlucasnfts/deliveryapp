@@ -69,13 +69,13 @@ deliveryapp/
 ├── package.json            ← apenas declara o projeto (Vercel detection)
 ├── .gitignore              ← .env, node_modules, desktop.ini, etc.
 ├── CHANGELOG.md
-├── sql/                    ← migrations e scripts Supabase (1 arquivo por feature)
-│   ├── gerar_numero_pedido.sql       ← trigger PD-YYYYMMDD-NNNNN
-│   ├── identidade_visual.sql         ← logo_url, foto_capa_url, cor_primaria em lojas
-│   ├── logos_bucket_policies.sql     ← RLS do bucket 'logos' (legado — não usar)
-│   ├── lgpd_compliance.sql           ← lgpd_consent_em, anonimizado_em em clientes
-│   ├── produtos_bucket_policies.sql  ← RLS do bucket 'produtos' (upload por loja_id)
-│   └── banners_bucket_policies.sql   ← RLS do bucket 'banners' (upload por loja_id)
+├── sql/                    ← migrations e scripts Supabase (1 arquivo por feature, prefixo NNN_)
+│   ├── 001_gerar_numero_pedido.sql       ← trigger PD-YYYYMMDD-NNNNN
+│   ├── 002_identidade_visual.sql         ← logo_url, foto_capa_url, cor_primaria em lojas
+│   ├── 003_logos_bucket_policies.sql     ← RLS do bucket 'logos' (legado — já executado)
+│   ├── 004_lgpd_compliance.sql           ← lgpd_consent_em, anonimizado_em em clientes
+│   ├── 005_produtos_bucket_policies.sql  ← RLS do bucket 'produtos' (upload por loja_id)
+│   └── 006_banners_bucket_policies.sql   ← RLS do bucket 'banners' (upload por loja_id)
 ├── api/
 │   └── processar-pagamento.js  ← Vercel Function (Mercado Pago)
 └── js/
