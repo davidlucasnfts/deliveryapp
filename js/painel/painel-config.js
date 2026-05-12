@@ -13,41 +13,58 @@ export function renderConfig() {
     <div class="cfg-card">
       <div class="cfg-title">🎨 Identidade Visual</div>
 
-      <label class="cfg-lbl">Cor principal</label>
-      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.85rem;">
-        <input type="color" id="cfgCor" value="${_loja.cor_primaria||'#E85000'}"
-          style="width:48px;height:48px;border:none;border-radius:10px;cursor:pointer;padding:3px;background:var(--bg3);">
-        <div>
-          <div style="font-size:0.82rem;font-weight:700;color:var(--txt);">Cor dos botões e destaques</div>
-          <div style="font-size:0.7rem;color:var(--txt3);">Aplicada em todo o cardápio do cliente</div>
-        </div>
-      </div>
-      <button class="cfg-save" style="margin-bottom:1.1rem;" onclick="salvarIdentidade()">Salvar cor</button>
-
-      <label class="cfg-lbl">Logo da loja</label>
-      <div class="id-upload-area">
-        ${_loja.logo_url
-          ? `<img src="${_loja.logo_url}" class="id-logo-preview" id="idLogoImg" onerror="this.style.display='none'">`
-          : `<div class="id-logo-ph" id="idLogoImg">🏪</div>`}
-        <div style="flex:1;">
-          <input type="file" id="logoFileInput" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="uploadLogo(this)">
-          <button class="cfg-save" style="width:100%;margin-bottom:0.3rem;" onclick="document.getElementById('logoFileInput').click()">
-            📷 ${_loja.logo_url ? 'Trocar logo' : 'Enviar logo'}
-          </button>
-          <div style="font-size:0.68rem;color:var(--txt3);margin-bottom:0.3rem;">Imagem quadrada · JPG/PNG · até 5MB</div>
-          ${_loja.logo_url ? `<button onclick="removerLogo()" class="btn-excluir" style="margin-top:0;padding:0.3rem 0.75rem;font-size:0.72rem;">🗑️ Remover</button>` : ''}
-        </div>
-      </div>
-
+      <!-- CAPA: área clicável full-width -->
       <label class="cfg-lbl">Foto de capa</label>
-      ${_loja.foto_capa_url
-        ? `<img src="${_loja.foto_capa_url}" class="id-capa-preview" onerror="this.style.display='none'">`
-        : `<div class="id-capa-ph">📸 Aparece como fundo do header no cardápio</div>`}
       <input type="file" id="capaFileInput" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="uploadCapa(this)">
-      <button class="cfg-save" style="margin-top:0.5rem;margin-bottom:0.35rem;" onclick="document.getElementById('capaFileInput').click()">
-        🖼️ ${_loja.foto_capa_url ? 'Trocar foto de capa' : 'Enviar foto de capa'}
-      </button>
-      ${_loja.foto_capa_url ? `<button onclick="removerCapa()" class="btn-excluir" style="margin-top:0;padding:0.3rem 0.75rem;font-size:0.72rem;">🗑️ Remover capa</button>` : ''}
+      <label for="capaFileInput" class="id-capa-area">
+        ${_loja.foto_capa_url
+          ? `<img src="${_loja.foto_capa_url}" class="id-capa-img" onerror="this.parentElement.classList.add('sem-img')">
+             <div class="id-capa-overlay">🖼️ Trocar foto de capa</div>`
+          : `<div class="id-capa-empty">
+               <span style="font-size:1.6rem;">🖼️</span>
+               <span style="font-size:0.82rem;font-weight:700;">Adicionar foto de capa</span>
+               <span style="font-size:0.68rem;color:var(--txt3);">Fundo do header no cardápio · JPG/PNG · até 10MB</span>
+             </div>`}
+      </label>
+      ${_loja.foto_capa_url ? `<button onclick="removerCapa()" class="id-remover-btn">🗑️ Remover capa</button>` : ''}
+
+      <!-- LOGO + COR em grade 2 colunas -->
+      <div class="id-grid">
+
+        <!-- Logo -->
+        <div class="id-bloco">
+          <label class="cfg-lbl">Logo da loja</label>
+          <div class="id-logo-center">
+            <input type="file" id="logoFileInput" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="uploadLogo(this)">
+            <label for="logoFileInput" class="id-logo-area">
+              ${_loja.logo_url
+                ? `<img src="${_loja.logo_url}" class="id-logo-img" onerror="this.style.display='none'">
+                   <div class="id-logo-overlay">✏️ Trocar</div>`
+                : `<div class="id-logo-empty">🏪<small>Toque para adicionar</small></div>`}
+            </label>
+            ${_loja.logo_url ? `<button onclick="removerLogo()" class="id-remover-btn" style="margin-top:0.5rem;">🗑️ Remover</button>` : ''}
+          </div>
+          <div style="font-size:0.67rem;color:var(--txt3);text-align:center;margin-top:0.35rem;">Imagem quadrada · JPG/PNG · até 5MB</div>
+        </div>
+
+        <!-- Cor -->
+        <div class="id-bloco">
+          <label class="cfg-lbl">Cor principal</label>
+          <div class="id-cor-row">
+            <input type="color" id="cfgCor" value="${_loja.cor_primaria||'#E85000'}"
+              class="id-cor-picker"
+              oninput="document.getElementById('corPreviewBtn').style.background=this.value">
+            <div style="flex:1;min-width:0;">
+              <button id="corPreviewBtn" class="id-cor-preview" style="background:${_loja.cor_primaria||'#E85000'};">
+                Adicionar ao pedido
+              </button>
+              <div style="font-size:0.68rem;color:var(--txt3);margin-top:0.3rem;">Botões e destaques do cardápio</div>
+            </div>
+          </div>
+          <button class="cfg-save" style="width:100%;margin-top:0.65rem;" onclick="salvarIdentidade()">Salvar cor</button>
+        </div>
+
+      </div>
     </div>
 
     <div class="cfg-card" style="border-color:var(--or);">
@@ -261,9 +278,13 @@ export async function salvarIdentidade() {
 async function _uploadImagem(file, path, maxMB) {
   if (!file) return null
   if (file.size > maxMB * 1024 * 1024) { toast(`⚠️ Máximo ${maxMB}MB`); return null }
-  const { error } = await supabase.storage.from('logos').upload(path, file, { upsert: true })
-  if (error) { toast('❌ Erro ao enviar imagem'); return null }
-  const { data: { publicUrl } } = supabase.storage.from('logos').getPublicUrl(path)
+  const { error } = await supabase.storage.from('produtos').upload(path, file, { upsert: true })
+  if (error) {
+    console.error('[upload]', error)
+    toast(`❌ ${error.message || 'Erro ao enviar'}`)
+    return null
+  }
+  const { data: { publicUrl } } = supabase.storage.from('produtos').getPublicUrl(path)
   return publicUrl
 }
 

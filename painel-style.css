@@ -280,12 +280,31 @@ body{background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(-
 .copy-link{background:var(--or);color:#fff;border:none;border-radius:8px;padding:0.4rem 0.85rem;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
 .ce-del{background:#FEE2E2;color:var(--red);border:none;border-radius:7px;padding:0.2rem 0.5rem;font-size:0.68rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
 
-/* ── IDENTIDADE VISUAL — upload widgets ── */
-.id-upload-area{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.85rem;}
-.id-logo-preview{width:60px;height:60px;border-radius:50%;object-fit:cover;border:2.5px solid var(--or);flex-shrink:0;}
-.id-logo-ph{width:60px;height:60px;border-radius:50%;background:var(--bg3);border:2px dashed #E7E5E4;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
-.id-capa-preview{width:100%;height:100px;border-radius:10px;object-fit:cover;display:block;margin-bottom:0.5rem;}
-.id-capa-ph{background:var(--bg3);border-radius:10px;height:80px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:var(--txt3);margin-bottom:0.5rem;border:2px dashed #E7E5E4;text-align:center;padding:0 1rem;}
+/* ── IDENTIDADE VISUAL ── */
+/* Capa — área clicável */
+.id-capa-area{display:block;width:100%;border-radius:12px;overflow:hidden;cursor:pointer;position:relative;margin-bottom:0.5rem;border:2px dashed #E7E5E4;background:var(--bg3);transition:border-color 0.15s;}
+.id-capa-area:hover{border-color:var(--or);}
+.id-capa-area.tem-img,.id-capa-area:has(.id-capa-img){border:none;}
+.id-capa-img{display:block;width:100%;height:110px;object-fit:cover;}
+.id-capa-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:#fff;opacity:0;transition:opacity 0.2s;}
+.id-capa-area:hover .id-capa-overlay{opacity:1;}
+.id-capa-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.3rem;padding:1.25rem;text-align:center;}
+/* Logo */
+.id-grid{display:grid;grid-template-columns:1fr;gap:0.85rem;margin-top:1rem;}
+.id-bloco{background:var(--bg3);border-radius:10px;padding:0.85rem;}
+.id-logo-row{display:flex;align-items:center;gap:0.75rem;}
+.id-logo-wrap{position:relative;flex-shrink:0;}
+.id-logo-preview{width:62px;height:62px;border-radius:50%;object-fit:cover;border:2.5px solid var(--or);display:block;}
+.id-logo-ph{width:62px;height:62px;border-radius:50%;background:#fff;border:2px dashed #D1D5DB;display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
+.id-logo-edit{position:absolute;bottom:0;right:0;width:20px;height:20px;background:var(--or);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.6rem;cursor:pointer;border:2px solid #fff;}
+/* Cor */
+.id-cor-row{display:flex;align-items:center;gap:0.65rem;}
+.id-cor-picker{width:48px;height:48px;border:none;border-radius:10px;cursor:pointer;padding:3px;background:#fff;flex-shrink:0;}
+.id-cor-preview{width:100%;background:var(--or);color:#fff;border:none;border-radius:9px;padding:0.5rem 0.75rem;font-size:0.78rem;font-weight:700;cursor:default;font-family:'Plus Jakarta Sans',sans-serif;text-align:center;}
+/* Botão remover */
+.id-remover-btn{background:#FEE2E2;color:var(--red);border:none;border-radius:8px;padding:0.28rem 0.65rem;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;display:inline-block;margin-bottom:0.65rem;}
+/* Desktop — grade 2 colunas */
+@media(min-width:640px){.id-grid{grid-template-columns:1fr 1fr;}}
 
 /* ── LAYOUT WRAPPER ── */
 .layout{display:block;}
