@@ -72,8 +72,10 @@ deliveryapp/
 ├── sql/                    ← migrations e scripts Supabase (1 arquivo por feature)
 │   ├── gerar_numero_pedido.sql       ← trigger PD-YYYYMMDD-NNNNN
 │   ├── identidade_visual.sql         ← logo_url, foto_capa_url, cor_primaria em lojas
-│   ├── logos_bucket_policies.sql     ← RLS do bucket 'logos' (storage)
-│   └── lgpd_compliance.sql           ← lgpd_consent_em, anonimizado_em em clientes
+│   ├── logos_bucket_policies.sql     ← RLS do bucket 'logos' (legado — não usar)
+│   ├── lgpd_compliance.sql           ← lgpd_consent_em, anonimizado_em em clientes
+│   ├── produtos_bucket_policies.sql  ← RLS do bucket 'produtos' (upload por loja_id)
+│   └── banners_bucket_policies.sql   ← RLS do bucket 'banners' (upload por loja_id)
 ├── api/
 │   └── processar-pagamento.js  ← Vercel Function (Mercado Pago)
 └── js/
