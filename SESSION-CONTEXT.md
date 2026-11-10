@@ -137,5 +137,8 @@ cartão online, a próxima IA/sessão deve:
 - **Loja piloto:** Pizzaria Melinda — ID `0509197c-fb63-4319-9eae-e4e71368d3c4`
 
 > **Nunca grave a service key (`SUPABASE_SERVICE_KEY`) em arquivo versionado.**
-> Ela só existe como variável de ambiente na Vercel. Se a chave vazar em commit,
-> gere uma nova no Supabase (Project Settings → API) e atualize a Vercel.
+> Ela só existe como variável de ambiente na Vercel.
+> ⚠️ **Em 09/11/2026 a chave chegou a ser escrita em `SESSION-CONTEXT.md` (commit local
+> corrigido antes do push — nunca chegou ao GitHub). Por precaução, rotacione:**
+> gere uma nova em Supabase → Project Settings → API → service_role, atualize a
+> variável na Vercel e faça Redeploy.
