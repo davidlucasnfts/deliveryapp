@@ -1,6 +1,7 @@
 // js/pagamento.js — fluxo de pagamento (PIX, cartão MP, dinheiro)
 
 import { atualizarFormaPagamento } from './pedidos.js'
+import { esc } from './utils.js'
 
 const fmt = v => 'R$' + Number(v).toFixed(2).replace('.', ',')
 
@@ -31,7 +32,7 @@ export function abrirPagamento() {
         <div class="pix-chave">
           <div>
             <div class="pix-chave-lbl">Chave PIX</div>
-            <div class="pix-chave-val">${window.APP.loja.chave_pix}</div>
+            <div class="pix-chave-val">${esc(window.APP.loja.chave_pix)}</div>
           </div>
           <button class="pix-copy-btn" onclick="copiarPix(event)">Copiar</button>
         </div>
@@ -264,11 +265,11 @@ export async function finalizarPedido(formaPagamento) {
       <div class="cs-success">
         <div class="cs-success-icon">🎉</div>
         <div class="cs-success-title">Pedido confirmado!</div>
-        ${window.APP.pedidoAtual.numero ? `<div class="cs-success-num">#${window.APP.pedidoAtual.numero}</div>` : ''}
+        ${window.APP.pedidoAtual.numero ? `<div class="cs-success-num">#${esc(window.APP.pedidoAtual.numero)}</div>` : ''}
         <div class="cs-success-sub">
           Pedido enviado pelo WhatsApp com sucesso!<br><br>
           <strong>Pagamento:</strong> ${pgtoLabel[window.APP.pgtoSelecionado]}<br><br>
-          <strong>Entrega em:</strong><br>${rua}, ${num}${comp ? ' — ' + comp : ''}<br>${bairro}${cidade ? ' — ' + cidade : ''} · CEP: ${cep}
+          <strong>Entrega em:</strong><br>${esc(rua)}, ${esc(num)}${comp ? ' — ' + esc(comp) : ''}<br>${esc(bairro)}${cidade ? ' — ' + esc(cidade) : ''} · CEP: ${esc(cep)}
         </div>
         ${pontosGanhos > 0 ? `<div class="cs-success-pontos"><div class="cs-success-pontos-txt">Voce ganhou neste pedido</div><div class="cs-success-pontos-val">+${pontosGanhos} pontos</div></div>` : ''}
         <button class="cs-novo-btn" onclick="location.reload()">Fazer novo pedido</button>

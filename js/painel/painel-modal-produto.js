@@ -1,7 +1,7 @@
 // js/painel/painel-modal-produto.js — modais de produto e adicionais
 
 import { supabase } from '../supabase.js'
-import { toast, comprimirImagem, atualizarPosImagem, iniciarDragImagem, imgOffsetX, imgOffsetY, setImgOffset } from './utils.js'
+import { toast, comprimirImagem, atualizarPosImagem, iniciarDragImagem, imgOffsetX, imgOffsetY, setImgOffset, esc } from './utils.js'
 import { getLoja, getProdutos, getCategorias, renderCardapio } from './painel-cardapio.js'
 
 let _editProdId = null, _uploadedUrl = null
@@ -25,7 +25,7 @@ export function abrirModalProd(prodId, catIdPre) {
 
   const catPad = catIdPre || p?.categoria_id || ''
   document.getElementById('epCat').innerHTML = categorias.map(c =>
-    `<option value="${c.id}" ${c.id === catPad ? 'selected' : ''}>${c.tipo === 'combo' ? '🔥 ' : ''}${c.nome}</option>`
+    `<option value="${c.id}" ${c.id === catPad ? 'selected' : ''}>${c.tipo === 'combo' ? '🔥 ' : ''}${esc(c.nome)}</option>`
   ).join('')
 
   document.getElementById('epImgArea').style.display     = 'block'
@@ -232,8 +232,10 @@ export async function deletarProdPorId(id) {
 // ════════════════════════════════════════════
 // MODAL ADICIONAIS
 // ════════════════════════════════════════════
-export async function abrirModalAdd(prodId, prodNome) {
+export async function abrirModalAdd(prodId) {
   _addProdId = prodId
+  // Nome buscado internamente pelo id — nunca interpolar nome em onclick inline
+  const prodNome = (getProdutos().find(p => p.id === prodId) || {}).nome || ''
   document.getElementById('addModalTitulo').textContent = `Adicionais — ${prodNome}`
 
   const { data: grupos } = await supabase
@@ -274,7 +276,7 @@ function adicionarGrupoDOM(nome = '', obrigatorio = false, max = 1, itens = []) 
   const hd = document.createElement('div')
   hd.className = 'add-pg-hd'
   hd.innerHTML = `
-    <input class="add-pg-nome" placeholder="Nome do grupo (ex: Borda, Tamanho, Ponto da carne...)" value="${nome}">
+    <input class="add-pg-nome" placeholder="Nome do grupo (ex: Borda, Tamanho, Ponto da carne...)" value="${esc(nome)}">
     <select class="add-pg-sel">
       <option value="0" ${!obrigatorio ? 'selected' : ''}>Opcional</option>
       <option value="1" ${obrigatorio ? 'selected' : ''}>Obrigatório</option>

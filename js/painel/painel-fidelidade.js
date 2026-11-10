@@ -1,7 +1,7 @@
 // js/painel/painel-fidelidade.js
 
 import { supabase } from '../supabase.js'
-import { fmt, toast } from './utils.js'
+import { fmt, toast, esc } from './utils.js'
 
 let _loja = null
 export function setLoja(loja) { _loja = loja }
@@ -165,11 +165,11 @@ export async function renderFidelidade() {
            ${lista.map(c => `
              <div style="display:flex;align-items:center;gap:0.5rem;padding:0.55rem 0;border-bottom:1px solid #F9FAFB;">
                <div style="flex:1;min-width:0;">
-                 <div style="font-size:0.83rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.nome}</div>
-                 <div style="font-size:0.7rem;color:var(--txt3);">${c.telefone} · ${c.total_pedidos||0} pedidos · ${fmt(c.total_gasto||0)}</div>
+                 <div style="font-size:0.83rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(c.nome)}</div>
+                 <div style="font-size:0.7rem;color:var(--txt3);">${esc(c.telefone)} · ${c.total_pedidos||0} pedidos · ${fmt(c.total_gasto||0)}</div>
                </div>
                <span style="background:#FFF7ED;border-radius:6px;padding:0.15rem 0.5rem;font-size:0.72rem;font-weight:700;color:#C2410C;flex-shrink:0;">⭐ ${c.total_pontos||0}</span>
-               <a href="https://wa.me/55${c.telefone}?text=${encodeURIComponent('Olá '+c.nome+'! 👋')}"
+               <a href="https://wa.me/55${esc(c.telefone)}?text=${encodeURIComponent('Olá '+c.nome+'! 👋')}"
                   target="_blank"
                   style="background:#DCFCE7;border-radius:6px;padding:0.15rem 0.5rem;font-size:0.72rem;font-weight:700;color:#15803D;text-decoration:none;flex-shrink:0;">WA</a>
              </div>`).join('')}

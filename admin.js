@@ -1,4 +1,5 @@
 import { supabase } from './js/supabase.js'
+import { esc } from './js/utils.js'
 
 let lojas    = []
 let tabAtual = 'lojas'
@@ -134,10 +135,10 @@ function renderLojas() {
 
     html += `<tr>
       <td>
-        <div class="store-name-cell">${l.nome}</div>
-        <div class="store-email">${l.email_dono}</div>
+        <div class="store-name-cell">${esc(l.nome)}</div>
+        <div class="store-email">${esc(l.email_dono)}</div>
       </td>
-      <td>${l.cidade || '—'}</td>
+      <td>${esc(l.cidade) || '—'}</td>
       <td><span class="pill pill-or">${planoLabel[l.plano] || l.plano}</span></td>
       <td><span class="pill ${l.ativa ? 'pill-gr' : 'pill-re'}">${l.ativa ? 'Ativa' : 'Inativa'}</span></td>
       <td><span class="${venceCls}">${venceLbl}</span></td>
@@ -219,6 +220,9 @@ window.salvarLoja = async function() {
   const email = document.getElementById('mEmail').value.trim()
   const senha = document.getElementById('mSenha').value.trim()
   if (!nome || !email) { toast('⚠️ Preencha nome e e-mail'); return }
+  if (!editId && senha.length < 8) {
+    toast('⚠️ Defina uma senha de no mínimo 8 caracteres'); return
+  }
 
   const btn = document.getElementById('mSaveBtn')
   btn.disabled = true
@@ -240,9 +244,19 @@ window.salvarLoja = async function() {
       toast('✅ Loja atualizada!')
 
     } else {
-      const { data: authData, error: authErr } = await supabase.auth.admin
-        ? await supabase.auth.signUp({ email, password: senha || '123456' })
-        : { data: null, error: { message: 'Use o Supabase Dashboard para criar usuários' } }
+      // Cria o usuário de autenticação no servidor (service key) — signUp com a
+      // anon key derrubava a sessão do admin e deixava usuarios.id ≠ auth.uid().
+      const { data: { session } } = await supabase.auth.getSession()
+      const resp = await fetch('/api/admin-criar-usuario', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token || ''}`
+        },
+        body: JSON.stringify({ email, senha })
+      })
+      const respBody = await resp.json().catch(() => ({}))
+      if (!resp.ok) throw new Error(respBody.error || 'Falha ao criar usuário')
 
       const { data: novaLoja, error: lojaErr } = await supabase
         .from('lojas').insert({
@@ -258,13 +272,15 @@ window.salvarLoja = async function() {
 
       if (lojaErr) throw lojaErr
 
-      await supabase.from('usuarios').insert({
+      const { error: usuErr } = await supabase.from('usuarios').insert({
+        id:      respBody.userId,
         loja_id: novaLoja.id,
         email,
         nome,
         perfil: 'dono',
         ativo:  true
       })
+      if (usuErr) throw usuErr
 
       lojas.unshift(novaLoja)
       toast('✅ Loja cadastrada!')

@@ -1,7 +1,7 @@
 // js/painel/painel-config.js — configurações da loja
 
 import { supabase } from '../supabase.js'
-import { toast, mascaraTel } from './utils.js'
+import { toast, mascaraTel, esc } from './utils.js'
 
 let _loja = null
 export function setLoja(loja) { _loja = loja }
@@ -18,7 +18,7 @@ export function renderConfig() {
       <input type="file" id="capaFileInput" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="uploadCapa(this)">
       <label for="capaFileInput" class="id-capa-area">
         ${_loja.foto_capa_url
-          ? `<img src="${_loja.foto_capa_url}" class="id-capa-img" onerror="this.parentElement.classList.add('sem-img')">
+          ? `<img src="${esc(_loja.foto_capa_url)}" class="id-capa-img" onerror="this.parentElement.classList.add('sem-img')">
              <div class="id-capa-overlay">🖼️ Trocar foto de capa</div>`
           : `<div class="id-capa-empty">
                <span style="font-size:1.6rem;">🖼️</span>
@@ -38,7 +38,7 @@ export function renderConfig() {
             <input type="file" id="logoFileInput" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="uploadLogo(this)">
             <label for="logoFileInput" class="id-logo-area">
               ${_loja.logo_url
-                ? `<img src="${_loja.logo_url}" class="id-logo-img" onerror="this.style.display='none'">
+                ? `<img src="${esc(_loja.logo_url)}" class="id-logo-img" onerror="this.style.display='none'">
                    <div class="id-logo-overlay">✏️ Trocar</div>`
                 : `<div class="id-logo-empty">🏪<small>Toque para adicionar</small></div>`}
             </label>
@@ -51,11 +51,11 @@ export function renderConfig() {
         <div class="id-bloco">
           <label class="cfg-lbl">Cor principal</label>
           <div class="id-cor-row">
-            <input type="color" id="cfgCor" value="${_loja.cor_primaria||'#E85000'}"
+            <input type="color" id="cfgCor" value="${esc(_loja.cor_primaria)||'#E85000'}"
               class="id-cor-picker"
               oninput="document.getElementById('corPreviewBtn').style.background=this.value">
             <div style="flex:1;min-width:0;">
-              <button id="corPreviewBtn" class="id-cor-preview" style="background:${_loja.cor_primaria||'#E85000'};">
+              <button id="corPreviewBtn" class="id-cor-preview" style="background:${esc(_loja.cor_primaria)||'#E85000'};">
                 Adicionar ao pedido
               </button>
               <div style="font-size:0.68rem;color:var(--txt3);margin-top:0.3rem;">Botões e destaques do cardápio</div>
@@ -81,7 +81,7 @@ export function renderConfig() {
       </div>
       <div id="pixChaveWrap" style="display:${_loja.pix_ativo?'block':'none'};margin-bottom:0.85rem;">
         <label class="cfg-lbl">Chave PIX</label>
-        <input class="cfg-inp" id="cfgPixChave" value="${_loja.chave_pix||''}" placeholder="CPF, CNPJ, telefone ou e-mail">
+        <input class="cfg-inp" id="cfgPixChave" value="${esc(_loja.chave_pix)||''}" placeholder="CPF, CNPJ, telefone ou e-mail">
       </div>
 
       <!-- CARTÃO ONLINE — Mercado Pago -->
@@ -95,9 +95,9 @@ export function renderConfig() {
         </div>
         <div id="mpWrap" style="display:${_loja.mp_ativo?'block':'none'};">
           <label class="cfg-lbl">Public Key do Mercado Pago</label>
-          <input class="cfg-inp" id="cfgMpPublicKey" value="${_loja.mp_public_key||''}" placeholder="TEST-xxxxxxxx ou APP_USR-xxxxxxxx" style="font-size:0.75rem;">
+          <input class="cfg-inp" id="cfgMpPublicKey" value="${esc(_loja.mp_public_key)||''}" placeholder="TEST-xxxxxxxx ou APP_USR-xxxxxxxx" style="font-size:0.75rem;">
           <label class="cfg-lbl">Access Token do Mercado Pago</label>
-          <input class="cfg-inp" id="cfgMpToken" value="${_loja.mp_access_token||''}" placeholder="TEST-xxxx... ou APP_USR-xxxx..." style="font-size:0.75rem;" type="password">
+          <input class="cfg-inp" id="cfgMpToken" value="${esc(_loja.mp_access_token)||''}" placeholder="TEST-xxxx... ou APP_USR-xxxx..." style="font-size:0.75rem;" type="password">
           <p style="font-size:0.7rem;color:var(--txt3);margin-top:-0.3rem;margin-bottom:0.5rem;">
             Pegue em mercadopago.com.br → Seu negócio → Credenciais
           </p>
@@ -117,28 +117,38 @@ export function renderConfig() {
     </div>
     <div class="cfg-card">
       <div class="cfg-title">Link do cardápio</div>
-      <div class="link-box" id="linkBox">${link}</div>
+      <div class="link-box" id="linkBox">${esc(link)}</div>
       <button class="copy-link" onclick="copiarLink()">📋 Copiar link</button>
     </div>
     <div class="cfg-card">
       <div class="cfg-title">Informações da loja</div>
       <label class="cfg-lbl">Nome</label>
-      <input class="cfg-inp" id="cfgNome" value="${_loja.nome || ''}">
+      <input class="cfg-inp" id="cfgNome" value="${esc(_loja.nome) || ''}">
       <label class="cfg-lbl">Descrição</label>
-      <input class="cfg-inp" id="cfgDesc" value="${_loja.descricao || ''}">
+      <input class="cfg-inp" id="cfgDesc" value="${esc(_loja.descricao) || ''}">
       <label class="cfg-lbl">Tempo de entrega (ex: 35-50 min)</label>
-      <input class="cfg-inp" id="cfgTempo" value="${_loja.tempo_entrega || ''}" placeholder="35-50 min">
+      <input class="cfg-inp" id="cfgTempo" value="${esc(_loja.tempo_entrega) || ''}" placeholder="35-50 min">
       <label class="cfg-lbl">Cidade</label>
-      <input class="cfg-inp" id="cfgCidade" value="${_loja.cidade || ''}" placeholder="São Luís">
+      <input class="cfg-inp" id="cfgCidade" value="${esc(_loja.cidade) || ''}" placeholder="São Luís">
       <label class="cfg-lbl">WhatsApp (com DDD)</label>
       <div class="field-wrap">
-        <input class="cfg-inp" id="cfgWpp" value="${_loja.whatsapp || ''}" type="tel"
+        <input class="cfg-inp" id="cfgWpp" value="${esc(_loja.whatsapp) || ''}" type="tel"
           maxlength="15" placeholder="(99) 99999-9999"
           oninput="mascaraTelCfg(this)">
         <span class="field-icon" id="iconWpp"></span>
         <div class="field-msg" id="msgWpp"></div>
       </div>
       <button class="cfg-save" onclick="salvarConfig()">Salvar</button>
+    </div>
+    <div class="cfg-card">
+      <div class="cfg-title">🛵 Taxas de entrega por bairro</div>
+      <p style="font-size:0.78rem;color:var(--txt2);margin-bottom:0.75rem;">O cardápio calcula a taxa automaticamente pelo bairro do cliente. Bairro não cadastrado = taxa a combinar.</p>
+      <div id="taxasLista"></div>
+      <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
+        <input class="cfg-inp" id="novoBairro" placeholder="Bairro (ex: Centro)" style="flex:1;min-width:0;margin-bottom:0;">
+        <input class="cfg-inp" id="novaTaxa" type="number" step="0.50" min="0" placeholder="R$" style="width:84px;flex-shrink:0;margin-bottom:0;">
+        <button class="cfg-save" style="flex-shrink:0;margin-bottom:0;" onclick="adicionarTaxa()">+</button>
+      </div>
     </div>
     <div class="cfg-card">
       <div class="cfg-title">Funcionamento</div>
@@ -151,11 +161,11 @@ export function renderConfig() {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem;">
           <div>
             <label class="cfg-lbl">Abre às</label>
-            <input class="cfg-inp" id="cfgAbre" type="time" value="${_loja.hora_abre||''}" style="margin-bottom:0;">
+            <input class="cfg-inp" id="cfgAbre" type="time" value="${esc(_loja.hora_abre)||''}" style="margin-bottom:0;">
           </div>
           <div>
             <label class="cfg-lbl">Fecha às</label>
-            <input class="cfg-inp" id="cfgFecha" type="time" value="${_loja.hora_fecha||''}" style="margin-bottom:0;">
+            <input class="cfg-inp" id="cfgFecha" type="time" value="${esc(_loja.hora_fecha)||''}" style="margin-bottom:0;">
           </div>
         </div>
         <p style="font-size:0.7rem;color:var(--txt3);">Se preenchido, a loja abre e fecha automaticamente nestes horários.</p>
@@ -186,16 +196,19 @@ export function renderConfig() {
         <span style="font-size:0.82rem;color:var(--txt);">Ativar notificações automáticas</span>
       </div>
       <label class="cfg-lbl">URL do servidor WAHA</label>
-      <input class="cfg-inp" id="wahaUrl" type="url" placeholder="http://IP-DO-SERVIDOR:3000" value="${_loja.waha_url || ''}">
+      <input class="cfg-inp" id="wahaUrl" type="url" placeholder="http://IP-DO-SERVIDOR:3000" value="${esc(_loja.waha_url) || ''}">
       <label class="cfg-lbl">Nome da sessão</label>
-      <input class="cfg-inp" id="wahaSession" type="text" placeholder="default" value="${_loja.waha_session || 'default'}">
+      <input class="cfg-inp" id="wahaSession" type="text" placeholder="default" value="${esc(_loja.waha_session) || 'default'}">
       <label class="cfg-lbl">API Key <span style="font-weight:400;color:var(--txt3);">(opcional)</span></label>
-      <input class="cfg-inp" id="wahaApiKey" type="password" placeholder="Deixe em branco se não configurou" value="${_loja.waha_api_key || ''}">
+      <input class="cfg-inp" id="wahaApiKey" type="password" placeholder="Deixe em branco se não configurou" value="${esc(_loja.waha_api_key) || ''}">
       <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
         <button class="cfg-save" style="flex:1;" onclick="salvarWaha()">Salvar</button>
         <button class="cfg-save" id="wahaTestBtn" style="flex:1;background:var(--card-bg);color:var(--txt);border:1.5px solid #25D366;" onclick="testarWaha()">🔍 Testar conexão</button>
       </div>
     </div>`
+
+  // Preenche a lista de taxas de entrega (card acima)
+  carregarTaxas()
 }
 
 export async function carregarTaxas() {
@@ -205,7 +218,7 @@ export async function carregarTaxas() {
   if (!taxas?.length) { lista.innerHTML = '<div style="font-size:0.78rem;color:var(--txt3);text-align:center;padding:0.5rem;">Nenhuma taxa cadastrada — entrega a combinar</div>'; return }
   lista.innerHTML = taxas.map(t => `
     <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #F9FAFB;">
-      <div style="font-size:0.83rem;font-weight:600;color:var(--txt);">${t.bairro}</div>
+      <div style="font-size:0.83rem;font-weight:600;color:var(--txt);">${esc(t.bairro)}</div>
       <div style="display:flex;align-items:center;gap:0.5rem;">
         <div style="font-size:0.83rem;font-weight:700;color:var(--or);">${t.taxa===0?'Grátis':'R$'+Number(t.taxa).toFixed(2).replace('.',',')}</div>
         <button onclick="excluirTaxa('${t.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;border-radius:7px;padding:0.2rem 0.5rem;cursor:pointer;font-size:0.72rem;">🗑️</button>

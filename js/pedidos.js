@@ -1,47 +1,44 @@
 import { supabase } from './supabase.js'
 
 // Busca ou cria cliente pelo celular (cadastro automático)
-// Só salva campos que existem com certeza na tabela
+// Lookup via RPC security definer (sql/008) — anon não tem SELECT em clientes
 async function salvarCliente(lojaId, cliente) {
   const tel = cliente.telefone.replace(/\D/g, '')
-  
+
   try {
-    const { data: existente } = await supabase
-      .from('clientes').select('id,nome,total_pontos,total_pedidos,total_gasto')
-      .eq('loja_id', lojaId).eq('telefone', tel).single()
+    const { data: rows } = await supabase.rpc('buscar_cliente_por_telefone', {
+      p_loja_id: lojaId, p_telefone: tel
+    })
+    const existente = rows?.[0]
 
     if (existente) {
-      // Atualiza só nome — campos de endereço podem não existir ainda
-      await supabase.from('clientes')
-        .update({ nome: cliente.nome })
-        .eq('id', existente.id)
-      
-      // Tenta atualizar endereço e consentimento se as colunas existirem
-      try {
-        await supabase.from('clientes').update({
-          endereco_rua:    cliente.rua    || null,
-          endereco_num:    cliente.num    || null,
-          endereco_comp:   cliente.comp   || null,
-          endereco_bairro: cliente.bairro || null,
-          endereco_cidade: cliente.cidade || null,
-          endereco_cep:    cliente.cep    || null,
-          lgpd_consent_em: new Date().toISOString(),
-        }).eq('id', existente.id)
-      } catch(e) {} // silencia se colunas não existirem
+      // Atualiza nome, endereço e consentimento (colunas liberadas para anon)
+      await supabase.from('clientes').update({
+        nome:            cliente.nome,
+        endereco_rua:    cliente.rua    || null,
+        endereco_num:    cliente.num    || null,
+        endereco_comp:   cliente.comp   || null,
+        endereco_bairro: cliente.bairro || null,
+        endereco_cidade: cliente.cidade || null,
+        endereco_cep:    cliente.cep    || null,
+        lgpd_consent_em: new Date().toISOString(),
+      }).eq('id', existente.id)
 
       return existente.id
     }
 
-    // Cria novo cliente com campos básicos
-    const { data: novo, error } = await supabase.from('clientes').insert({
+    // Cria novo cliente — UUID gerado no cliente (anon não tem SELECT para ler de volta)
+    const novoId = crypto.randomUUID()
+    const { error } = await supabase.from('clientes').insert({
+      id:       novoId,
       loja_id:  lojaId,
       nome:     cliente.nome,
       telefone: tel,
-    }).select('id').single()
+    })
 
-    if (error || !novo) return null
+    if (error) return null
 
-    // Tenta salvar endereço e consentimento separadamente
+    // Endereço e consentimento em update separado (colunas liberadas para anon)
     try {
       await supabase.from('clientes').update({
         endereco_rua:    cliente.rua    || null,
@@ -51,10 +48,10 @@ async function salvarCliente(lojaId, cliente) {
         endereco_cidade: cliente.cidade || null,
         endereco_cep:    cliente.cep    || null,
         lgpd_consent_em: new Date().toISOString(),
-      }).eq('id', novo.id)
+      }).eq('id', novoId)
     } catch(e) {}
 
-    return novo.id
+    return novoId
 
   } catch(e) {
     // Se falhar tudo, não quebra o pedido
@@ -63,7 +60,7 @@ async function salvarCliente(lojaId, cliente) {
   }
 }
 
-// Acumula pontos (trigger no banco faz o update, só registra o histórico)
+// Acumula pontos — registra histórico e totais via RPC (sql/008)
 async function acumularPontos(lojaId, clienteId, pedidoId, total, itens) {
   const { data: config } = await supabase
     .from('fidelidade_config').select('*')
@@ -75,17 +72,14 @@ async function acumularPontos(lojaId, clienteId, pedidoId, total, itens) {
   } else {
     pontos = itens.reduce((s, i) => s + (i.quantidade * (config.pontos_por_real || 1)), 0)
   }
-  if (pontos <= 0) return
-  await supabase.from('pontos_historico').insert({
-    loja_id: lojaId, cliente_id: clienteId, pedido_id: pedidoId,
-    pontos, tipo: 'ganho',
-    descricao: `Pedido #${pedidoId.slice(0,6).toUpperCase()}`
+  await supabase.rpc('registrar_ganho_pontos', {
+    p_loja_id:    lojaId,
+    p_cliente_id: clienteId,
+    p_pedido_id:  pedidoId,
+    p_pontos:     Math.max(0, pontos),
+    p_descricao:  `Pedido #${pedidoId.slice(0,6).toUpperCase()}`,
+    p_total:      total
   })
-  // Atualiza total_gasto manualmente (trigger cuida dos pontos)
-  const { data: cli } = await supabase.from('clientes').select('total_gasto').eq('id', clienteId).single()
-  if (cli) await supabase.from('clientes').update({
-    total_gasto: (cli.total_gasto || 0) + total
-  }).eq('id', clienteId)
 }
 
 // Valida cupom
@@ -116,13 +110,24 @@ export async function validarCupom(lojaId, codigo, totalPedido) {
 
 function fmtVal(v) { return 'R$' + Number(v).toFixed(2).replace('.', ',') }
 
-// Busca cliente pelo celular para autopreenchimento
+// Busca cliente pelo celular para autopreenchimento (via RPC — sem dump de PII)
 export async function buscarClientePorTelefone(lojaId, telefone) {
   const tel = telefone.replace(/\D/g, '')
   if (tel.length < 10) return null
-  const { data } = await supabase.from('clientes').select('*')
-    .eq('loja_id', lojaId).eq('telefone', tel).single()
-  return data
+  const { data } = await supabase.rpc('buscar_cliente_por_telefone', {
+    p_loja_id: lojaId, p_telefone: tel
+  })
+  return data?.[0] || null
+}
+
+// Busca pedidos do cliente pelo celular — tela "Meus pedidos" (via RPC, sql/009)
+export async function buscarPedidosCliente(lojaId, telefone) {
+  const tel = telefone.replace(/\D/g, '')
+  if (tel.length < 10) return []
+  const { data } = await supabase.rpc('buscar_pedidos_cliente', {
+    p_loja_id: lojaId, p_telefone: tel
+  })
+  return data || []
 }
 
 // Cria pedido principal
@@ -153,30 +158,41 @@ export async function criarPedido(lojaId, cliente, itens, cupomId = null, descon
 
   if (total <= 0) throw new Error('Total do pedido é zero ou negativo')
 
-  // Monta dados do pedido — forma_pagamento é opcional (depende do SQL ter rodado)
+  // UUID gerado no cliente — anon não tem SELECT em pedidos (sql/008),
+  // então não podemos usar insert().select() para ler a linha de volta
+  const pedidoId = crypto.randomUUID()
+
   const dadosPedido = {
+    id:               pedidoId,
     loja_id:          lojaId,
     nome_cliente:     cliente.nome,
     telefone_cliente: cliente.telefone,
     endereco_entrega: cliente.endereco,
     observacoes:      cliente.obs,
     total,
-    status:           'novo'
+    status:           'novo',
+    forma_pagamento:  formaPagamento,
+    status_pagamento: formaPagamento === 'dinheiro' ? 'na_entrega' : 'pendente'
   }
-  // Inclui forma_pagamento (rode update_pagamento.sql se ainda não rodou)
-  dadosPedido.forma_pagamento  = formaPagamento
-  dadosPedido.status_pagamento = formaPagamento === 'dinheiro' ? 'na_entrega' : 'pendente'
 
-  const { data: pedido, error } = await supabase.from('pedidos')
-    .insert(dadosPedido).select().single()
+  const { error } = await supabase.from('pedidos').insert(dadosPedido)
 
   if (error) {
     throw new Error(error.message || 'Erro ao salvar pedido no banco')
   }
 
-  // Insere itens do pedido
+  // Número formatado (PD-YYYYMMDD-NNNNN) é gerado pelo trigger — busca best-effort
+  // via RPC para exibir na tela de confirmação
+  let numero = null
+  try {
+    const { data: num } = await supabase.rpc('obter_numero_pedido', { p_id: pedidoId })
+    numero = num || null
+  } catch(e) {}
+
+  // Insere itens do pedido (UUIDs gerados no cliente para vincular adicionais)
   const itensBanco = itens.map(i => ({
-    pedido_id:      pedido.id,
+    id:             crypto.randomUUID(),
+    pedido_id:      pedidoId,
     produto_id:     i.produto_id,
     nome_produto:   i.nome || 'Produto',
     preco_unitario: i.preco,
@@ -184,8 +200,8 @@ export async function criarPedido(lojaId, cliente, itens, cupomId = null, descon
     subtotal:       i.subtotal
   }))
 
-  const { data: itensCriados, error: erroItens } = await supabase
-    .from('itens_pedido').insert(itensBanco).select()
+  const { error: erroItens } = await supabase
+    .from('itens_pedido').insert(itensBanco)
 
   if (erroItens) {
     window.showToast('⚠️ Verifique sua conexão')
@@ -194,8 +210,8 @@ export async function criarPedido(lojaId, cliente, itens, cupomId = null, descon
   // Salva adicionais (só se tabela existir — update_fase1.sql rodado)
   try {
     const adicionaisParaSalvar = []
-    if (itensCriados) {
-      itensCriados.forEach((itemCriado, idx) => {
+    if (!erroItens) {
+      itensBanco.forEach((itemCriado, idx) => {
         const itemOriginal = itens[idx]
         if (itemOriginal?.adicionais?.length) {
           itemOriginal.adicionais.forEach(a => {
@@ -218,7 +234,7 @@ export async function criarPedido(lojaId, cliente, itens, cupomId = null, descon
     console.warn('Adicionais não salvos (rode update_fase1.sql):', e.message)
   }
 
-  // Incrementa uso do cupom
+  // Incrementa uso do cupom (anon só pode alterar a coluna usos_atual — sql/008)
   if (cupomId) {
     const { data: c } = await supabase.from('cupons').select('usos_atual').eq('id', cupomId).single()
     if (c) await supabase.from('cupons').update({ usos_atual: (c.usos_atual || 0) + 1 }).eq('id', cupomId)
@@ -226,21 +242,23 @@ export async function criarPedido(lojaId, cliente, itens, cupomId = null, descon
 
   // Fidelidade em background
   salvarCliente(lojaId, cliente).then(clienteId => {
-    if (clienteId) acumularPontos(lojaId, clienteId, pedido.id, total, itens)
+    if (clienteId) acumularPontos(lojaId, clienteId, pedidoId, total, itens)
   }).catch(() => {})
 
-  return pedido
+  return { ...dadosPedido, numero }
 }
 
 export async function atualizarStatus(pedidoId, novoStatus) {
   await supabase.from('pedidos').update({ status: novoStatus }).eq('id', pedidoId)
 }
 
+// Confirmação de pagamento via RPC security definer (sql/008) —
+// anon não tem UPDATE em pedidos (prevenção de fraude)
 export async function atualizarFormaPagamento(pedidoId, formaPagamento) {
-  await supabase.from('pedidos').update({
-    forma_pagamento: formaPagamento,
-    status_pagamento: formaPagamento === 'dinheiro' ? 'na_entrega' : 'pago'
-  }).eq('id', pedidoId)
+  const { error } = await supabase.rpc('confirmar_pagamento', {
+    p_pedido_id: pedidoId, p_forma: formaPagamento
+  })
+  if (error) throw new Error(error.message || 'Erro ao confirmar pagamento')
 }
 
 export function escutarPedidos(lojaId, callback) {

@@ -1,5 +1,7 @@
 // js/painel/utils.js — funções reutilizáveis em todos os módulos
 
+export { esc } from '../utils.js'
+
 export const fmt = v => 'R$' + Number(v).toFixed(2).replace('.', ',')
 
 export function toast(msg, dur = 2500) {
@@ -17,14 +19,6 @@ export function mascaraTel(input) {
   else if (v.length <= 7)  v = '(' + v.slice(0,2) + ') ' + v.slice(2)
   else                     v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7)
   input.value = v
-}
-
-export function atualizarData() {
-  const d = new Date()
-  const dias = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado']
-  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro']
-  const el = document.getElementById('hDate')
-  if (el) el.textContent = `${dias[d.getDay()]}, ${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}`
 }
 
 export function tempoDecorrido(ts) {

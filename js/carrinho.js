@@ -2,9 +2,8 @@
 // Usa variáveis globais do index.html via window
 
 import { getGruposAdicionais } from './cardapio.js'
+import { esc } from './utils.js'
 
-// Atalhos para estado global (definidos no index.html)
-const APP = () => window.APP
 const fmt = v => 'R$' + Number(v).toFixed(2).replace('.', ',')
 
 export function carregarCartSalvo(){
@@ -49,10 +48,10 @@ export function renderCarrinho(){
   document.getElementById('csBodyItens').innerHTML=window.APP.cart.map(i=>{
     const key=i._cartKey||i.id
     return `<div class="cs-item">
-      ${i.foto_url?`<img class="csi-img" src="${i.foto_url}" alt="${i.nome}" data-ph="csi-img-ph" onerror="imgErr(this)">`:`<div class="csi-img-ph">🍽️</div>`}
+      ${i.foto_url?`<img class="csi-img" src="${esc(i.foto_url)}" alt="${esc(i.nome)}" data-ph="csi-img-ph" onerror="imgErr(this)">`:`<div class="csi-img-ph">🍽️</div>`}
       <div class="csi-info">
-        <div class="csi-name">${i.nome}</div>
-        ${i._descAdicionais?`<div style="font-size:0.68rem;color:var(--txt3);margin-top:0.1rem;">${i._descAdicionais}</div>`:''}
+        <div class="csi-name">${esc(i.nome)}</div>
+        ${i._descAdicionais?`<div style="font-size:0.68rem;color:var(--txt3);margin-top:0.1rem;">${esc(i._descAdicionais)}</div>`:''}
         <div class="csi-price">${fmt(i.preco)} un.</div>
       </div>
       <div class="csi-controls">
@@ -111,11 +110,11 @@ export function renderUpsell(){
   scroll.innerHTML=sugestoes.map(p=>`
     <div class="upsell-card" onclick="upsellAdd('${p.id}')">
       <div class="upsell-img">
-        ${p.foto_url?`<img src="${p.foto_url}" alt="${p.nome}" loading="lazy" onerror="this.parentElement.innerHTML='🍽️'">`:'🍽️'}
+        ${p.foto_url?`<img src="${esc(p.foto_url)}" alt="${esc(p.nome)}" loading="lazy" onerror="this.parentElement.innerHTML='🍽️'">`:'🍽️'}
       </div>
       <button class="upsell-add" onclick="event.stopPropagation();upsellAdd('${p.id}')">+</button>
       <div class="upsell-info">
-        <div class="upsell-nome">${p.nome}</div>
+        <div class="upsell-nome">${esc(p.nome)}</div>
         <div class="upsell-preco">${fmt(p.preco)}</div>
       </div>
     </div>`).join('')

@@ -1,7 +1,7 @@
 // js/painel/painel-cardapio.js — cardápio: estado, render, categorias
 
 import { supabase } from '../supabase.js'
-import { fmt, toast } from './utils.js'
+import { fmt, toast, esc } from './utils.js'
 import { renderDestaqueAdmin, renderUpsellAdmin, renderBannerAdmin, carregarBanners } from './painel-extras.js'
 import { abrirModalProd, fecharModalProd, deletarProdPorId } from './painel-modal-produto.js'
 
@@ -49,7 +49,7 @@ export function renderCardapio() {
         <span class="cat-header-icon">${cat.tipo === 'combo' ? '🔥' : '📁'}</span>
         <div class="cat-header-info">
           <div class="cat-header-nome">
-            ${cat.nome}
+            ${esc(cat.nome)}
             ${cat.tipo === 'combo' ? '<span class="cat-tag-combo">COMBO</span>' : ''}
           </div>
           <div class="cat-header-count">${itens.length} produto${itens.length !== 1 ? 's' : ''}</div>
@@ -106,18 +106,18 @@ function prodCard(p) {
   <div class="cat-prod-item" id="proditem_${p.id}">
     <div class="cat-prod-thumb">
       ${p.foto_url
-        ? `<img src="${p.foto_url}" alt="${p.nome}" style="width:44px;height:44px;object-fit:cover;border-radius:9px;">`
+        ? `<img src="${esc(p.foto_url)}" alt="${esc(p.nome)}" style="width:44px;height:44px;object-fit:cover;border-radius:9px;">`
         : `<span style="font-size:1.5rem;">${prodEmoji(p)}</span>`}
     </div>
     <div class="cat-prod-info">
-      <div class="cat-prod-nome">${p.nome}</div>
+      <div class="cat-prod-nome">${esc(p.nome)}</div>
       <div class="cat-prod-preco">${fmt(p.preco)}</div>
       ${numGrupos > 0
         ? `<div class="cat-prod-add-badge">+${numGrupos} grupo${numGrupos > 1 ? 's' : ''} de adicionais</div>`
         : `<div class="cat-prod-add-badge" style="background:#F9FAFB;color:var(--txt3);">sem adicionais</div>`}
     </div>
     <div class="cat-prod-actions">
-      <button class="prod-btn add" title="Configurar adicionais" onclick="abrirModalAdd('${p.id}','${p.nome}')">+</button>
+      <button class="prod-btn add" title="Configurar adicionais" onclick="abrirModalAdd('${p.id}')">+</button>
       <button class="prod-btn edit" onclick="abrirModalProd('${p.id}',null)">✏️</button>
       <button class="prod-btn del" onclick="confirmarDelProd('${p.id}')">🗑</button>
     </div>
@@ -283,9 +283,3 @@ export function closeEp()               { fecharModalProd() }
 export function abrirNovoEpNaCat(catId) { abrirModalProd(null, catId) }
 export function openEc(id)              { abrirModalCat(id) }
 export function closeEc()               { fecharModalCat() }
-export function toggleNovaCatForm()     {}
-export function delProdDaCat()          {}
-export function addNovoGrupo()          {}
-export function addItemGrupo()          {}
-export function removerGrupo()          {}
-export function removerItemGrupo()      {}

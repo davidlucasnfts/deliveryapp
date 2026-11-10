@@ -1,19 +1,22 @@
 import { supabase } from './supabase.js'
 
+// Colunas públicas da loja — NUNCA incluir mp_access_token, waha_api_key, email_dono.
+// A view lojas_publicas (sql/008) já restringe no banco; a lista explícita é defesa em profundidade.
+const LOJA_COLS_PUBLICAS = 'id,nome,descricao,logo_url,foto_capa_url,cor_primaria,tempo_entrega,cidade,aberta,ativa,hora_abre,hora_fecha,pix_ativo,chave_pix,mp_ativo,mp_public_key,dinheiro_ativo,whatsapp'
+
 export async function getLoja(lojaId) {
-  const { data } = await supabase.from('lojas').select('*').eq('id', lojaId).single()
-  return data
+  const { data, error } = await supabase
+    .from('lojas_publicas').select(LOJA_COLS_PUBLICAS).eq('id', lojaId).single()
+  if (!error) return data
+  // Fallback para o período antes do sql/008 ser executado no Supabase
+  const { data: loja } = await supabase
+    .from('lojas').select(LOJA_COLS_PUBLICAS).eq('id', lojaId).single()
+  return loja
 }
 
 export async function getCategorias(lojaId) {
   const { data } = await supabase.from('categorias')
     .select('*').eq('loja_id', lojaId).eq('ativa', true).order('ordem')
-  return data || []
-}
-
-export async function getProdutos(lojaId, categoriaId) {
-  const { data } = await supabase.from('produtos')
-    .select('*').eq('loja_id', lojaId).eq('categoria_id', categoriaId).eq('disponivel', true)
   return data || []
 }
 
@@ -65,15 +68,4 @@ export async function getTaxaEntrega(lojaId, bairro) {
     .ilike('bairro', `%${termo}%`)
     .limit(1)
   return data?.[0] || null
-}
-
-// Busca todas as taxas de entrega de uma loja
-export async function getTaxasEntrega(lojaId) {
-  const { data } = await supabase
-    .from('taxas_entrega')
-    .select('*')
-    .eq('loja_id', lojaId)
-    .eq('ativo', true)
-    .order('bairro')
-  return data || []
 }

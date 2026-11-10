@@ -1,6 +1,7 @@
 import { supabase } from './supabase.js'
+import { esc } from './utils.js'
 import { getLoja, getCategorias, getGruposAdicionais } from './cardapio.js'
-import { criarPedido, validarCupom, buscarClientePorTelefone } from './pedidos.js'
+import { criarPedido, validarCupom, buscarClientePorTelefone, buscarPedidosCliente } from './pedidos.js'
 import { carregarCartSalvo, salvarCart, limparCartSalvo, atualizarCartBar, renderCarrinho, alterarQty, alterarQtyKey, abrirCarrinho, fecharCarrinho, renderTotais, renderUpsell, upsellAdd } from './carrinho.js'
 import { abrirAdicionais, fecharAdicionais, toggleAdicional, decrementAdicional, calcTotalAdd, atualizarTotalAdd, atualizarBotaoAdd, chAddQty, confirmarAdicionais, abrirConfirmacao, chConfirmQty, adicionarConfirmItem, confirmContinuar, confirmIrCarrinho } from './adicionais.js'
 import { mascaraTel, mascaraCep, onTelBlur, formatarCep, mostrarPontos, validarCep, buscarCep, aplicarCupom, verificarTaxaEntrega, atualizarTaxaUI, enviarPedido, abrirPagamento, fecharPagamento, selecionarPgto, inicializarMPForm, copiarPix, processarCartaoMP, confirmarPagamento, finalizarPedido } from './checkout.js'
@@ -109,10 +110,13 @@ async function init() {
 
 function aplicarIdentidade() {
   const cor = loja.cor_primaria || '#E85000'
-  document.documentElement.style.setProperty('--or', cor)
   const n = parseInt(cor.replace('#',''), 16)
   const r = Math.min(255, (n >> 16) + 40), g = Math.min(255, ((n >> 8) & 0xFF) + 25), b = Math.min(255, (n & 0xFF) + 15)
   const light = '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('')
+  // Cardápio consome --pr/--pr2/--pr-grad (tokens.css); --or é o alias legado
+  document.documentElement.style.setProperty('--pr', cor)
+  document.documentElement.style.setProperty('--pr2', light)
+  document.documentElement.style.setProperty('--or', cor)
   document.documentElement.style.setProperty('--pr-grad', `linear-gradient(135deg,${cor},${light})`)
 
   const logoImg = document.getElementById('headerLogoImg')
@@ -148,8 +152,8 @@ function renderHero() {
   if (headerInfo) {
     const itens = []
     itens.push(`<span class="hinfo-status ${aberta ? 'aberto' : 'fechado'}">${aberta ? 'Aberto' : 'Fechado'}</span>`)
-    if (loja.tempo_entrega) itens.push(`<span class="hinfo-item"><span class="mi" style="font-size:13px;vertical-align:-2px;">schedule</span> ${loja.tempo_entrega}</span>`)
-    if (loja.cidade)        itens.push(`<span class="hinfo-item"><span class="mi" style="font-size:13px;vertical-align:-2px;">place</span> ${loja.cidade}</span>`)
+    if (loja.tempo_entrega) itens.push(`<span class="hinfo-item"><span class="mi" style="font-size:13px;vertical-align:-2px;">schedule</span> ${esc(loja.tempo_entrega)}</span>`)
+    if (loja.cidade)        itens.push(`<span class="hinfo-item"><span class="mi" style="font-size:13px;vertical-align:-2px;">place</span> ${esc(loja.cidade)}</span>`)
     headerInfo.innerHTML = itens.join('')
     headerInfo.style.display = 'flex'
   }
@@ -159,7 +163,7 @@ function renderHero() {
 }
 
 function bannerHtml(b) {
-  return `<div class="banner-promo-card"><img src="${b.foto_url}" class="banner-promo-img" alt="Banner" loading="lazy" onerror="this.style.display='none'"></div>`
+  return `<div class="banner-promo-card"><img src="${esc(b.foto_url)}" class="banner-promo-img" alt="Banner" loading="lazy" onerror="this.style.display='none'"></div>`
 }
 
 function renderBanners() {
@@ -219,12 +223,12 @@ function cardHtml(p) {
   const fit = p.img_fit || 'cover'
   return `<div class="pcard" onclick="abrirItem('${p.id}')">
     <div class="pcard-img">
-      ${p.foto_url ? `<img src="${p.foto_url}" alt="${p.nome}" loading="lazy" data-ph="pcard-img-ph" onerror="imgErr(this)" style="object-fit:${fit};object-position:${pos}">` : `<div class="pcard-img-ph">${prodEmoji(p)}</div>`}
+      ${p.foto_url ? `<img src="${esc(p.foto_url)}" alt="${esc(p.nome)}" loading="lazy" data-ph="pcard-img-ph" onerror="imgErr(this)" style="object-fit:${fit};object-position:${pos}">` : `<div class="pcard-img-ph">${prodEmoji(p)}</div>`}
     </div>
     <div class="pcard-info">
-      <div class="pcard-nome">${p.nome}</div>
+      <div class="pcard-nome">${esc(p.nome)}</div>
       ${selosHtml(p.selos)}
-      <div class="pcard-desc">${p.descricao || ''}</div>
+      <div class="pcard-desc">${esc(p.descricao) || ''}</div>
       <div class="pcard-preco">${fmt(p.preco)}</div>
     </div>
     <button class="pcard-add" onclick="event.stopPropagation();quickAdd('${p.id}')">+</button>
@@ -234,16 +238,16 @@ function cardHtml(p) {
 function featuredHtml(p) {
   return `<div class="featured-card" onclick="abrirItem('${p.id}')">
     <div class="featured-img-wrap">
-      ${p.foto_url ? `<img src="${p.foto_url}" alt="${p.nome}" data-ph="featured-img-ph" onerror="imgErr(this)">` : `<div class="featured-ph">${prodEmoji(p)}</div>`}
+      ${p.foto_url ? `<img src="${esc(p.foto_url)}" alt="${esc(p.nome)}" data-ph="featured-img-ph" onerror="imgErr(this)">` : `<div class="featured-ph">${prodEmoji(p)}</div>`}
       <div class="featured-tag">Mais pedidos 🔥</div>
       <div class="featured-overlay"></div>
       <div class="featured-info">
-        <span class="featured-nome">${p.nome}</span>
+        <span class="featured-nome">${esc(p.nome)}</span>
         <span class="featured-preco-badge">${fmt(p.preco)}</span>
       </div>
     </div>
     <div class="featured-foot">
-      <span class="featured-desc-txt">${p.descricao || ''}</span>
+      <span class="featured-desc-txt">${esc(p.descricao) || ''}</span>
       <button class="featured-add" onclick="event.stopPropagation();quickAdd('${p.id}')">+</button>
     </div>
   </div>`
@@ -251,7 +255,7 @@ function featuredHtml(p) {
 
 function renderCats() {
   let h = `<button class="cat-btn active" onclick="filtrar('todos',this)">Todos</button>`
-  categorias.forEach(c => { h += `<button class="cat-btn" onclick="filtrar('${c.id}',this)">${c.nome}</button>` })
+  categorias.forEach(c => { h += `<button class="cat-btn" onclick="filtrar('${c.id}',this)">${esc(c.nome)}</button>` })
   document.getElementById('catsBar').innerHTML = h
 }
 
@@ -280,7 +284,7 @@ function renderMenu() {
   cats.forEach(cat => {
     const itens = produtos.filter(p => p.categoria_id === cat.id && p.id !== excludeId)
     if (!itens.length) return
-    h += `<div class="sec-hd">${cat.nome}</div>`
+    h += `<div class="sec-hd">${esc(cat.nome)}</div>`
     itens.forEach(p => { h += cardHtml(p) })
   })
   if (!h) h = '<div style="text-align:center;padding:3rem;color:var(--txt3);font-size:0.85rem;">Nenhum item disponível</div>'
@@ -310,36 +314,6 @@ window.filtrar = function(catId, el) {
   renderMenu()
 }
 
-window.buscarProdutos = function(termo) {
-  const clear = document.getElementById('searchClear')
-  if (clear) clear.style.display = termo ? 'block' : 'none'
-  if (!termo.trim()) { renderMenu(); return }
-  const t = termo.toLowerCase().trim()
-  const encontrados = produtos.filter(p => p.nome.toLowerCase().includes(t) || (p.descricao && p.descricao.toLowerCase().includes(t)))
-  let h = ''
-  if (!encontrados.length) {
-    h = `<div style="text-align:center;padding:3rem 1rem;">
-      <div style="font-size:2.5rem;margin-bottom:0.75rem;">🔍</div>
-      <div style="font-size:0.88rem;font-weight:700;color:var(--txt2);">Nenhum produto encontrado</div>
-      <div style="font-size:0.78rem;color:var(--txt3);margin-top:0.35rem;">Tente outro termo</div>
-    </div>`
-  } else {
-    h += `<div class="sec-hd">${encontrados.length} resultado${encontrados.length !== 1 ? 's' : ''} para "${termo}"</div>`
-    encontrados.forEach(p => { h += cardHtml(p) })
-  }
-  const fw = document.getElementById('featuredWrap')
-  if (fw) fw.style.display = 'none'
-  document.getElementById('menuBody').innerHTML = h
-}
-
-window.limparBusca = function() {
-  const inp = document.getElementById('searchInput')
-  if (inp) inp.value = ''
-  const clear = document.getElementById('searchClear')
-  if (clear) clear.style.display = 'none'
-  renderMenu()
-}
-
 window.abrirItem = async function(id) {
   itemAtual = produtos.find(p => p.id === id); qty = 1
   window.APP.itemAtual = itemAtual; window.APP.qty = qty
@@ -351,7 +325,7 @@ window.abrirItem = async function(id) {
   document.getElementById('qtyNum').textContent  = 1
   document.getElementById('imAddBtn').textContent = 'Adicionar ao pedido'
   document.getElementById('imImgWrap').innerHTML  = itemAtual.foto_url
-    ? `<img class="im-img" src="${itemAtual.foto_url}" alt="${itemAtual.nome}" data-ph="im-img-placeholder" onerror="imgErr(this)">`
+    ? `<img class="im-img" src="${esc(itemAtual.foto_url)}" alt="${esc(itemAtual.nome)}" data-ph="im-img-placeholder" onerror="imgErr(this)">`
     : `<div class="im-img-placeholder">🍽️</div>`
   document.getElementById('itemOverlay').classList.add('open')
 }
@@ -382,8 +356,61 @@ window.addCarrinho = function() {
 window.showToast = function(msg) {
   const t = document.getElementById('toastAdd')
   if (!t) return
-  t.innerHTML = `<span class="mi" style="font-size:16px;color:var(--grn);">check_circle</span> ${msg}`
+  t.innerHTML = `<span class="mi" style="font-size:16px;color:var(--grn);">check_circle</span> ${esc(msg)}`
   t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200)
+}
+
+// ─── MEUS PEDIDOS ───────────────────────────────────────────
+const MP_STATUS = {
+  novo:     { lbl: 'Recebido',        cor: 'var(--gold)' },
+  prep:     { lbl: 'Em preparo',      cor: 'var(--pr)' },
+  saiu:     { lbl: 'Saiu p/ entrega', cor: 'var(--blue)' },
+  entregue: { lbl: 'Entregue',        cor: 'var(--grn)' }
+}
+
+window.abrirPedidos = function() {
+  bnavSetActive('bnavPedidos')
+  document.getElementById('pedidosScreen').classList.add('open')
+  const telSalvo = localStorage.getItem('tel_' + lojaId) || ''
+  const inp = document.getElementById('mpTel')
+  if (inp && telSalvo && !inp.value) inp.value = telSalvo
+  if (telSalvo.replace(/\D/g, '').length >= 10) window.buscarMeusPedidos()
+}
+
+window.buscarMeusPedidos = async function() {
+  const inp   = document.getElementById('mpTel')
+  const lista = document.getElementById('mpLista')
+  if (!inp || !lista) return
+  const tel = inp.value.replace(/\D/g, '')
+  if (tel.length < 10) { window.showToast('⚠️ Digite seu celular com DDD'); return }
+
+  lista.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--txt3);font-size:0.85rem;">Buscando seus pedidos...</div>'
+  const pedidos = await buscarPedidosCliente(lojaId, tel)
+  localStorage.setItem('tel_' + lojaId, tel)
+
+  if (!pedidos.length) {
+    lista.innerHTML = `<div style="text-align:center;padding:2.5rem 1rem;">
+      <div style="font-size:3rem;margin-bottom:0.75rem;">🧾</div>
+      <div style="font-size:0.95rem;font-weight:700;color:var(--txt2);margin-bottom:0.35rem;">Nenhum pedido encontrado</div>
+      <div style="font-size:0.8rem;color:var(--txt3);line-height:1.6;">Confira se o celular está correto — é o mesmo usado na hora do pedido.</div>
+    </div>`
+    return
+  }
+
+  lista.innerHTML = pedidos.map(p => {
+    const st  = MP_STATUS[p.status] || { lbl: p.status, cor: 'var(--txt3)' }
+    const data = new Date(p.criado_em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+    return `<div style="background:var(--surf);border-radius:12px;padding:0.85rem 1rem;margin-bottom:0.6rem;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
+      <div style="min-width:0;">
+        <div style="font-size:0.85rem;font-weight:800;color:var(--txt);">#${esc(p.numero || '—')}</div>
+        <div style="font-size:0.72rem;color:var(--txt3);margin-top:0.15rem;">${data}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:0.85rem;font-weight:800;color:var(--pr);">${fmt(p.total)}</div>
+        <div style="font-size:0.7rem;font-weight:700;color:${st.cor};margin-top:0.15rem;">${st.lbl}</div>
+      </div>
+    </div>`
+  }).join('')
 }
 
 window.fecharItem     = () => document.getElementById('itemOverlay').classList.remove('open')
@@ -398,7 +425,7 @@ function bnavSetActive(id) {
 window.bnavIr = function(tab) {
   if (tab === 'cardapio')    { bnavSetActive('bnavCardapio'); window.scrollTo({ top: 0, behavior: 'smooth' }) }
   else if (tab === 'categorias') { bnavSetActive('bnavCategorias'); document.querySelector('.cats-wrap')?.scrollIntoView({ behavior: 'smooth' }) }
-  else if (tab === 'pedidos')    { bnavSetActive('bnavPedidos'); document.getElementById('pedidosScreen').classList.add('open') }
+  else if (tab === 'pedidos')    { window.abrirPedidos() }
   else if (tab === 'perfil')     { bnavSetActive('bnavPerfil'); window.showToast('Perfil em breve') }
 }
 

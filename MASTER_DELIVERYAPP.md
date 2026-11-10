@@ -496,7 +496,90 @@ Leia o MASTER_DELIVERYAPP.md e me diga: o que foi feito, o que está pendente e 
   - `_notificarWAHA()` fire-and-forget em `avancarPedido` e `avancarModalPedido`
 - Documentação WAHA Plus (upgrade path para multi-store) no MASTER
 
-### 🔜 Próxima sessão sugerida
-1. **Rodar `007_waha_config.sql` no Supabase** + configurar WAHA no servidor Oracle
-2. **Acompanhamento do pedido em tempo real** (`acompanhar.html?id=PD-...` com timeline via Realtime)
-3. **Controle de estoque com urgência** (campo `estoque` em `produtos`, badge "Últimas unidades!")
+### ✅ Entregue em 2026-08-19 (sessão 3) — Hardening de segurança, passo 1
+- Auditoria completa de segurança + frontend/design system (relatório na sessão)
+- `sql/008_rls_seguranca.sql` — **rodar no Supabase ANTES do próximo push**:
+  - View `lojas_publicas` (sem `mp_access_token`, `waha_api_key`, `email_dono`) — anon perde acesso à tabela `lojas`
+  - RLS habilitado em todas as 16 tabelas de dados (antes: sem policies)
+  - Policies por papel: anon (catálogo + criar pedido), dono (CRUD própria loja), admin (`is_admin()`)
+  - RPCs security definer: `buscar_cliente_por_telefone`, `obter_numero_pedido`, `confirmar_pagamento`, `registrar_ganho_pontos`
+  - Helpers `is_admin()` / `minha_loja_id()`; trigger do número de pedido com SECURITY DEFINER
+- `js/cardapio.js` — `getLoja()` usa a view + colunas explícitas (nunca mais `select('*')` em lojas)
+- `js/pedidos.js` — UUIDs gerados no cliente (pedido/itens/cliente), fim do `insert().select()`;
+  confirmação de pagamento e fidelidade via RPC; anon sem SELECT em `clientes`/`pedidos` (LGPD + anti-fraude)
+- **⚠️ Ação manual do David:** rodar `sql/008` no SQL Editor do Supabase e depois rotacionar os
+  `mp_access_token` já cadastrados (ficaram expostos — considerar comprometidos)
+
+### ✅ Entregue em 2026-08-19 (sessão 3, continuação) — Passo 2: sanitização XSS
+- `js/utils.js` (novo) — helper global `esc()` de escape HTML; re-exportado em `js/painel/utils.js`
+- Sweep de `innerHTML` em 12 arquivos: app.js, carrinho.js, adicionais.js, pagamento.js,
+  painel-cardapio, painel-config, painel-fidelidade, painel-lgpd, painel-relatorios,
+  painel-extras, painel-modal-produto, admin.js — todo dado do banco/usuário interpolado
+  em HTML agora passa por `esc()`
+- Handlers `onclick` inline não recebem mais nomes do banco (só UUIDs): `toggleAdicional`/
+  `decrementAdicional`/`abrirModalAdd` buscam nome internamente pelo id
+- Bug corrigido de brinde: `decrementAdicional` hardcoded `maxEscolha=1` ao re-renderizar contador
+
+### ✅ Entregue em 2026-08-19 (sessão 3, continuação) — Passo 3: headers + Vercel Functions
+- `vercel.json` — headers de segurança globais: `X-Content-Type-Options`, `X-Frame-Options: DENY`,
+  HSTS, `Referrer-Policy`, `Permissions-Policy`; CSP em modo **Report-Only** (app usa handlers inline —
+  endurecer para enforce só após conferir o console); CORS wildcard `/api/*` removido (chamadas são same-origin)
+- Cache: JS/CSS agora `max-age=0, must-revalidate` (antes `immutable` 1 ano — deploys não chegavam);
+  imagens estáticas 1 dia
+- `api/notificar-whatsapp.js` — exige JWT do lojista (validado via Supabase Auth) + verifica posse da loja;
+  `pedidoId` validado como UUID antes da query (fecha injeção PostgREST); status validado por allowlist
+  antes de tocar no banco; guarda SSRF na `waha_url`; rate limit best-effort 20/min por IP
+- `api/processar-pagamento.js` — validação de UUID em pedidoId/lojaId, parcelas limitadas a 1–12,
+  descrição truncada em 100 chars, rate limit best-effort 10/min por IP (anti-carding), sem `err.stack` nos logs
+- `js/painel/painel-pedidos.js` — `_notificarWAHA` envia o token de sessão no header Authorization
+- **Pendente futuro:** rate limit real com Upstash/Vercel KV; CSP em modo enforce; webhook MP
+
+### ✅ Entregue em 2026-08-19 (sessão 3, continuação) — Passo 4: Design System
+- `tokens.css` (novo) — fonte única de tokens: cores (`--pr`/`--pr2`/`--pr-grad`, bg, txt, feedback),
+  aliases legados (`--or` → `--pr`, `--green` → `--grn`), raios (`--rad-sm/md/lg`) e sombras.
+  Carregado antes do CSS da página em index/painel/admin/pagamento; páginas mantêm só overrides
+  intencionais (painel `--bg2:#fff`, admin/pagamento `--bg:#fff`)
+- `:root` duplicados removidos dos 4 CSS — paleta unificada (verde e vermelho do painel agora
+  iguais aos do cardápio)
+- **Bug corrigido:** `aplicarIdentidade` (app.js) setava `--or`, mas o cardápio consome `--pr` —
+  cor da loja agora aplica de verdade em todos os botões/destaques (seta `--pr`, `--pr2`, `--or`, `--pr-grad`)
+- `painel.html` — removida fonte Material Icons legada (~100KB; painel usa emoji, classe `material-icons`
+  não era usada em lugar nenhum)
+
+### ✅ Entregue em 2026-08-22 (sessão 3, continuação) — Passo 5: Limpeza
+- **Órfãos removidos:** `pagamento.html`, `pagamento.js`, `pagamento-style.css` (raiz) — página
+  nunca linkada com ações falsas
+- **Código morto removido:** `getProdutos`/`getTaxasEntrega` (cardapio.js), busca de produtos
+  (app.js), aliases `const APP = () => window.APP`, stubs vazios de painel-cardapio.js,
+  `atualizarData` (utils.js)
+- **"Meus Pedidos" de verdade:** RPC `buscar_pedidos_cliente` (`sql/009_meus_pedidos.sql`) +
+  tela dinâmica em index.html (celular com máscara → lista de pedidos da loja); telefone fica
+  salvo em localStorage por loja
+- **Taxas de entrega com UI:** card 🛵 em Configurações do painel (listar/adicionar/remover
+  bairros) — a tabela existia sem interface
+- **Admin sem senha padrão:** nova function `api/admin-criar-usuario.js` (POST, exige JWT de
+  admin verificado no banco, senha ≥8, rate limit 5/min, REST GoTrue sem dependência de pacote);
+  `admin.js` chama a function e grava `usuarios.id = auth.uid()` — antes usava signUp com a
+  anon key (senha fixa `123456`, derrubava a sessão do admin e quebrava o RLS). Campo de senha
+  do modal virou `type="password"`
+- **Bug XSS extra corrigido:** `showToast` (app.js) agora escapa a mensagem
+
+### ✅ Entregue em 2026-11-09 (handoff) — correção de dependência
+- `package.json` — adicionada a dependência `@supabase/supabase-js` (`npm install`), pois
+  `api/processar-pagamento.js` importa o pacote dinamicamente e ele não estava declarado.
+  Sem isso, a function de pagamento quebrava em produção na Vercel.
+- Documentação de handoff criada na raiz: `AGENTS.md`, `SESSION-CONTEXT.md`, `MEMORY.md`,
+  `ROADMAP.md` (padrão para qualquer IA assumir o projeto sem este histórico).
+
+### 🔜 Próximos passos (roadmap de hardening)
+1. ~~Passo 2 — XSS~~ ✅ entregue
+2. ~~Passo 3 — API/headers~~ ✅ entregue
+3. ~~Passo 4 — Design system~~ ✅ entregue
+4. ~~Passo 5 — Limpeza~~ ✅ entregue
+5. **Futuro:** webhook Mercado Pago para confirmação real de pagamento; recálculo de preço server-side no pedido
+6. **Pendente da sessão 2:** rodar `007_waha_config.sql` no Supabase + configurar WAHA no servidor Oracle
+7. **Ações manuais pendentes:** rodar `sql/008_rls_seguranca.sql` e `sql/009_meus_pedidos.sql` no
+   Supabase **antes** do deploy; conferir `usuarios.id = auth.users.id` dos usuários existentes
+   (detalhes em `SESSION-CONTEXT.md`). Mercado Pago fica para configurar depois — não bloqueia
+   o deploy (PIX manual e dinheiro funcionam sem MP)
+8. Features de produto: acompanhamento em tempo real, controle de estoque (ver seção 15)

@@ -3,7 +3,7 @@
 import { supabase }      from '../supabase.js'
 import { escutarPedidos } from '../pedidos.js'
 import { getTodosProdutos, getTodasCategorias } from '../cardapio.js'
-import { atualizarData, toast }  from './utils.js'
+import { toast }  from './utils.js'
 import { renderPedidos, setPedidos, getPedidos, abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp, notificarCliente, pedirAvaliacao, toggleConcluidos } from './painel-pedidos.js'
 import { renderCardapio, setDados as setDadosCardapio,
   toggleCat, toggleCatAtiva, moverCat, toggleProd, confirmarDelProd,
@@ -13,8 +13,6 @@ import { renderCardapio, setDados as setDadosCardapio,
   abrirModalProd, fecharModalProd,
   abrirModalAdd, fecharModalAdd, salvarAdicionais,
   initBtnNovoGrupo,
-  addNovoGrupo, addItemGrupo, removerGrupo, removerItemGrupo,
-  delProdDaCat, toggleNovaCatForm,
   adicionarUpsell, removerUpsell,
   adicionarDestaque, removerDestaque,
   adicionarBanner, removerBanner
@@ -37,14 +35,13 @@ exp({
   abrirDetalhes, avancarPedido, avancarModalPedido, chamarWpp, notificarCliente, pedirAvaliacao, toggleConcluidos,
   fecharDetalhes: () => document.getElementById('modalDetalhes').classList.remove('open'),
   // cardápio
-  toggleCat, toggleNovaCatForm, toggleCatAtiva, moverCat,
+  toggleCat, toggleCatAtiva, moverCat,
   toggleProd, confirmarDelProd, abrirNovoEp, abrirNovoEpNaCat,
   openEp, closeEp, deletarProduto, handleImgUpload, saveEp,
-  openEc, closeEc, salvarCategoria, deletarCategoria, delProdDaCat,
+  openEc, closeEc, salvarCategoria, deletarCategoria,
   abrirModalCat, fecharModalCat, selecionarTipoCat,
   abrirModalProd, fecharModalProd,
   abrirModalAdd, fecharModalAdd, salvarAdicionais,
-  addNovoGrupo, addItemGrupo, removerGrupo, removerItemGrupo,
   // fidelidade
   mostrarCamposPontuacao, mostrarCampoRecompensa, toggleFidelidade,
   salvarFidelidade, criarCupom, toggleCupom, deletarCupom, enviarTransmissao,
@@ -97,7 +94,6 @@ async function init() {
   if (btnSair) btnSair.onclick = sair
 
   atualizarBotaoStatus()
-  setInterval(atualizarData, 60000)
   setInterval(() => { if (tabAtual === 'pedidos') renderPedidos() }, 60000)
 
   await carregarDados()

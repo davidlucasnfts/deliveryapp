@@ -1,7 +1,7 @@
 // js/painel/painel-relatorios.js
 
 import { supabase } from '../supabase.js'
-import { fmt } from './utils.js'
+import { fmt, esc } from './utils.js'
 
 let _lojaId = null
 let _periodo = 'hoje'
@@ -87,7 +87,7 @@ function renderHTML(pd) {
       <div class="rel-sec-title">🏆 Mais vendidos</div>
       ${topProds.map(([nome, q]) => `
         <div class="rel-bar-row">
-          <div class="rel-bar-nome">${nome}</div>
+          <div class="rel-bar-nome">${esc(nome)}</div>
           <div class="rel-bar-wrap"><div class="rel-bar-fill" style="width:${Math.round(q / maxProd * 100)}%"></div></div>
           <div class="rel-bar-val">${q}x</div>
         </div>`).join('')}
@@ -98,7 +98,7 @@ function renderHTML(pd) {
       <div class="rel-sec-title">📍 Bairros que mais pedem</div>
       ${topBairros.map(([nome, q]) => `
         <div class="rel-bar-row">
-          <div class="rel-bar-nome">${nome}</div>
+          <div class="rel-bar-nome">${esc(nome)}</div>
           <div class="rel-bar-wrap"><div class="rel-bar-fill rel-bar-fill--grn" style="width:${Math.round(q / maxBairro * 100)}%"></div></div>
           <div class="rel-bar-val">${q}</div>
         </div>`).join('')}

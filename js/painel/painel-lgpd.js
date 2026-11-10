@@ -1,7 +1,7 @@
 // js/painel/painel-lgpd.js — gestão de dados pessoais (LGPD art. 18)
 
 import { supabase } from '../supabase.js'
-import { toast } from './utils.js'
+import { toast, esc } from './utils.js'
 
 let _lojaId = null
 export function setLojaLGPD(id) { _lojaId = id }
@@ -33,9 +33,9 @@ export async function buscarClienteLGPD() {
 
   res.innerHTML = `
     <div class="lgpd-card">
-      <div class="lgpd-row"><strong>${c.nome}</strong></div>
-      <div class="lgpd-row">📱 ${c.telefone}</div>
-      <div class="lgpd-row">📍 ${addr}</div>
+      <div class="lgpd-row"><strong>${esc(c.nome)}</strong></div>
+      <div class="lgpd-row">📱 ${esc(c.telefone)}</div>
+      <div class="lgpd-row">📍 ${esc(addr)}</div>
       <div class="lgpd-meta">Pedidos: ${c.total_pedidos || 0} · Consentimento: ${consent}</div>
       <button class="lgpd-del-btn" onclick="anonimizarClienteLGPD('${c.id}')">🗑️ Anonimizar dados pessoais</button>
     </div>`

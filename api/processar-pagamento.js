@@ -2,13 +2,25 @@
 // SEGURANÇA: recebe só o pedidoId do cliente. Busca itens no banco e
 // recalcula o total aqui no servidor. Isso impede fraude via DevTools.
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+// Rate limit best-effort por IP (memória da instância — reseta em cold start;
+// anti-carding real exige store externo tipo Upstash — passo futuro)
+const _rl = new Map()
+function rateLimitOk(ip, max = 10, janelaMs = 60000) {
+  const agora = Date.now()
+  const hits = (_rl.get(ip) || []).filter(t => agora - t < janelaMs)
+  if (hits.length >= max) { _rl.set(ip, hits); return false }
+  hits.push(agora); _rl.set(ip, hits); return true
+}
+
 export default async function handler(req, res) {
-  // CORS
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  // Sem CORS wildcard — a function é chamada apenas same-origin pelo cardápio
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST')    return res.status(405).json({ error: 'Método não permitido' })
+
+  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown'
+  if (!rateLimitOk(ip)) return res.status(429).json({ error: 'Muitas tentativas. Aguarde um instante.' })
 
   const tLog = Date.now()
 
@@ -20,6 +32,11 @@ export default async function handler(req, res) {
     if (!pedidoId)           return res.status(400).json({ error: 'ID do pedido ausente' })
     if (!lojaId)             return res.status(400).json({ error: 'Loja não identificada' })
     if (!payment_method_id)  return res.status(400).json({ error: 'Método de pagamento ausente' })
+    if (!UUID_RE.test(pedidoId)) return res.status(400).json({ error: 'ID do pedido inválido' })
+    if (!UUID_RE.test(lojaId))   return res.status(400).json({ error: 'ID da loja inválido' })
+
+    // Parcelas: inteiro entre 1 e 12
+    const numParcelas = Math.min(12, Math.max(1, parseInt(parcelas, 10) || 1))
 
     const { createClient } = await import('@supabase/supabase-js')
     const supabase = createClient(
@@ -90,8 +107,8 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         transaction_amount: valor,                      // <- VEIO DO BANCO
         token,
-        description:        descricao || `Pedido — ${loja.nome}`,
-        installments:       parcelas || 1,
+        description:        String(descricao || `Pedido — ${loja.nome}`).slice(0, 100),
+        installments:       numParcelas,
         payment_method_id,
         external_reference: pedidoId,                   // <- rastreia no MP
         payer: {
@@ -143,7 +160,7 @@ export default async function handler(req, res) {
     })
 
   } catch (err) {
-    console.error(`[LOG ${tLog}] Erro interno:`, err.message, err.stack)
+    console.error(`[LOG ${tLog}] Erro interno:`, err.message)
     return res.status(500).json({ error: 'Erro interno. Tente novamente em instantes.' })
   }
 }

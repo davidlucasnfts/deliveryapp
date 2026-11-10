@@ -169,9 +169,15 @@ export function abrirDetalhes(id) {
 }
 
 async function _notificarWAHA(id, novoStatus) {
+  // Function exige JWT do lojista (hardening 2026-08-19)
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.access_token) return
   fetch('/api/notificar-whatsapp', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`
+    },
     body: JSON.stringify({ pedidoId: id, novoStatus }),
   }).catch(() => {})
 }

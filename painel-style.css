@@ -1,4 +1,5 @@
-:root{--or:#E85000;--pr-grad:linear-gradient(135deg,#E85000,#FF7A30);--bg:#FFFCF7;--bg2:#fff;--bg3:#F0EEE8;--txt:#2d2f31;--txt2:#4a4c4e;--txt3:#6b6d6f;--grn:#16A34A;--red:#DC2626;--rad:12px;}
+/* Tokens: tokens.css (carregado antes). Override local: bg2 branco no painel. */
+:root{--bg2:#fff;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);font-family:'Plus Jakarta Sans',sans-serif;color:var(--txt);min-height:100vh;overflow-x:hidden;}
 

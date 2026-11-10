@@ -1,7 +1,7 @@
 // js/painel/painel-extras.js — destaques, upsell, banners
 
 import { supabase } from '../supabase.js'
-import { fmt, toast, comprimirImagem } from './utils.js'
+import { fmt, toast, comprimirImagem, esc } from './utils.js'
 import { getLoja, getProdutos, renderCardapio } from './painel-cardapio.js'
 
 let _banners = []
@@ -20,10 +20,10 @@ export function renderDestaqueAdmin() {
     ? selecionados.map(p => `
       <div style="display:flex;align-items:center;gap:0.65rem;padding:0.5rem 0;border-bottom:1px solid #F9FAFB;">
         <div style="width:40px;height:40px;border-radius:9px;background:#F0EEE8;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;overflow:hidden;">
-          ${p.foto_url ? `<img src="${p.foto_url}" style="width:40px;height:40px;object-fit:cover;border-radius:9px;">` : '🍽️'}
+          ${p.foto_url ? `<img src="${esc(p.foto_url)}" style="width:40px;height:40px;object-fit:cover;border-radius:9px;">` : '🍽️'}
         </div>
         <div style="flex:1;min-width:0;">
-          <div style="font-size:0.82rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.nome}</div>
+          <div style="font-size:0.82rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(p.nome)}</div>
           <div style="font-size:0.75rem;color:var(--or);font-weight:700;">${fmt(p.preco)}</div>
         </div>
         <button onclick="removerDestaque('${p.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;border-radius:7px;padding:0.25rem 0.6rem;cursor:pointer;font-size:0.75rem;font-weight:700;flex-shrink:0;">Remover</button>
@@ -31,7 +31,7 @@ export function renderDestaqueAdmin() {
     : `<div style="font-size:0.78rem;color:var(--txt3);text-align:center;padding:0.75rem 0;">Nenhum produto em destaque ainda</div>`
 
   const opcoesSelect = disponiveis.map(p =>
-    `<option value="${p.id}">${p.nome} — ${fmt(p.preco)}</option>`
+    `<option value="${p.id}">${esc(p.nome)} — ${fmt(p.preco)}</option>`
   ).join('')
 
   return `
@@ -61,10 +61,10 @@ export function renderUpsellAdmin() {
     ? selecionados.map(p => `
       <div style="display:flex;align-items:center;gap:0.65rem;padding:0.5rem 0;border-bottom:1px solid #F9FAFB;">
         <div style="width:40px;height:40px;border-radius:9px;background:#FEF3C7;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;overflow:hidden;">
-          ${p.foto_url ? `<img src="${p.foto_url}" style="width:40px;height:40px;object-fit:cover;border-radius:9px;">` : '🍽️'}
+          ${p.foto_url ? `<img src="${esc(p.foto_url)}" style="width:40px;height:40px;object-fit:cover;border-radius:9px;">` : '🍽️'}
         </div>
         <div style="flex:1;min-width:0;">
-          <div style="font-size:0.82rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.nome}</div>
+          <div style="font-size:0.82rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(p.nome)}</div>
           <div style="font-size:0.75rem;color:var(--or);font-weight:700;">${fmt(p.preco)}</div>
         </div>
         <button onclick="removerUpsell('${p.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;border-radius:7px;padding:0.25rem 0.6rem;cursor:pointer;font-size:0.75rem;font-weight:700;flex-shrink:0;">Remover</button>
@@ -72,7 +72,7 @@ export function renderUpsellAdmin() {
     : `<div style="font-size:0.78rem;color:var(--txt3);text-align:center;padding:0.75rem 0;">Nenhum produto adicionado ainda</div>`
 
   const opcoesSelect = disponiveis.map(p =>
-    `<option value="${p.id}">${p.nome} — ${fmt(p.preco)}</option>`
+    `<option value="${p.id}">${esc(p.nome)} — ${fmt(p.preco)}</option>`
   ).join('')
 
   return `
@@ -97,7 +97,7 @@ export function renderBannerAdmin() {
   const listaHTML = _banners.length
     ? _banners.map(b => `
       <div style="display:flex;align-items:center;gap:0.65rem;padding:0.5rem 0;border-bottom:1px solid #F9FAFB;">
-        <img src="${b.foto_url}" style="width:72px;height:40px;object-fit:cover;border-radius:7px;flex-shrink:0;background:#F0EEE8;">
+        <img src="${esc(b.foto_url)}" style="width:72px;height:40px;object-fit:cover;border-radius:7px;flex-shrink:0;background:#F0EEE8;">
         <div style="flex:1;font-size:0.78rem;color:var(--txt2);">Banner ${_banners.indexOf(b)+1}</div>
         <button onclick="removerBanner('${b.id}')" style="background:#FEE2E2;color:#B91C1C;border:none;border-radius:7px;padding:0.25rem 0.6rem;cursor:pointer;font-size:0.75rem;font-weight:700;flex-shrink:0;">Remover</button>
       </div>`).join('')

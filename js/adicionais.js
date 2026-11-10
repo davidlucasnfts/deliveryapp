@@ -1,8 +1,16 @@
 // js/adicionais.js — modal de adicionais e confirmação
 // Usa variáveis globais do index.html via window
 
-const APP = () => window.APP
+import { esc } from './utils.js'
+
 const fmt = v => 'R$' + Number(v).toFixed(2).replace('.', ',')
+
+// Busca item pelo id nos grupos carregados — handlers inline só passam IDs (UUIDs),
+// nunca nome/preço, para não interpolar dado do banco em atributo onclick
+function _findItem(grupoId, itemId){
+  const grupo=(window.APP.addGruposAtual||[]).find(g=>g.id===grupoId)
+  return grupo ? (grupo.itens||[]).find(i=>i.id===itemId) : null
+}
 
 export function abrirAdicionais(produto, grupos){
   window.APP.addProdutoAtual=produto; window.APP.addGruposAtual=grupos; window.APP.addSelecionados={}; window.APP.addQty=1
@@ -13,7 +21,7 @@ export function abrirAdicionais(produto, grupos){
   document.getElementById('addProdPreco').textContent=fmt(produto.preco)
   document.getElementById('addProdDesc').textContent=produto.descricao||''
   document.getElementById('addFotoWrap').innerHTML=produto.foto_url
-    ?`<img class="add-prod-foto" src="${produto.foto_url}" alt="${produto.nome}" loading="lazy" data-ph="add-prod-foto-ph" onerror="imgErr(this)">`
+    ?`<img class="add-prod-foto" src="${esc(produto.foto_url)}" alt="${esc(produto.nome)}" loading="lazy" data-ph="add-prod-foto-ph" onerror="imgErr(this)">`
     :`<div class="add-prod-foto-ph">🍽️</div>`
   document.getElementById('addQtyNum').textContent=1
 
@@ -27,7 +35,7 @@ export function abrirAdicionais(produto, grupos){
     h+=`<div class="add-grupo">
       <div class="add-grupo-hd">
         <div class="add-grupo-info">
-          <div class="add-grupo-titulo">${grupo.nome}</div>
+          <div class="add-grupo-titulo">${esc(grupo.nome)}</div>
           <div class="add-grupo-sub">${subTxt}</div>
         </div>
         <span class="add-grupo-badge ${grupo.obrigatorio?'obrig':'opcao'}">${grupo.obrigatorio?'Obrigatório':'Opcional'}</span>
@@ -35,10 +43,10 @@ export function abrirAdicionais(produto, grupos){
       <div class="add-grupo-body">`
     grupo.itens.forEach(item=>{
       if(isRadio){
-        h+=`<div class="add-item" onclick="toggleAdicional('${grupo.id}','${item.id}',${grupo.max_escolha},${item.preco},'${item.nome.replace(/'/g,"\'")}')">
+        h+=`<div class="add-item" onclick="toggleAdicional('${grupo.id}','${item.id}',${grupo.max_escolha})">
           <div class="add-item-foto">🍽️</div>
           <div class="add-item-info">
-            <div class="add-item-nome">${item.nome}</div>
+            <div class="add-item-nome">${esc(item.nome)}</div>
             <div class="add-item-max">Máx ${grupo.max_escolha}</div>
             ${item.preco>0?`<div class="add-item-preco">+${fmt(item.preco)}</div>`:``}
           </div>
@@ -50,13 +58,13 @@ export function abrirAdicionais(produto, grupos){
         h+=`<div class="add-item">
           <div class="add-item-foto">🍽️</div>
           <div class="add-item-info">
-            <div class="add-item-nome">${item.nome}</div>
+            <div class="add-item-nome">${esc(item.nome)}</div>
             <div class="add-item-max">Máx ${grupo.max_escolha}</div>
             ${item.preco>0?`<div class="add-item-preco">+${fmt(item.preco)}</div>`:``}
           </div>
           <div class="add-item-ctrl" id="ctrl_wrap_${item.id}">
             <button class="add-ctrl-mais" id="ctrl_${item.id}"
-              onclick="toggleAdicional('${grupo.id}','${item.id}',${grupo.max_escolha},${item.preco},'${item.nome.replace(/'/g,"\'")}')">+</button>
+              onclick="toggleAdicional('${grupo.id}','${item.id}',${grupo.max_escolha})">+</button>
           </div>
         </div>`
       }
@@ -75,7 +83,10 @@ export function fecharAdicionais(){
   document.getElementById('addOverlay').classList.remove('open')
   window.APP.addProdutoAtual=null; window.APP.addGruposAtual=[]; window.APP.addSelecionados={}
 }
-export function toggleAdicional(grupoId,itemId,maxEscolha,preco,nome){
+export function toggleAdicional(grupoId,itemId,maxEscolha){
+  const item=_findItem(grupoId,itemId)
+  if(!item) return
+  const preco=item.preco, nome=item.nome
   if(!window.APP.addSelecionados[grupoId]) window.APP.addSelecionados[grupoId]=[]
   const idx=window.APP.addSelecionados[grupoId].findIndex(x=>x.id===itemId)
 
@@ -113,20 +124,20 @@ export function toggleAdicional(grupoId,itemId,maxEscolha,preco,nome){
     if(ctrlWrap){
       if(qtdAtual>0){
         ctrlWrap.innerHTML=`<div class="add-ctrl-counter">
-          <button class="add-ctrl-menos" onclick="event.stopPropagation();decrementAdicional('${grupoId}','${itemId}',${preco},'${nome}')">−</button>
+          <button class="add-ctrl-menos" onclick="event.stopPropagation();decrementAdicional('${grupoId}','${itemId}',${maxEscolha})">−</button>
           <span>${qtdAtual}</span>
-          <button class="add-ctrl-mais ativo" onclick="event.stopPropagation();toggleAdicional('${grupoId}','${itemId}',${maxEscolha},${preco},'${nome}')">+</button>
+          <button class="add-ctrl-mais ativo" onclick="event.stopPropagation();toggleAdicional('${grupoId}','${itemId}',${maxEscolha})">+</button>
         </div>`
       } else {
         ctrlWrap.innerHTML=`<button class="add-ctrl-mais" id="ctrl_${itemId}"
-          onclick="toggleAdicional('${grupoId}','${itemId}',${maxEscolha},${preco},'${nome}')">+</button>`
+          onclick="toggleAdicional('${grupoId}','${itemId}',${maxEscolha})">+</button>`
       }
     }
   }
   atualizarTotalAdd()
   atualizarBotaoAdd()
 }
-export function decrementAdicional(grupoId,itemId,preco,nome){
+export function decrementAdicional(grupoId,itemId,maxEscolha){
   if(!window.APP.addSelecionados[grupoId]) return
   const idx=window.APP.addSelecionados[grupoId].findIndex(x=>x.id===itemId)
   if(idx<0) return
@@ -137,12 +148,12 @@ export function decrementAdicional(grupoId,itemId,preco,nome){
   if(ctrlWrap){
     if(qtdAtual>0){
       ctrlWrap.innerHTML=`<div class="add-ctrl-counter">
-        <button class="add-ctrl-menos" onclick="event.stopPropagation();decrementAdicional('${grupoId}','${itemId}',${preco},'${nome}')">−</button>
+        <button class="add-ctrl-menos" onclick="event.stopPropagation();decrementAdicional('${grupoId}','${itemId}',${maxEscolha})">−</button>
         <span>${qtdAtual}</span>
-        <button class="add-ctrl-mais ativo" onclick="event.stopPropagation();toggleAdicional('${grupoId}','${itemId}',1,${preco},'${nome}')">+</button>
+        <button class="add-ctrl-mais ativo" onclick="event.stopPropagation();toggleAdicional('${grupoId}','${itemId}',${maxEscolha})">+</button>
       </div>`
     } else {
-      ctrlWrap.innerHTML=`<button class="add-ctrl-mais" onclick="toggleAdicional('${grupoId}','${itemId}',1,${preco},'${nome}')">+</button>`
+      ctrlWrap.innerHTML=`<button class="add-ctrl-mais" onclick="toggleAdicional('${grupoId}','${itemId}',${maxEscolha})">+</button>`
     }
   }
   atualizarTotalAdd()

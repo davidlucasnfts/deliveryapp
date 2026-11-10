@@ -1,0 +1,41 @@
+/* ============================================================================
+   tokens.css — Design System do DeliveryApp (fonte única de tokens)
+   Carregar ANTES do CSS da página: <link rel="stylesheet" href="tokens.css">
+   Páginas podem sobrescrever tokens no próprio :root (cascade: página vence).
+   ============================================================================ */
+:root {
+  /* Cor principal (identidade da loja sobrescreve via JS em runtime) */
+  --pr:  #E85000;
+  --pr2: #FF7A30;
+  --or:  var(--pr); /* alias legado — painel/admin/pagamento usam --or */
+  --pr-grad: linear-gradient(135deg, #E85000, #FF7A30);
+
+  /* Fundos e superfícies */
+  --bg:   #FFFCF7;
+  --bg2:  #F6F3EE;
+  --bg3:  #F0EEE8;
+  --bg4:  #EAE8E2;
+  --surf: #ffffff;
+  --card-bg: #ffffff;
+
+  /* Texto */
+  --txt:  #2d2f31;
+  --txt2: #4a4c4e;
+  --txt3: #6b6d6f;
+
+  /* Feedback */
+  --grn:  #22C55E;
+  --green: var(--grn); /* alias legado */
+  --red:  #EF4444;
+  --gold: #F59E0B;
+  --blue: #3B82F6;
+
+  /* Raios de borda */
+  --rad-sm: 8px;
+  --rad:    12px;
+  --rad-lg: 16px;
+
+  /* Sombras */
+  --shadow:    0 12px 24px rgba(45, 47, 49, 0.06);
+  --shadow-lg: 0 12px 32px rgba(45, 47, 49, 0.10);
+}

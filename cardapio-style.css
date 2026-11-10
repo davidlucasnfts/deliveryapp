@@ -1,14 +1,5 @@
     *{box-sizing:border-box;margin:0;padding:0;}
-    :root{
-      --pr:#E85000;--pr2:#FF7A30;
-      --pr-grad:linear-gradient(135deg,#E85000,#FF7A30);
-      --bg:#FFFCF7;--bg2:#F6F3EE;--bg3:#F0EEE8;--bg4:#EAE8E2;
-      --txt:#2d2f31;--txt2:#4a4c4e;--txt3:#6b6d6f;
-      --grn:#22C55E;--red:#EF4444;--gold:#F59E0B;
-      --surf:#ffffff;
-      --shadow:0 12px 24px rgba(45,47,49,0.06);
-      --shadow-lg:0 12px 32px rgba(45,47,49,0.10);
-    }
+    /* Tokens de cor/sombra/raio: tokens.css (carregado antes deste arquivo) */
     html{scroll-behavior:smooth;}
     body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;max-width:480px;margin:0 auto;position:relative;overflow-x:hidden;padding-bottom:62px;}
     img{max-width:100%;display:block;}
